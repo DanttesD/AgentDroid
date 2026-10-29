@@ -25,4 +25,4 @@ Not verified: the workflow itself (needs GitHub; build takes hours), and that th
 
 Open (next: 1.5)
 - Own apt repository + signing key + termux-keyring, otherwise `pkg install` inside the app has no source (only packages baked into the bootstrap work).
-- Replace OWNER/REPO in bootstrap/fork.env.
+- (done) repo set to DanttesD/AgentDroid.
