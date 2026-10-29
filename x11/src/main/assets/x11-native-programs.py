@@ -348,7 +348,7 @@ def main():
  target=os.environ.get('JOBS_X11_NATIVE_TARGET','');args=sys.argv[1:]
  if target not in GROUPS or not args:raise ValueError('invalid native desktop request')
  prefix=Path(os.environ['PREFIX']) if target=='termux' else None
- if prefix and (str(prefix)!='/data/data/com.termux/files/usr' or Path.home()!=prefix.parent/'home'):raise ValueError('invalid Termux paths')
+ if prefix and (str(prefix)!='/data/data/com.agentdroid/files/usr' or Path.home()!=prefix.parent/'home'):raise ValueError('invalid Termux paths')
  op=args[0];id=args[1] if len(args)>1 else ''
  if op=='repair-launchers':repair(target,prefix);return
  if op=='firefox-dns-on' and GROUPS[target]['browser'][0] not in installed(target):raise ValueError('Firefox is not installed in this environment')

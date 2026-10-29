@@ -13,7 +13,7 @@ import urllib.error
 import urllib.request
 
 BASE = 'https://github.com/HezeAI/termux-jobs-components/releases/download/x11-extras-20261025/'
-EXPECTED_PREFIX = '/data/data/com.termux/files/usr'
+EXPECTED_PREFIX = '/data/data/com.agentdroid/files/usr'
 SPECS = {
     'default-driver': ('Turnip-a6xx-a7xx-a8xx.zip', 'ce35642c5d93ecdfa08b730f80fd738ad71b473cdd7aa3dc58c37d2e6b1e984f', 3507242),
     'kali-style': ('x11-style.zip', '6bc19721d09cb5d16b5ee5df6f2758da9653a88e0211dd81ef5fcb408386aec0', 1830990),

@@ -83,7 +83,7 @@ if __name__=='__main__':
   op,archive=sys.argv[1:]
   if op not in ('check','install'):raise ValueError('VIRGL_CLIENT_ARGUMENT')
   prefix=Path(os.environ['PREFIX'])
-  if str(prefix)!='/data/data/com.termux/files/usr':raise ValueError('VIRGL_CLIENT_PREFIX')
+  if str(prefix)!='/data/data/com.agentdroid/files/usr':raise ValueError('VIRGL_CLIENT_PREFIX')
   prepare(prefix.parent/'workspace-x11-virgl-alpine',Path(archive),op=='install')
   print('JOBS_VIRGL_CLIENT='+NAME)
  except (OSError,ValueError,KeyError,zipfile.BadZipFile) as e:

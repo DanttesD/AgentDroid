@@ -50,7 +50,7 @@ public final class X11StartupLog {
   if(s.contains("gpgrt_nvc_parse")&&(s.contains("symbol")||s.contains("undefined")))add("LIBRARY_ABI_MISMATCH=libgpg-error-nvc");
   if(s.contains("libpoppler-glib.so")&&(s.contains("not found")||s.contains("cannot open")))add("OPTIONAL_COMPONENT_MISSING=pdf-thumbnails");
   if(s.contains("warning:x11_input_component_unavailable"))add("AUTOMATIC_INPUT_COMPONENT_UNAVAILABLE");
-  if(s.contains("/data/data/com.termux/files/usr/bin/"))for(String name:new String[]{"fcitx5","gpgconf","gpg-agent","ssh-agent","dbus-daemon"})if(s.contains("/data/data/com.termux/files/usr/bin/"+name))add("TERMUX_EXECUTABLE="+name);
+  if(s.contains("/data/data/com.agentdroid/files/usr/bin/"))for(String name:new String[]{"fcitx5","gpgconf","gpg-agent","ssh-agent","dbus-daemon"})if(s.contains("/data/data/com.agentdroid/files/usr/bin/"+name))add("TERMUX_EXECUTABLE="+name);
 
   if(s.contains("glycin")&&(s.contains("bwrap")||s.contains("loader process exited early")))add("GLYCIN_IMAGE_SANDBOX_FAILED");
   if(s.contains("gtkiconhelper")||s.contains("default_icon_at_size")||s.contains("failed to load")&&s.contains("image-missing"))add("DESKTOP_ICON_LOAD_FAILED");

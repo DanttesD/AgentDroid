@@ -5,7 +5,7 @@ op=${1:-};target=${2:-};control=${3:-}
 [[ $op == check || $op == install ]] || exit 2
 case $target in termux|ubuntu|debian|alpine|fedora|opensuse|void|archlinux) ;; *) echo ERROR:VIRGL_TARGET;exit 2;;esac
 : "${PREFIX:?}"
-[[ $PREFIX == /data/data/com.termux/files/usr ]] || exit 2
+[[ $PREFIX == /data/data/com.agentdroid/files/usr ]] || exit 2
 fail() {
  # Only our own readiness marker. Never delete package data or another target.
  local directory="${PREFIX%/usr}/workspace-x11-virgl-$target"

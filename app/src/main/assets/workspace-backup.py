@@ -362,7 +362,7 @@ def scan_tar(path):
                 base = name.rsplit('/', 1)[-1]
                 if name.endswith('var/lib/dpkg/status') and m.size <= 32*1024*1024:
                     packages[name]=status_packages(content(tar,m,32*1024*1024).decode('utf-8','replace'))
-                elif name in ('workspace-v1.json','home/.termux/workspace-v1.json','data/data/com.termux/files/workspace-v1.json','data/user/0/com.termux/files/workspace-v1.json'):
+                elif name in ('workspace-v1.json','home/.termux/workspace-v1.json','data/data/com.agentdroid/files/workspace-v1.json','data/user/0/com.termux/files/workspace-v1.json'):
                     workspace = libraries(json.loads(content(tar, m, MAX_JSON)))
                 elif base in ('.bashrc', '.zshrc', '.bash_aliases') and m.size <= 256 * 1024:
                     text = content(tar, m, 256 * 1024).decode('utf-8', 'replace')
@@ -1084,7 +1084,7 @@ def create(request):
         if scope['type']=='ubuntu': meta['components'][-1]['environmentAlias']=scope['id'].split(':',1)[1]
     # The helper is a known app asset; never copy a script from an imported archive for execution.
     shutil.copyfile(__file__, out / 'backup-tool.py')
-    protected_write(out / 'restore.sh', b'''#!/data/data/com.termux/files/usr/bin/bash
+    protected_write(out / 'restore.sh', b'''#!/data/data/com.agentdroid/files/usr/bin/bash
 set -euo pipefail
 cd -- "$(dirname -- "$0")"
 command -v python3 >/dev/null || { echo 'Install Python first: pkg install python'; exit 1; }
@@ -1593,7 +1593,7 @@ def apt_plan(request):
 
 
 def wizard(manifest):
-    prefix = os.environ.get('PREFIX', '/data/data/com.termux/files/usr')
+    prefix = os.environ.get('PREFIX', '/data/data/com.agentdroid/files/usr')
     home = str(Path.home())
     req = dict(path=str(Path(manifest).resolve()), prefix=prefix, home=home)
     result = inspect(req)

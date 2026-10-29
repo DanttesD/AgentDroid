@@ -10,7 +10,7 @@ import static org.junit.Assert.*;
 public class ServerSftpTest {
     private Path directory;private ServerSftp client;
     @Before public void setup()throws Exception{
-        String executable="/data/data/com.termux/files/usr/libexec/sftp-server";
+        String executable="/data/data/com.agentdroid/files/usr/libexec/sftp-server";
         Assume.assumeTrue("Local SFTP subsystem unavailable",new File(executable).canExecute());
         directory=Files.createTempDirectory(Paths.get("build"),"sftp-test-");Process process=new ProcessBuilder(executable).redirectError(new File("/dev/null")).start();
         client=new ServerSftp(process.getInputStream(),process.getOutputStream(),process::destroy);
@@ -40,7 +40,7 @@ public class ServerSftpTest {
     }
     @Test public void cancellationLeavesOnlyIdentifiedTemporaryAndCanCleanIt()throws Exception{
         try{client.upload(new ByteArrayInputStream(new byte[65536]),path(),"new",client.stat(path()+"/new"),b->{client.close();throw new java.util.concurrent.CancellationException();});fail();}catch(java.util.concurrent.CancellationException expected){}
-        assertFalse(Files.exists(directory.resolve("new")));String temp=client.pendingTemp();assertNotNull(temp);Process p=new ProcessBuilder("/data/data/com.termux/files/usr/libexec/sftp-server").redirectError(new File("/dev/null")).start();try(ServerSftp cleanup=new ServerSftp(p.getInputStream(),p.getOutputStream(),p::destroy)){cleanup.removeTemporary(temp);try{cleanup.removeTemporary(path()+"/real");fail();}catch(IOException expected){assertEquals("INVALID_PATH",expected.getMessage());}}assertEquals(0,temporaryCount());
+        assertFalse(Files.exists(directory.resolve("new")));String temp=client.pendingTemp();assertNotNull(temp);Process p=new ProcessBuilder("/data/data/com.agentdroid/files/usr/libexec/sftp-server").redirectError(new File("/dev/null")).start();try(ServerSftp cleanup=new ServerSftp(p.getInputStream(),p.getOutputStream(),p::destroy)){cleanup.removeTemporary(temp);try{cleanup.removeTemporary(path()+"/real");fail();}catch(IOException expected){assertEquals("INVALID_PATH",expected.getMessage());}}assertEquals(0,temporaryCount());
     }
     @Test public void malformedAndOversizedPacketsFailClosed()throws Exception{
         for(byte[] data:new byte[][]{{0,0,0,0},{0,16,0,0},{0,0,0,5,2,0,0,0,4}}){try{new ServerSftp(new ByteArrayInputStream(data),new ByteArrayOutputStream(),()->{});fail();}catch(IOException expected){}}

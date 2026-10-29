@@ -107,7 +107,7 @@ public class WorkspaceStoreTest {
         command.category = "Сборка"; command.directory = "~/проект с пробелами"; command.favorite = true;
         first.commands.add(command);
         WorkspaceStore.Session session = new WorkspaceStore.Session();
-        session.name = "Codex"; session.directory = "/data/data/com.termux/files/home/project";
+        session.name = "Codex"; session.directory = "/data/data/com.agentdroid/files/home/project";
         session.startup = "codex"; session.handle = "old-runtime-handle";
         first.sessions.add(session); first.save(); first.awaitWrites(); first.close();
         WorkspaceStore reopened = new WorkspaceStore(context, errors::add);

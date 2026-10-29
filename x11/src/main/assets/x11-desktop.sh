@@ -22,7 +22,7 @@ case $target in termux) expected="${PREFIX%/usr}/workspace-x11";; *) expected="$
 legacy="${PREFIX%/usr}/workspace-x11"
 if [[ -d $legacy && $control -ef $legacy ]];then expected=$legacy;fi
 [[ -d $control && -d $expected && $control -ef $expected ]] || { echo 'ERROR:CONTROL_PATH';exit 2; }
-# Actual app filesDir is /data/data/com.termux/files, PREFIX is files/usr.
+# Actual app filesDir is /data/data/com.agentdroid/files, PREFIX is files/usr.
 source "$(dirname "${BASH_SOURCE[0]}")/x11-audio.sh"
 fs_root="$PREFIX/var/lib/proot-distro"
 if [[ $target != termux ]];then

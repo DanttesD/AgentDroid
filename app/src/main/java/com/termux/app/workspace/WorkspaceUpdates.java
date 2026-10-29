@@ -83,7 +83,7 @@ final class WorkspaceUpdates {
             if(m.getInt("schema")!=1)throw new IOException("Unsupported update manifest");
             code=m.getLong("versionCode");name=m.getString("versionName");minSdk=m.getInt("minSdk");
             JSONObject apk=m.getJSONObject("apk");url=apk.getString("url");hash=apk.getString("sha256");size=apk.getLong("size");
-            if(code<=0||!name.matches("[0-9]+\\.[0-9]+\\.[0-9]+")||!tag.equals("v"+name)||!hash.matches("[a-f0-9]{64}")||size<=0||size>MAX_APK||minSdk<24||!m.getString("packageId").equals("com.termux")||!apk.getString("abi").equals("arm64-v8a")||!validAsset(url,tag,"Termux-Jobs-v"+name+"-arm64.apk"))throw new IOException("Invalid update manifest");
+            if(code<=0||!name.matches("[0-9]+\\.[0-9]+\\.[0-9]+")||!tag.equals("v"+name)||!hash.matches("[a-f0-9]{64}")||size<=0||size>MAX_APK||minSdk<24||!m.getString("packageId").equals("com.agentdroid")||!apk.getString("abi").equals("arm64-v8a")||!validAsset(url,tag,"Termux-Jobs-v"+name+"-arm64.apk"))throw new IOException("Invalid update manifest");
             JSONArray lines=m.getJSONObject("changes").getJSONArray(ru?"ru":"en");
             if(lines.length()==0||lines.length()>20)throw new IOException("Invalid release notes");
             StringBuilder b=new StringBuilder();for(int i=0;i<lines.length();i++){String s=lines.getString(i);if(s.length()>1000)throw new IOException("Release note too long");b.append("• ").append(s).append('\n');}notes=b.toString();

@@ -77,7 +77,7 @@ class StartupTrace:
      # Native and guest bus daemons are distinguished without exposing executable paths.
      flavor='unknown'
      try:
-      exe=str((entry/'exe').readlink());flavor='proot' if '/libexec/proot/loader' in exe else 'termux' if exe.startswith('/data/data/com.termux/files/usr/') else 'guest'
+      exe=str((entry/'exe').readlink());flavor='proot' if '/libexec/proot/loader' in exe else 'termux' if exe.startswith('/data/data/com.agentdroid/files/usr/') else 'guest'
      except OSError:pass
      sm=int(any(x.startswith(b'SESSION_MANAGER=') and len(x)>16 for x in env.split(b'\0')))
      self.out('JOBS_X11_PROC %s pid=%d event=%s state=%s age_ms=%s cpu_ms=%d wait=%s sm=%d binary=%s'%(role,pid,event,state,age,cpu_ms,wait,sm,flavor))

@@ -12,7 +12,7 @@ ANDROID_MOUNTS=frozenset('rootfs/'+p for p in (
  'apex','odm','product','system','system_ext','vendor','sdcard','storage',
  'dev','proc','sys','mnt/sdcard',
  'data/app','data/dalvik-cache','data/misc/apexdata/com.android.art/dalvik-cache',
- 'data/data/com.termux/files/home','data/data/com.termux/files/usr','data/data/com.termux/files/apps','data/data/com.termux/cache'))
+ 'data/data/com.agentdroid/files/home','data/data/com.agentdroid/files/usr','data/data/com.agentdroid/files/apps','data/data/com.agentdroid/cache'))
 
 APP_MOUNTS=frozenset('rootfs/tmp/'+n for n in (
  'termux-jobs-x11-gpu','termux-jobs-setup','termux-jobs-gemini','termux-jobs-claude','termux-jobs-ai','termux-jobs-codex'))
@@ -379,7 +379,7 @@ def main():
  if len(sys.argv)!=5:raise Refused('INVALID_REQUEST')
  op,alias,token,cancel=sys.argv[1:]
  prefix=os.environ.get('PREFIX','')
- if prefix!='/data/data/com.termux/files/usr':raise Refused('INVALID_PREFIX')
+ if prefix!='/data/data/com.agentdroid/files/usr':raise Refused('INVALID_PREFIX')
  # Require the native v5 locking/storage contract; never mutate unsupported layouts.
  from proot_distro.constants import RUNTIME_DIR
  from proot_distro.locking import LOCKS_DIR

@@ -1,7 +1,7 @@
 # Sourced only into the graphical session. No global shell configuration is changed.
 jobs_gpu_environment() {
     case "$1" in
-      termux) jobs_gpu_component="$2/termux-mesa26.2.5";jobs_gpu_lib="$jobs_gpu_component/data/data/com.termux/files/usr/lib";;
+      termux) jobs_gpu_component="$2/termux-mesa26.2.5";jobs_gpu_lib="$jobs_gpu_component/data/data/com.agentdroid/files/usr/lib";;
       ubuntu) jobs_gpu_component="$2/ubuntu-26.04-mesa26.2.5";jobs_gpu_lib="$jobs_gpu_component/usr/lib/aarch64-linux-gnu";;
       debian) jobs_gpu_component="$2/debian-13-mesa26.2.5";jobs_gpu_lib="$jobs_gpu_component/usr/lib/aarch64-linux-gnu";;
       alpine) jobs_gpu_component="$2/alpine-3.24-mesa26.2.5";jobs_gpu_lib="$jobs_gpu_component/usr/lib";;
