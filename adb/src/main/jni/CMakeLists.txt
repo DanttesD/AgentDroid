@@ -1,0 +1,8 @@
+cmake_minimum_required(VERSION 3.22)
+project("agentadb")
+set(CMAKE_CXX_STANDARD 17)
+add_compile_options(-Werror=format -fdata-sections -ffunction-sections -fno-exceptions -fno-rtti)
+find_package(boringssl REQUIRED CONFIG)
+find_package(cxx REQUIRED CONFIG)
+add_library(agentadb SHARED adb_pairing.cpp misc.cpp)
+target_link_libraries(agentadb log boringssl::crypto_static cxx::cxx)
