@@ -26,3 +26,17 @@ Not verified: the workflow itself (needs GitHub; build takes hours), and that th
 Open (next: 1.5)
 - Own apt repository + signing key + termux-keyring, otherwise `pkg install` inside the app has no source (only packages baked into the bootstrap work).
 - (done) repo set to DanttesD/AgentDroid.
+
+## 1.5 Signed apt repository
+Done
+- Signing key (bootstrap/agentdroid-apt.gpg / .asc public, fingerprint in fork.env). The PRIVATE key was delivered separately to the owner and must only live in the GitHub secret APT_GPG_PRIVATE_KEY.
+- bootstrap/make-apt-repo.sh: builds pool + Packages + Release + InRelease + Release.gpg; tested locally with a fake deb, signature verified with the public key only.
+- configure-termux-packages.sh now also: points apt's sources.list to our repo, makes termux-keyring install only our key (checked on copies of the upstream files).
+- bootstrap/packages.list + workflow job `publish-apt`: builds listed packages, signs, publishes to GitHub Pages (https://danttesd.github.io/AgentDroid/apt/main/).
+
+One-time setup on GitHub
+1. Repo secret APT_GPG_PRIVATE_KEY = contents of agentdroid-apt-PRIVATE.asc (then delete that file).
+2. Settings > Pages > Source = "GitHub Actions".
+3. Actions > "Build bootstrap (com.agentdroid)" > Run workflow.
+
+Not verified: the workflow on GitHub, that apt on a device accepts the repository.
