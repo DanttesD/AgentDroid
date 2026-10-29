@@ -12,6 +12,8 @@ on:
 
 permissions:
   contents: write   # create the release with the archive
+  pages: write      # publish the apt repository
+  id-token: write
 
 concurrency:
   group: bootstrap
@@ -81,12 +83,60 @@ jobs:
             echo '```'
           } | tee -a "$GITHUB_STEP_SUMMARY"
 
-      - name: Keep built packages and the log
+      - name: Build extra packages for the apt repository
+        working-directory: termux-packages
+        run: |
+          set -o pipefail
+          pkgs=$(grep -v '^\s*#' ../bootstrap/packages.list | grep -v '^\s*$' | tr '\n' ' ')
+          [ -n "$pkgs" ] || exit 0
+          ./scripts/run-docker.sh ./build-package.sh -a aarch64 $pkgs 2>&1 | tee ../packages-build.log
+
+      - name: Collect .deb files
+        run: |
+          mkdir -p debs
+          cp termux-packages/output/*.deb debs/
+          ls debs | wc -l
+
+      - name: Keep the debs and logs
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: bootstrap-build-${{ github.run_number }}
+          name: debs-${{ github.run_number }}
           path: |
+            debs/*.deb
             build.log
-            termux-packages/output/*.deb
+            packages-build.log
           if-no-files-found: warn
+
+      - name: Hand the debs to the publish job
+        uses: actions/upload-artifact@v4
+        with:
+          name: debs
+          path: debs/*.deb
+          retention-days: 3
+
+  publish-apt:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: debs
+          path: debs
+      - name: Build the signed repository
+        env:
+          GPG_PRIVATE_KEY: ${{ secrets.APT_GPG_PRIVATE_KEY }}
+        run: |
+          test -n "$GPG_PRIVATE_KEY" || { echo "secret APT_GPG_PRIVATE_KEY is not set" >&2; exit 1; }
+          sudo apt-get install -y dpkg-dev >/dev/null
+          bootstrap/make-apt-repo.sh debs site/apt
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+      - id: deploy
+        uses: actions/deploy-pages@v4

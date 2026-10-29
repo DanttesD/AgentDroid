@@ -1,0 +1,14 @@
+# Extra packages built into the AgentDroid apt repository (one per line, # = comment).
+# The repository is rebuilt completely on every run, so keep everything you want available here.
+nodejs
+python
+git
+openssh
+curl
+ripgrep
+proot
+proot-distro
+jq
+tmux
+make
+which

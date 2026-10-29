@@ -31,4 +31,40 @@ jq --arg base "$AGENTDROID_REPO_URL" '
   | .packages.url = ($base + "/main")
 ' "$repo" > "$tmp" && mv "$tmp" "$repo"
 
+# 3. apt inside the app must use our repository (sources.list is hard-coded in packages/apt/build.sh).
+apt_build="$tp/packages/apt/build.sh"
+sed -i "s|deb https://packages-cf.termux.dev/apt/termux-main/ stable main|deb ${AGENTDROID_REPO_URL}/main/ stable main|" "$apt_build"
+sed -i '/# The main termux repository, without cloudflare cache/d; /# deb https:\/\/packages.termux.dev\/apt\/termux-main\/ stable main/d' "$apt_build"
+sed -i 's|# The main termux repository, with cloudflare cache|# AgentDroid repository|' "$apt_build"
+grep -q "deb ${AGENTDROID_REPO_URL}/main/ stable main" "$apt_build" \
+    || { echo "failed to patch sources.list in packages/apt/build.sh (upstream changed?)" >&2; exit 1; }
+
+# 4. termux-keyring installs only our signing key. The official .gpg files stay in the package
+#    directory because build-package.sh imports some of them for its own tooling.
+kr="$tp/packages/termux-keyring"
+install -m 644 "$here/agentdroid-apt.gpg" "$kr/agentdroid-apt.gpg"
+cat > "$kr/build.sh" <<'KEYRING'
+TERMUX_PKG_HOMEPAGE=https://github.com/DanttesD/AgentDroid
+TERMUX_PKG_DESCRIPTION="GPG public key of the AgentDroid package repository"
+TERMUX_PKG_LICENSE="Apache-2.0"
+TERMUX_PKG_MAINTAINER="@DanttesD"
+TERMUX_PKG_VERSION=1.0
+TERMUX_PKG_AUTO_UPDATE=false
+TERMUX_PKG_SKIP_SRC_EXTRACT=true
+TERMUX_PKG_PLATFORM_INDEPENDENT=true
+TERMUX_PKG_ESSENTIAL=true
+
+termux_step_make_install() {
+	local GPG_SHARE_DIR="$TERMUX_PREFIX/share/termux-keyring"
+	rm -rf "$GPG_SHARE_DIR"
+	mkdir -p "$GPG_SHARE_DIR"
+	install -Dm600 "$TERMUX_PKG_BUILDER_DIR/agentdroid-apt.gpg" "$GPG_SHARE_DIR"
+
+	local GPG_DIR="$TERMUX_PREFIX/etc/apt/trusted.gpg.d"
+	mkdir -p "$GPG_DIR"
+	find "$GPG_DIR" -xtype l -delete
+	ln -sf "$GPG_SHARE_DIR/agentdroid-apt.gpg" "$GPG_DIR/agentdroid-apt.gpg"
+}
+KEYRING
+
 echo "configured $tp for $AGENTDROID_PACKAGE_NAME, repo $AGENTDROID_REPO_URL/main"
