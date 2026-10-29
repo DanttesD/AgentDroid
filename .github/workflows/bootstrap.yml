@@ -49,12 +49,33 @@ jobs:
       - name: Configure for our package name
         run: bootstrap/configure-termux-packages.sh termux-packages
 
+      # The whole build can exceed the 6 hour job limit. /data (installed dependencies and
+      # "already built" markers) and output/ (finished .deb files) are cached, so a re-run
+      # continues where the previous run stopped instead of starting from zero.
+      - name: Prepare host /data for the build container
+        run: |
+          sudo mkdir -p /data/data
+          sudo chown -R "$(id -u):$(id -g)" /data
+
+      - name: Restore build cache
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            /data/data/.built-packages
+            /data/data/com.agentdroid
+            termux-packages/output
+          key: termux-build-${{ github.run_id }}
+          restore-keys: termux-build-
+
       - name: Build bootstrap archive (aarch64)
         working-directory: termux-packages
         run: |
           set -o pipefail
-          ./scripts/run-docker.sh ./scripts/build-bootstraps.sh \
+          sudo chmod -R a+rwX /data termux-packages 2>/dev/null || true
+          # leave time for saving the cache: stop the build after 5h15m (re-run to continue)
+          timeout 315m ./scripts/run-docker.sh -m ./scripts/build-bootstraps.sh \
             --architectures aarch64 ${EXTRA:+--add "$(echo $EXTRA | tr ' ' ',')"} 2>&1 | tee ../build.log
+
 
       - name: Report the end of the build log
         if: failure()
@@ -96,9 +117,25 @@ jobs:
         working-directory: termux-packages
         run: |
           set -o pipefail
-          pkgs=$(grep -v '^\s*#' ../bootstrap/packages.list | grep -v '^\s*$' | tr '\n' ' ')
+          pkgs=$(../bootstrap/resolve-package-names.sh . < ../bootstrap/packages.list | tr '\n' ' ')
           [ -n "$pkgs" ] || exit 0
-          ./scripts/run-docker.sh ./build-package.sh -a aarch64 $pkgs 2>&1 | tee ../packages-build.log
+          echo "building: $pkgs"
+          sudo chmod -R a+rwX /data . 2>/dev/null || true
+          timeout 200m ./scripts/run-docker.sh -m ./build-package.sh -a aarch64 $pkgs 2>&1 | tee ../packages-build.log
+
+      - name: Make build files readable for caching
+        if: always()
+        run: sudo chmod -R a+rX /data termux-packages/output 2>/dev/null || true
+
+      - name: Save build cache
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            /data/data/.built-packages
+            /data/data/com.agentdroid
+            termux-packages/output
+          key: termux-build-${{ github.run_id }}
 
       - name: Collect .deb files
         run: |

@@ -67,4 +67,25 @@ termux_step_make_install() {
 }
 KEYRING
 
+# 5. build-bootstraps.sh asks build-package.sh for "bzip2", which is only a subpackage of
+#    libbz2 at the pinned commit ("No package bzip2 found"). Resolve subpackages to their parent.
+bb="$tp/scripts/build-bootstraps.sh"
+if ! grep -q 'AGENTDROID: resolve subpackages' "$bb"; then
+    python3 - "$bb" <<'PY'
+import sys
+p = sys.argv[1]
+s = open(p).read()
+needle = '\tlocal package_name="$2"\n'
+assert s.count(needle) == 1, "build_package() layout changed upstream"
+patch = needle + """\t# AGENTDROID: resolve subpackages (e.g. bzip2 -> libbz2) to the package that builds them
+\tif [ ! -f "$TERMUX_PACKAGES_DIRECTORY/packages/$package_name/build.sh" ]; then
+\t\tlocal parent_dir
+\t\tparent_dir=$(compgen -G "$TERMUX_PACKAGES_DIRECTORY/packages/*/$package_name.subpackage.sh" | head -n1 || true)
+\t\tif [ -n "$parent_dir" ]; then package_name="$(basename "$(dirname "$parent_dir")")"; fi
+\tfi
+"""
+open(p, "w").write(s.replace(needle, patch))
+PY
+fi
+
 echo "configured $tp for $AGENTDROID_PACKAGE_NAME, repo $AGENTDROID_REPO_URL/main"
