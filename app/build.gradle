@@ -1,0 +1,264 @@
+plugins {
+    id "com.android.application"
+}
+
+android {
+    compileSdkVersion project.properties.compileSdkVersion.toInteger()
+    ndkVersion = System.getenv("JITPACK_NDK_VERSION") ?: project.properties.ndkVersion
+    def appVersionName = System.getenv("TERMUX_APP_VERSION_NAME") ?: ""
+    def apkVersionTag = System.getenv("TERMUX_APK_VERSION_TAG") ?: ""
+    def splitAPKsForDebugBuilds = System.getenv("TERMUX_SPLIT_APKS_FOR_DEBUG_BUILDS") ?: "1"
+    def splitAPKsForReleaseBuilds = System.getenv("TERMUX_SPLIT_APKS_FOR_RELEASE_BUILDS") ?: "0" // F-Droid does not support split APKs #1904
+
+    dependencies {
+        implementation "androidx.annotation:annotation:1.3.0"
+        implementation "androidx.exifinterface:exifinterface:1.4.2"
+        implementation "androidx.media3:media3-exoplayer:1.5.1"
+        implementation "androidx.media3:media3-ui:1.5.1"
+        implementation "androidx.core:core:1.6.0"
+        implementation "androidx.drawerlayout:drawerlayout:1.1.1"
+        implementation "androidx.preference:preference:1.1.1"
+        implementation "androidx.viewpager:viewpager:1.0.0"
+        // MoreFiles requires the JRE flavor; Android 8+ provides the needed Java APIs.
+        implementation("com.google.guava:guava:33.3.1-jre") {
+            attributes {
+                attribute(org.gradle.api.attributes.java.TargetJvmEnvironment.TARGET_JVM_ENVIRONMENT_ATTRIBUTE,
+                    objects.named(org.gradle.api.attributes.java.TargetJvmEnvironment,
+                        org.gradle.api.attributes.java.TargetJvmEnvironment.STANDARD_JVM))
+            }
+        }
+        implementation "io.noties.markwon:core:$markwonVersion"
+        implementation "io.noties.markwon:ext-strikethrough:$markwonVersion"
+        implementation "io.noties.markwon:linkify:$markwonVersion"
+        implementation "io.noties.markwon:recycler:$markwonVersion"
+        implementation "com.atlassian.commonmark:commonmark-ext-gfm-tables:0.13.0"
+
+        implementation project(":x11")
+        implementation project(":terminal-view")
+        implementation project(":termux-shared")
+    }
+
+    defaultConfig {
+        applicationId "com.termux"
+        ndk { abiFilters "arm64-v8a" }
+        minSdkVersion project.properties.minSdkVersion.toInteger()
+        targetSdkVersion project.properties.targetSdkVersion.toInteger()
+        versionCode 1417
+        versionName "2.0.9"
+
+        if (appVersionName) versionName = appVersionName
+        validateVersionName(versionName)
+
+        manifestPlaceholders.TERMUX_PACKAGE_NAME = "com.termux"
+        manifestPlaceholders.TERMUX_APP_NAME = "Termux Job’s"
+        manifestPlaceholders.TERMUX_API_APP_NAME = "Termux:API"
+        manifestPlaceholders.TERMUX_BOOT_APP_NAME = "Termux:Boot"
+        manifestPlaceholders.TERMUX_FLOAT_APP_NAME = "Termux:Float"
+        manifestPlaceholders.TERMUX_STYLING_APP_NAME = "Termux:Styling"
+        manifestPlaceholders.TERMUX_TASKER_APP_NAME = "Termux:Tasker"
+        manifestPlaceholders.TERMUX_WIDGET_APP_NAME = "Termux:Widget"
+
+        externalNativeBuild {
+            ndkBuild {
+                cFlags "-std=c11", "-Wall", "-Wextra", "-Werror", "-Os", "-fno-stack-protector", "-Wl,--gc-sections"
+            }
+        }
+
+        splits {
+            abi {
+                enable ((gradle.startParameter.taskNames.any { it.contains("Debug") } && splitAPKsForDebugBuilds == "1") ||
+                    (gradle.startParameter.taskNames.any { it.contains("Release") } && splitAPKsForReleaseBuilds == "1"))
+                reset ()
+                include 'x86', 'x86_64', 'armeabi-v7a', 'arm64-v8a'
+                universalApk true
+            }
+        }
+    }
+
+    signingConfigs {
+        debug {
+            storeFile rootProject.file('.signing/fork-debug.jks')
+            keyAlias 'termux-fork-debug'
+            storePassword System.getenv('TERMUX_FORK_KEYSTORE_PASSWORD') ?: 'termux-fork-debug'
+            keyPassword System.getenv('TERMUX_FORK_KEYSTORE_PASSWORD') ?: 'termux-fork-debug'
+        }
+    }
+
+    buildTypes {
+        release {
+            // Preserve the existing install certificate and the tested, unminified code.
+            signingConfig signingConfigs.debug
+            minifyEnabled false
+            shrinkResources false // Reproducible builds
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+
+        debug {
+            signingConfig signingConfigs.debug
+        }
+    }
+
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    externalNativeBuild {
+        ndkBuild {
+            path "src/main/cpp/Android.mk"
+        }
+    }
+
+    lintOptions {
+        disable 'ProtectedPermissions'
+    }
+
+    testOptions {
+        unitTests {
+            includeAndroidResources = true
+            all {
+                // Robolectric 4.4 retains framework/resource caches across classes.
+                // Bound each worker's lifetime for the growing full audit suite.
+                maxHeapSize = '768m'
+                maxParallelForks = 1
+                forkEvery = 40
+                systemProperty 'user.home', rootProject.file('.tools/test-home').absolutePath
+                systemProperty 'maven.repo.local', rootProject.file('.tools/m2').absolutePath
+                systemProperty 'robolectric.dependency.repo.url', 'https://repo.maven.apache.org/maven2'
+            }
+        }
+    }
+
+    packagingOptions {
+        jniLibs {
+            useLegacyPackaging true
+        }
+    }
+
+    applicationVariants.all { variant ->
+        variant.outputs.all { output ->
+            if (variant.buildType.name == "debug") {
+                def abi = output.getFilter(com.android.build.OutputFile.ABI)
+                outputFileName = new File("termux-app_" + (apkVersionTag ? apkVersionTag : "debug") + "_" + (abi ? abi : "universal") + ".apk")
+            } else if (variant.buildType.name == "release") {
+                def abi = output.getFilter(com.android.build.OutputFile.ABI)
+                outputFileName = new File("termux-app_" + (apkVersionTag ? apkVersionTag : "release") + "_" + (abi ? abi : "universal") + ".apk")
+            }
+        }
+    }
+
+}
+
+dependencies {
+    testImplementation "junit:junit:4.13.2"
+    testImplementation "org.robolectric:robolectric:4.4"
+}
+
+task versionName {
+    doLast {
+        print android.defaultConfig.versionName
+    }
+}
+
+def validateVersionName(String versionName) {
+    // https://semver.org/spec/v2.0.0.html#is-there-a-suggested-regular-expression-regex-to-check-a-semver-string
+    // ^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$
+    if (!java.util.regex.Pattern.matches("^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?\$", versionName))
+        throw new GradleException("The versionName '"  + versionName + "' is not a valid version as per semantic version '2.0.0' spec in the format 'major.minor.patch(-prerelease)(+buildmetadata)'. https://semver.org/spec/v2.0.0.html.")
+}
+
+def downloadBootstrap(String arch, String expectedChecksum, String version) {
+    def digest = java.security.MessageDigest.getInstance("SHA-256")
+
+    def localUrl = "src/main/cpp/bootstrap-" + arch + ".zip"
+    def file = new File(projectDir, localUrl)
+    if (file.exists()) {
+        def buffer = new byte[8192]
+        def input = new FileInputStream(file)
+        while (true) {
+            def readBytes = input.read(buffer)
+            if (readBytes < 0) break
+            digest.update(buffer, 0, readBytes)
+        }
+        def checksum = new BigInteger(1, digest.digest()).toString(16)
+        while (checksum.length() < 64) { checksum = "0" + checksum }
+        if (checksum == expectedChecksum) {
+            return
+        } else {
+            logger.quiet("Deleting old local file with wrong hash: " + localUrl)
+            file.delete()
+        }
+    }
+
+    def remoteUrl = "https://github.com/termux/termux-packages/releases/download/bootstrap-" + version + "/bootstrap-" + arch + ".zip"
+    logger.quiet("Downloading " + remoteUrl + " ...")
+
+    file.parentFile.mkdirs()
+    def out = new BufferedOutputStream(new FileOutputStream(file))
+
+    def connection = new URL(remoteUrl).openConnection()
+    connection.setInstanceFollowRedirects(true)
+    def digestStream = new java.security.DigestInputStream(connection.inputStream, digest)
+    out << digestStream
+    out.close()
+
+    def checksum = new BigInteger(1, digest.digest()).toString(16)
+    while (checksum.length() < 64) { checksum = "0" + checksum }
+    if (checksum != expectedChecksum) {
+        file.delete()
+        throw new GradleException("Wrong checksum for " + remoteUrl + ": expected: " + expectedChecksum + ", actual: " + checksum)
+    }
+}
+
+clean {
+    doLast {
+        def tree = fileTree(new File(projectDir, 'src/main/cpp'))
+        tree.include 'bootstrap-*.zip'
+        tree.each { it.delete() }
+    }
+}
+
+task downloadBootstraps() {
+    doLast {
+        def version = "2025.03.28-r1+apt-android-7"
+        downloadBootstrap("aarch64", "c8d702b6f742935001c37cda81b8ac69504a95d5cf28f2899532dd8cd4b057eb", version)
+        downloadBootstrap("arm",     "f3bb9d1b32552b34fff41861dbf193ec5ba2848d67d779ac1c7256da6640f85d", version)
+        downloadBootstrap("i686",    "36db3e1ac3547f9a174fd763bd9a484fa1a3449cdd81e1cf2408ff0454f839c6", version)
+        downloadBootstrap("x86_64",  "1c124ec2396ee70a51b0b0a574f29aa659526aa2b9f558f993b2fb05d1e51855", version)
+    }
+}
+
+afterEvaluate {
+    android.applicationVariants.all { variant ->
+        variant.javaCompileProvider.get().dependsOn(downloadBootstraps)
+    }
+}
+
+// Gradle 7 must select Guava's Android variant, not the JVM variant requiring API26.
+configurations.configureEach {
+    attributes.attribute(org.gradle.api.attributes.java.TargetJvmEnvironment.TARGET_JVM_ENVIRONMENT_ATTRIBUTE,
+        objects.named(org.gradle.api.attributes.java.TargetJvmEnvironment, org.gradle.api.attributes.java.TargetJvmEnvironment.ANDROID))
+}
+
+// Check the production configuration: Robolectric may resolve a different JVM variant.
+tasks.register("verifyGuavaRuntime") {
+    doLast {
+        ["debugRuntimeClasspath", "releaseRuntimeClasspath"].each { name ->
+            def artifacts = configurations.getByName(name).incoming.artifactView {
+                attributes { attribute(org.gradle.api.attributes.Attribute.of("artifactType", String), "jar") }
+                componentFilter { id -> id instanceof org.gradle.api.artifacts.component.ModuleComponentIdentifier &&
+                    id.group == "com.google.guava" && id.module == "guava" }
+            }.artifacts.artifacts
+            if (artifacts.size() != 1) throw new GradleException("Expected one Guava runtime artifact in " + name)
+            def jar = new java.util.zip.ZipFile(artifacts.first().file)
+            try {
+                ["com/google/common/io/MoreFiles.class", "com/google/common/io/RecursiveDeleteOption.class", "com/google/common/collect/ImmutableBiMap.class"].each {
+                    if (jar.getEntry(it) == null) throw new GradleException("Missing runtime class: " + it + " in " + name)
+                }
+            } finally { jar.close() }
+            logger.lifecycle("Verified Guava file APIs in " + name + ": " + artifacts.first().file.name)
+        }
+    }
+}
+tasks.named("preBuild").configure { dependsOn("verifyGuavaRuntime") }

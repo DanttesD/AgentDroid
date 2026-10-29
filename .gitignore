@@ -1,0 +1,60 @@
+# From https://gist.github.com/iainconnor/8605514
+# with the addition of the /captures below.
+/captures
+
+# Built application files
+build/
+release/
+*.apk
+*.so
+.externalNativeBuild
+.cxx
+*.zip
+!third-party/virgl-client/alpine-mesa-26.1.6-virgl.zip
+!third-party/bionic-glibc/ubuntu-arm64-runtime.zip
+!third-party/graphics-drivers/Turnip-a6xx-a7xx-a8xx.zip
+
+# Crashlytics configuations
+com_crashlytics_export_strings.xml
+
+# Local configuration file (sdk path, etc)
+local.properties
+
+# Gradle generated files
+.gradle/
+
+# Signing files
+.signing/
+
+# Intellij
+.idea/
+*.iml
+
+# OS-specific files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+.swp
+ehthumbs.db
+Thumbs.db
+
+# Isolated local verification tools; never use the installed Termux as build output.
+.tools/
+.verification/
+
+# Short Unix socket paths for isolated verification only
+/.cx/
+
+# Generated private frontend; rebuild from docs/fork/patches.
+/app/src/main/assets/opencode-mini-v2.0.28-jobs1.bundle
+
+# Python verification caches
+__pycache__/
+*.pyc
+
+/app/src/main/assets/opencode-mini-v2.0.28-jobs2.bundle
+
+# Local signing material may be a directory or a worktree symlink.
+.signing

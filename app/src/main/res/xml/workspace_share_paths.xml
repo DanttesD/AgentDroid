@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths xmlns:android="http://schemas.android.com/apk/res/android">
+    <cache-path name="workspace-share" path="workspace-share/" />
+    <cache-path name="workspace-updates" path="workspace-updates/" />
+    <cache-path name="chat-apk-artifacts" path="chat-apk-artifacts/" />
+</paths>
