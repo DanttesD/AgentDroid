@@ -168,46 +168,61 @@ def validateVersionName(String versionName) {
         throw new GradleException("The versionName '"  + versionName + "' is not a valid version as per semantic version '2.0.0' spec in the format 'major.minor.patch(-prerelease)(+buildmetadata)'. https://semver.org/spec/v2.0.0.html.")
 }
 
-def downloadBootstrap(String arch, String expectedChecksum, String version) {
+// Bootstrap for the com.agentdroid prefix. It is built by .github/workflows/bootstrap.yml
+// (termux-packages configured for our package name) and described in bootstrap/bootstrap.properties.
+// The official bootstrap must NOT be used: its binaries contain the /data/data/com.termux prefix.
+def loadBootstrapProps() {
+    def props = new Properties()
+    def f = new File(rootDir, "bootstrap/bootstrap.properties")
+    if (f.exists()) f.withInputStream { props.load(it) }
+    return props
+}
+
+def sha256Of(File f) {
     def digest = java.security.MessageDigest.getInstance("SHA-256")
-
-    def localUrl = "src/main/cpp/bootstrap-" + arch + ".zip"
-    def file = new File(projectDir, localUrl)
-    if (file.exists()) {
+    f.withInputStream { input ->
         def buffer = new byte[8192]
-        def input = new FileInputStream(file)
-        while (true) {
-            def readBytes = input.read(buffer)
-            if (readBytes < 0) break
-            digest.update(buffer, 0, readBytes)
-        }
-        def checksum = new BigInteger(1, digest.digest()).toString(16)
-        while (checksum.length() < 64) { checksum = "0" + checksum }
-        if (checksum == expectedChecksum) {
-            return
-        } else {
-            logger.quiet("Deleting old local file with wrong hash: " + localUrl)
-            file.delete()
-        }
+        int n
+        while ((n = input.read(buffer)) > 0) digest.update(buffer, 0, n)
     }
+    def hex = new BigInteger(1, digest.digest()).toString(16)
+    while (hex.length() < 64) hex = "0" + hex
+    return hex
+}
 
-    def remoteUrl = "https://github.com/termux/termux-packages/releases/download/bootstrap-" + version + "/bootstrap-" + arch + ".zip"
-    logger.quiet("Downloading " + remoteUrl + " ...")
+def downloadBootstrap(String arch) {
+    def bootstrapProps = loadBootstrapProps()
+    def expected = bootstrapProps.getProperty("sha256." + arch, "").trim()
+    def url = bootstrapProps.getProperty("url." + arch, "").trim()
+    def file = new File(projectDir, "src/main/cpp/bootstrap-" + arch + ".zip")
 
+    if (file.exists() && !expected.isEmpty() && sha256Of(file) == expected) return
+    // A locally built archive (e.g. copied from CI output) can be used with -Pagentdroid.localBootstrap=true
+    if (file.exists() && project.hasProperty("agentdroid.localBootstrap")) {
+        logger.quiet("Using local bootstrap " + file + " (sha256 " + sha256Of(file) + ")")
+        return
+    }
+    if (expected.isEmpty() || url.isEmpty()) {
+        throw new GradleException("No bootstrap for '" + arch + "' configured. Run the 'Build bootstrap' workflow, " +
+            "put the resulting url/sha256 into bootstrap/bootstrap.properties, or place a self-built archive at " +
+            file + " and build with -Pagentdroid.localBootstrap=true.")
+    }
+    if (file.exists()) { logger.quiet("Deleting bootstrap with wrong hash: " + file); file.delete() }
+
+    logger.quiet("Downloading " + url + " ...")
     file.parentFile.mkdirs()
-    def out = new BufferedOutputStream(new FileOutputStream(file))
-
-    def connection = new URL(remoteUrl).openConnection()
+    def connection = new URL(url).openConnection()
     connection.setInstanceFollowRedirects(true)
-    def digestStream = new java.security.DigestInputStream(connection.inputStream, digest)
-    out << digestStream
-    out.close()
-
-    def checksum = new BigInteger(1, digest.digest()).toString(16)
-    while (checksum.length() < 64) { checksum = "0" + checksum }
-    if (checksum != expectedChecksum) {
+    try {
+        file.withOutputStream { out -> out << connection.inputStream }
+    } catch (Exception e) {
         file.delete()
-        throw new GradleException("Wrong checksum for " + remoteUrl + ": expected: " + expectedChecksum + ", actual: " + checksum)
+        throw new GradleException("Download of " + url + " failed: " + e.message, e)
+    }
+    def actual = sha256Of(file)
+    if (actual != expected) {
+        file.delete()
+        throw new GradleException("Wrong checksum for " + url + ": expected " + expected + ", actual " + actual)
     }
 }
 
@@ -221,11 +236,8 @@ clean {
 
 task downloadBootstraps() {
     doLast {
-        def version = "2025.03.28-r1+apt-android-7"
-        downloadBootstrap("aarch64", "c8d702b6f742935001c37cda81b8ac69504a95d5cf28f2899532dd8cd4b057eb", version)
-        downloadBootstrap("arm",     "f3bb9d1b32552b34fff41861dbf193ec5ba2848d67d779ac1c7256da6640f85d", version)
-        downloadBootstrap("i686",    "36db3e1ac3547f9a174fd763bd9a484fa1a3449cdd81e1cf2408ff0454f839c6", version)
-        downloadBootstrap("x86_64",  "1c124ec2396ee70a51b0b0a574f29aa659526aa2b9f558f993b2fb05d1e51855", version)
+        // The app is ARM64-only (abiFilters arm64-v8a), so only this archive is needed.
+        downloadBootstrap("aarch64")
     }
 }
 

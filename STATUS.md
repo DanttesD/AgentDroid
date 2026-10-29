@@ -13,3 +13,16 @@ Open before the terminal works
 - X11/graphics payloads in the fork are pinned archives built for `com.termux`; they need rebuilding for the new prefix.
 - Update checker in WorkspaceUpdates points at the fork's releases; disable or point to our own.
 - Tests in app/src/test that assert `com.termux` as package id still need updating.
+
+## 1.4 Bootstrap pipeline
+Done
+- bootstrap/fork.env: package name, pinned termux-packages commit, apt repo URL, extra packages.
+- bootstrap/configure-termux-packages.sh: patches only upstream-documented fork variables; checked locally: PREFIX becomes /data/data/com.agentdroid/files/usr.
+- .github/workflows/bootstrap.yml: builds bootstrap-aarch64.zip with scripts/build-bootstraps.sh in docker, fails if the archive still contains /data/data/com.termux/, publishes a release and prints the url/sha256 lines for bootstrap/bootstrap.properties.
+- app/build.gradle: official bootstrap download removed; reads bootstrap/bootstrap.properties, verifies SHA-256, clear error if not configured; -Pagentdroid.localBootstrap=true accepts a self-built archive. Download logic tested with Gradle for the 5 cases (no config, local archive, matching hash, wrong hash, unreachable URL).
+
+Not verified: the workflow itself (needs GitHub; build takes hours), and that the resulting terminal starts on a device.
+
+Open (next: 1.5)
+- Own apt repository + signing key + termux-keyring, otherwise `pkg install` inside the app has no source (only packages baked into the bootstrap work).
+- Replace OWNER/REPO in bootstrap/fork.env.
