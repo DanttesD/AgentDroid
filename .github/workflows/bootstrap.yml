@@ -102,8 +102,8 @@ jobs:
           fi
           rm -rf /tmp/bs && mkdir /tmp/bs && unzip -q output/bootstrap-aarch64.zip -d /tmp/bs
           ls -la output/bootstrap-aarch64.zip
-          # C headers / docs only mention the old path in comments; they are not used at runtime
-          bad=$(grep -rIl "/data/data/com.termux/" /tmp/bs 2>/dev/null | sed 's|^/tmp/bs/||' | grep -Ev '^(include|share/(doc|man|info))/' | head -20 || true)
+          # headers/docs and shell comment lines (# ...) may mention the old path; they are not used at runtime
+          bad=$(grep -rIl "/data/data/com.termux/" /tmp/bs 2>/dev/null | sed 's|^/tmp/bs/||' | grep -Ev '^(include|share/(doc|man|info))/' | while read -r f; do grep -a "/data/data/com.termux/" "/tmp/bs/$f" | grep -qvE '^[[:space:]]*#' && echo "$f"; done | head -20 || true)
           ign=$(grep -rIl "/data/data/com.termux/" /tmp/bs 2>/dev/null | sed 's|^/tmp/bs/||' | grep -Ecv '^$' || true)
           echo "files mentioning old path in total (headers/docs are ignored): $ign"
           good=$(grep -rIl "/data/data/com.agentdroid/files/usr" /tmp/bs 2>/dev/null | wc -l || true)
