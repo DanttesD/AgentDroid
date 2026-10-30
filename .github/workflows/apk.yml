@@ -1,0 +1,70 @@
+name: Build APK (com.agentdroid)
+# Builds the debug APK and publishes it as a GitHub release, so it can be downloaded
+# straight from the phone (Releases -> latest -> the .apk). Start it by hand:
+# Actions -> Build APK (com.agentdroid) -> Run workflow.
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  apk:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: Java 17 for Android SDK tools
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+        with:
+          cmdline-tools-version: 12266719
+          packages: platform-tools
+      - name: Install pinned Android toolchain
+        run: |
+          mkdir -p .tools/sdk
+          cp -R "$ANDROID_HOME/licenses" .tools/sdk/licenses
+          sdkmanager --sdk_root="$GITHUB_WORKSPACE/.tools/sdk" "platforms;android-35" "platforms;android-30" "build-tools;30.0.3" "ndk;22.1.7171670" "cmake;3.22.1"
+      - name: Java 11 for Gradle and the Android project
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '11'
+      # A stable signing key, so that later builds can be installed over earlier ones.
+      - name: Restore the signing key
+        uses: actions/cache/restore@v4
+        with:
+          path: .signing
+          key: agentdroid-signing-v1
+      - name: Build the debug APK
+        id: build
+        run: |
+          set -o pipefail
+          ./scripts/build-debug.sh 2>&1 | tee build.log
+      - name: Save the signing key
+        if: always() && hashFiles('.signing/fork-debug.jks') != ''
+        uses: actions/cache/save@v4
+        with:
+          path: .signing
+          key: agentdroid-signing-v1
+        continue-on-error: true
+      - name: Show the first errors
+        if: failure()
+        run: |
+          msg=$( { grep -nE '^e: |error:|\.kt:[0-9]+|FAILED|What went wrong|Could not|Execution failed' -A2 build.log | head -40; echo '--- tail ---'; tail -25 build.log; } | cut -c1-220 | sed ':a;N;$!ba;s/%/%25/g;s/\r/%0D/g;s/\n/%0A/g')
+          echo "::error title=APK build failed::$msg"
+      - name: Publish the APK
+        if: success()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          apk=$(ls app/build/outputs/apk/debug/*.apk | head -1)
+          tag="apk-$(date +%Y.%m.%d)-${GITHUB_RUN_NUMBER}"
+          cp "$apk" agentdroid-debug.apk
+          gh release create "$tag" agentdroid-debug.apk --title "AgentDroid debug APK $tag" \
+            --notes "Debug build from commit $GITHUB_SHA. Install over the previous build or uninstall first if Android reports a signature conflict." --prerelease
+          {
+            echo "## APK is ready"
+            echo "https://github.com/${GITHUB_REPOSITORY}/releases/tag/$tag"
+          } >> "$GITHUB_STEP_SUMMARY"
