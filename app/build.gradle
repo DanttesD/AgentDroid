@@ -34,6 +34,8 @@ android {
         implementation "com.atlassian.commonmark:commonmark-ext-gfm-tables:0.13.0"
 
         implementation project(":x11")
+        implementation project(":adb")
+        implementation project(":exec")
         implementation project(":terminal-view")
         implementation project(":termux-shared")
     }

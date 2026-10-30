@@ -47,6 +47,17 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="false"
         android:theme="@style/Theme.Termux">
+        <activity
+            android:name=".app.AdbConsoleActivity"
+            android:label="AgentDroid ADB"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+
         <uses-native-library android:name="libOpenCL.so" android:required="false" />
 
         <uses-native-library android:name="libvndksupport.so" android:required="false" />
