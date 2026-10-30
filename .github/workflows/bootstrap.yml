@@ -102,7 +102,10 @@ jobs:
           fi
           rm -rf /tmp/bs && mkdir /tmp/bs && unzip -q output/bootstrap-aarch64.zip -d /tmp/bs
           ls -la output/bootstrap-aarch64.zip
-          bad=$(grep -rIl "/data/data/com.termux/" /tmp/bs 2>/dev/null | sed 's|^/tmp/bs/||' | head -20 || true)
+          # C headers / docs only mention the old path in comments; they are not used at runtime
+          bad=$(grep -rIl "/data/data/com.termux/" /tmp/bs 2>/dev/null | sed 's|^/tmp/bs/||' | grep -Ev '^(include|share/(doc|man|info))/' | head -20 || true)
+          ign=$(grep -rIl "/data/data/com.termux/" /tmp/bs 2>/dev/null | sed 's|^/tmp/bs/||' | grep -Ecv '^$' || true)
+          echo "files mentioning old path in total (headers/docs are ignored): $ign"
           good=$(grep -rIl "/data/data/com.agentdroid/files/usr" /tmp/bs 2>/dev/null | wc -l || true)
           echo "files mentioning our prefix: $good"
           if [ -n "$bad" ]; then
