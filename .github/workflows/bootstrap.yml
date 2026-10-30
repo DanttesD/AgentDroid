@@ -93,7 +93,13 @@ jobs:
       - name: Verify the archive uses our prefix and not com.termux
         working-directory: termux-packages
         run: |
-          test -f bootstrap-aarch64.zip
+          if [ ! -f bootstrap-aarch64.zip ]; then
+            found=$(find . /home/builder -maxdepth 3 -name 'bootstrap-*.zip' 2>/dev/null | head -5)
+            tail60=$(tail -n 60 ../build.log | cut -c1-250 | sed 's/\x1b\[[0-9;]*[A-Za-z]//g')
+            msg=$(printf 'bootstrap-aarch64.zip not found. other zips: [%s]\n---\n%s' "$found" "$tail60" | sed ':a;N;$!ba;s/%/%25/g;s/\r/%0D/g;s/\n/%0A/g')
+            echo "::error title=no bootstrap zip::$msg"
+            exit 1
+          fi
           rm -rf /tmp/bs && mkdir /tmp/bs && unzip -q bootstrap-aarch64.zip -d /tmp/bs
           ls -la bootstrap-aarch64.zip
           bad=$(grep -rIl "/data/data/com.termux/" /tmp/bs 2>/dev/null | sed 's|^/tmp/bs/||' | head -20 || true)
