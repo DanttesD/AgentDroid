@@ -41,6 +41,7 @@ jobs:
         id: build
         run: |
           set -o pipefail
+          chmod +x gradlew scripts/*.sh
           ./scripts/build-debug.sh 2>&1 | tee build.log
       - name: Save the signing key
         if: always() && hashFiles('.signing/fork-debug.jks') != ''
