@@ -102,6 +102,7 @@ final class TermuxInstaller {
             if(PREFIX_FILE_LIST == null || PREFIX_FILE_LIST.length == 0 || (PREFIX_FILE_LIST.length == 1 && TermuxConstants.TERMUX_TMP_PREFIX_DIR_PATH.equals(PREFIX_FILE_LIST[0].getAbsolutePath()))) {
                 Logger.logInfo(LOG_TAG, "The termux prefix directory \"" + TERMUX_PREFIX_DIR_PATH + "\" exists but is empty or only contains the tmp directory.");
             } else {
+                configureAgentDroidRepository();
                 whenDone.run();
                 return;
             }
@@ -241,6 +242,7 @@ final class TermuxInstaller {
                     }
 
                     Logger.logInfo(LOG_TAG, "Bootstrap packages installed successfully.");
+                    configureAgentDroidRepository();
                     activity.runOnUiThread(whenDone);
 
                 } catch (final Exception e) {
@@ -257,6 +259,46 @@ final class TermuxInstaller {
                 }
             }
         }.start();
+    }
+
+    private static final String AGENTDROID_REPO_MAIN = "https://danttesd.github.io/AgentDroid/apt/main";
+
+    /**
+     * AGENTDROID: make `pkg` and apt use only our repository. The termux-tools package ships the list
+     * of official mirrors and `pkg` rewrites sources.list from them, which would pull packages built
+     * for com.termux. Point the chosen mirror at our repository and fix sources.list.
+     * Safe to run on every start.
+     */
+    private static void configureAgentDroidRepository() {
+        try {
+            File etc = new File(TERMUX_PREFIX_DIR_PATH, "etc");
+            File mirrors = new File(etc, "termux/mirrors");
+            File ours = new File(mirrors, "agentdroid");
+            mirrors.mkdirs();
+            String mirrorText = "# This file is sourced by pkg\n# AgentDroid repository\nWEIGHT=1\n"
+                + "MAIN=\"" + AGENTDROID_REPO_MAIN + "\"\nROOT=\"" + AGENTDROID_REPO_MAIN + "\"\nX11=\"" + AGENTDROID_REPO_MAIN + "\"\n";
+            writeIfDifferent(ours, mirrorText);
+            writeIfDifferent(new File(mirrors, "default"), mirrorText);
+            File chosen = new File(etc, "termux/chosen_mirrors");
+            if (!chosen.exists() || !chosen.getCanonicalPath().equals(ours.getCanonicalPath())) {
+                chosen.delete();
+                android.system.Os.symlink(ours.getAbsolutePath(), chosen.getAbsolutePath());
+            }
+            writeIfDifferent(new File(etc, "apt/sources.list"),
+                "# AgentDroid repository\ndeb " + AGENTDROID_REPO_MAIN + "/ stable main\n");
+            // x11/root repositories are not provided
+            new File(etc, "apt/sources.list.d/x11.list").delete();
+            new File(etc, "apt/sources.list.d/root.list").delete();
+        } catch (Exception e) {
+            Logger.logStackTraceWithMessage(LOG_TAG, "Could not configure the AgentDroid repository", e);
+        }
+    }
+
+    private static void writeIfDifferent(File file, String text) throws java.io.IOException {
+        if (file.isFile() && new String(java.nio.file.Files.readAllBytes(file.toPath()), java.nio.charset.StandardCharsets.UTF_8).equals(text)) return;
+        File parent = file.getParentFile();
+        if (parent != null) parent.mkdirs();
+        java.nio.file.Files.write(file.toPath(), text.getBytes(java.nio.charset.StandardCharsets.UTF_8));
     }
 
     public static void showBootstrapErrorDialog(Activity activity, Runnable whenDone, String message) {
