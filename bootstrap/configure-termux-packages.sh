@@ -107,4 +107,16 @@ fi
 grep -q 'AGENTDROID: output dir is writable' "$bb" \
     || { echo "failed to patch the bootstrap zip destination (upstream changed?)" >&2; exit 1; }
 
+# 8. Several packages (termux-tools, termux-exec, openssh, ...) are autotools projects that read the
+#    app package / prefix from the *environment* (TERMUX_APP_PACKAGE, TERMUX_PREFIX, ...) and fall back
+#    to "com.termux" when they are not exported. properties.sh only sets them as shell variables, so
+#    the scripts (chsh, login, pkg, termux-reset, ...) ended up with /data/data/com.termux/...
+if ! grep -q 'AGENTDROID: export' "$props"; then
+    cat >> "$props" <<'EXPORTS'
+
+# AGENTDROID: export the paths so that configure scripts of packages pick up our package name
+export TERMUX_APP_PACKAGE TERMUX_BASE_DIR TERMUX_CACHE_DIR TERMUX_PREFIX TERMUX_ANDROID_HOME
+EXPORTS
+fi
+
 echo "configured $tp for $AGENTDROID_PACKAGE_NAME, repo $AGENTDROID_REPO_URL/main"

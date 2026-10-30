@@ -68,8 +68,8 @@ jobs:
             /data/data/.built-packages
             /data/data/com.agentdroid
             termux-packages/output
-          key: termux-build-${{ github.run_id }}
-          restore-keys: termux-build-
+          key: termux-build-v2-${{ github.run_id }}
+          restore-keys: termux-build-v2-
 
       - name: Build bootstrap archive (aarch64)
         working-directory: termux-packages
@@ -159,7 +159,7 @@ jobs:
             /data/data/.built-packages
             /data/data/com.agentdroid
             termux-packages/output
-          key: termux-build-${{ github.run_id }}
+          key: termux-build-v2-${{ github.run_id }}
 
       - name: Collect .deb files
         run: |
