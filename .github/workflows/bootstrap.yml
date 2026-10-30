@@ -95,10 +95,21 @@ jobs:
         run: |
           test -f bootstrap-aarch64.zip
           rm -rf /tmp/bs && mkdir /tmp/bs && unzip -q bootstrap-aarch64.zip -d /tmp/bs
-          if grep -rIl "/data/data/com.termux/" /tmp/bs | head -5 | grep .; then
-            echo "archive still references com.termux" >&2; exit 1
+          ls -la bootstrap-aarch64.zip
+          bad=$(grep -rIl "/data/data/com.termux/" /tmp/bs 2>/dev/null | sed 's|^/tmp/bs/||' | head -20 || true)
+          good=$(grep -rIl "/data/data/com.agentdroid/files/usr" /tmp/bs 2>/dev/null | wc -l || true)
+          echo "files mentioning our prefix: $good"
+          if [ -n "$bad" ]; then
+            echo "files still mentioning /data/data/com.termux/:"; echo "$bad"
+            ex=$(echo "$bad" | head -5 | while read -r f; do printf '%s: ' "$f"; grep -m1 -a "/data/data/com.termux/" "/tmp/bs/$f" | cut -c1-160; done)
+            msg=$(printf 'good=%s\n%s\n---\n%s' "$good" "$bad" "$ex" | sed ':a;N;$!ba;s/%/%25/g;s/\r/%0D/g;s/\n/%0A/g')
+            echo "::error title=archive still references com.termux::$msg"
+            exit 1
           fi
-          grep -rIl "/data/data/com.agentdroid/files/usr" /tmp/bs | head -3 | grep .
+          if [ "$good" -eq 0 ]; then
+            echo "::error title=archive does not reference our prefix::no file mentions /data/data/com.agentdroid/files/usr"
+            exit 1
+          fi
           sha256sum bootstrap-aarch64.zip | tee ../bootstrap-aarch64.zip.sha256
 
       - name: Publish release
