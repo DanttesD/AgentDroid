@@ -164,7 +164,11 @@ jobs:
       - name: Collect .deb files
         run: |
           mkdir -p debs
-          cp termux-packages/output/*.deb debs/
+          # upload-artifact refuses ':' in file names (the epoch of e.g. ca-certificates-java_1:2026...);
+          # Debian repositories spell it %3a in pool file names, so do the same
+          for f in termux-packages/output/*.deb; do
+            b=$(basename "$f"); cp "$f" "debs/${b//:/%3a}"
+          done
           ls debs | wc -l
 
       - name: Keep the debs and logs
