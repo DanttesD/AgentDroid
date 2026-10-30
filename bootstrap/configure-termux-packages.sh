@@ -48,7 +48,7 @@ TERMUX_PKG_HOMEPAGE=https://github.com/DanttesD/AgentDroid
 TERMUX_PKG_DESCRIPTION="GPG public key of the AgentDroid package repository"
 TERMUX_PKG_LICENSE="Apache-2.0"
 TERMUX_PKG_MAINTAINER="@DanttesD"
-TERMUX_PKG_VERSION=1.0
+TERMUX_PKG_VERSION=3.14
 TERMUX_PKG_AUTO_UPDATE=false
 TERMUX_PKG_SKIP_SRC_EXTRACT=true
 TERMUX_PKG_PLATFORM_INDEPENDENT=true
@@ -118,5 +118,20 @@ if ! grep -q 'AGENTDROID: export' "$props"; then
 export TERMUX_APP_PACKAGE TERMUX_BASE_DIR TERMUX_CACHE_DIR TERMUX_PREFIX TERMUX_ANDROID_HOME
 EXPORTS
 fi
+
+# 9. dpkg-perl depends on clang (its postinst builds a perl module), and we do not ship clang yet,
+#    so apt reports "Unmet dependencies" on every install. Drop clang from its dependencies and
+#    bump the revision so that dpkg is rebuilt even when an old build is cached.
+dpkg_sub="$tp/packages/dpkg/dpkg-perl.subpackage.sh"
+dpkg_build="$tp/packages/dpkg/build.sh"
+sed -i 's|^TERMUX_SUBPKG_DEPENDS="perl, clang, make"|TERMUX_SUBPKG_DEPENDS="perl, make"|' "$dpkg_sub"
+grep -q '^TERMUX_SUBPKG_DEPENDS="perl, make"' "$dpkg_sub" \
+    || { echo "failed to patch dpkg-perl dependencies (upstream changed?)" >&2; exit 1; }
+if ! grep -q '^TERMUX_PKG_REVISION=.*# AGENTDROID' "$dpkg_build"; then
+    rev=$(sed -n 's/^TERMUX_PKG_REVISION=\([0-9][0-9]*\).*/\1/p' "$dpkg_build" | head -1)
+    sed -i "s|^TERMUX_PKG_REVISION=.*|TERMUX_PKG_REVISION=$((rev + 1)) # AGENTDROID: rebuilt without the clang dependency|" "$dpkg_build"
+fi
+grep -q '^TERMUX_PKG_REVISION=.*# AGENTDROID' "$dpkg_build" \
+    || { echo "failed to bump the dpkg revision (upstream changed?)" >&2; exit 1; }
 
 echo "configured $tp for $AGENTDROID_PACKAGE_NAME, repo $AGENTDROID_REPO_URL/main"
