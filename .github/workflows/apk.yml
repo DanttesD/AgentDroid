@@ -37,6 +37,11 @@ jobs:
         with:
           path: .signing
           key: agentdroid-signing-v1
+      - name: Prepare the pinned X11 inputs
+        run: |
+          which clang ar || sudo apt-get install -y clang binutils
+          python3 scripts/prepare-x11.py
+
       - name: Build the debug APK
         id: build
         run: |
