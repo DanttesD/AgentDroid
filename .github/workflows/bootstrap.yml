@@ -93,15 +93,15 @@ jobs:
       - name: Verify the archive uses our prefix and not com.termux
         working-directory: termux-packages
         run: |
-          if [ ! -f bootstrap-aarch64.zip ]; then
+          if [ ! -f output/bootstrap-aarch64.zip ]; then
             found=$(find . /home/builder -maxdepth 3 -name 'bootstrap-*.zip' 2>/dev/null | head -5)
             tail60=$(tail -n 60 ../build.log | cut -c1-250 | sed 's/\x1b\[[0-9;]*[A-Za-z]//g')
             msg=$(printf 'bootstrap-aarch64.zip not found. other zips: [%s]\n---\n%s' "$found" "$tail60" | sed ':a;N;$!ba;s/%/%25/g;s/\r/%0D/g;s/\n/%0A/g')
             echo "::error title=no bootstrap zip::$msg"
             exit 1
           fi
-          rm -rf /tmp/bs && mkdir /tmp/bs && unzip -q bootstrap-aarch64.zip -d /tmp/bs
-          ls -la bootstrap-aarch64.zip
+          rm -rf /tmp/bs && mkdir /tmp/bs && unzip -q output/bootstrap-aarch64.zip -d /tmp/bs
+          ls -la output/bootstrap-aarch64.zip
           bad=$(grep -rIl "/data/data/com.termux/" /tmp/bs 2>/dev/null | sed 's|^/tmp/bs/||' | head -20 || true)
           good=$(grep -rIl "/data/data/com.agentdroid/files/usr" /tmp/bs 2>/dev/null | wc -l || true)
           echo "files mentioning our prefix: $good"
@@ -116,14 +116,14 @@ jobs:
             echo "::error title=archive does not reference our prefix::no file mentions /data/data/com.agentdroid/files/usr"
             exit 1
           fi
-          sha256sum bootstrap-aarch64.zip | tee ../bootstrap-aarch64.zip.sha256
+          ( cd output && sha256sum bootstrap-aarch64.zip ) | tee ../bootstrap-aarch64.zip.sha256
 
       - name: Publish release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           tag="bootstrap-$(date +%Y.%m.%d)-${GITHUB_RUN_NUMBER}"
-          gh release create "$tag" termux-packages/bootstrap-aarch64.zip bootstrap-aarch64.zip.sha256 \
+          gh release create "$tag" termux-packages/output/bootstrap-aarch64.zip bootstrap-aarch64.zip.sha256 \
             --title "Bootstrap $tag" --notes "Built from termux-packages $TERMUX_PACKAGES_REF for com.agentdroid"
           sha=$(cut -d' ' -f1 bootstrap-aarch64.zip.sha256)
           {

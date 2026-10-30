@@ -98,4 +98,13 @@ if grep -q 'PACKAGES+=("command-not-found")' "$bb"; then
     echo "failed to drop command-not-found from build-bootstraps.sh (upstream changed?)" >&2; exit 1
 fi
 
+# 7. The final `mv` of the zip into the repository root fails with "Permission denied" inside the
+#    build container (the CI checkout is not writable for the container user), after the archive was
+#    built successfully. output/ is writable (the .deb files are written there), so put the zip there.
+if grep -q 'mv -f "${BOOTSTRAP_TMPDIR}/bootstrap-${1}.zip" "$TERMUX_PACKAGES_DIRECTORY/"' "$bb"; then
+    sed -i 's|mv -f "${BOOTSTRAP_TMPDIR}/bootstrap-${1}.zip" "$TERMUX_PACKAGES_DIRECTORY/"|mkdir -p "$TERMUX_PACKAGES_DIRECTORY/output" \&\& mv -f "${BOOTSTRAP_TMPDIR}/bootstrap-${1}.zip" "$TERMUX_PACKAGES_DIRECTORY/output/" # AGENTDROID: output dir is writable|' "$bb"
+fi
+grep -q 'AGENTDROID: output dir is writable' "$bb" \
+    || { echo "failed to patch the bootstrap zip destination (upstream changed?)" >&2; exit 1; }
+
 echo "configured $tp for $AGENTDROID_PACKAGE_NAME, repo $AGENTDROID_REPO_URL/main"
