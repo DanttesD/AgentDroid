@@ -47,3 +47,5 @@ Fixes: configure-termux-packages.sh patches build_package() to resolve subpackag
 Resumable builds: /data, installed prefix and output/*.deb are cached (actions/cache); the build is stopped with `timeout` before the 6 h job limit and can be re-run to continue.
 
 CI run #2 failed within 3 minutes: "mkdir: cannot create directory /home/builder/.termux-build/apt: Permission denied" - run-docker.sh -m created the host mount dir as root. Fixed by creating ~/.termux-build with open permissions before the build.
+
+CI run #3 (51 min, got much further: apt, bash, libbz2 etc. built) failed on `command-not-found`: its build downloads Contents-aarch64.gz from our repository -> 404 (repository does not exist yet). Fix: configure-termux-packages.sh drops it from the bootstrap package list (optional "Recommends" only). Can be added back to packages.list later once the repository has been published once.

@@ -88,4 +88,14 @@ open(p, "w").write(s.replace(needle, patch))
 PY
 fi
 
+# 6. command-not-found builds a database by downloading Contents-aarch64.gz from the package
+#    repository, which does not exist yet for our (new) repository: the build fails with a 404.
+#    It is only an optional convenience ("Recommends" of bash), so it is left out of the bootstrap.
+if grep -q '^\s*PACKAGES+=("command-not-found")' "$bb"; then
+    sed -i 's|^\(\s*\)PACKAGES+=("command-not-found")|\1: # AGENTDROID: command-not-found skipped (needs a package index that does not exist yet)|' "$bb"
+fi
+if grep -q 'PACKAGES+=("command-not-found")' "$bb"; then
+    echo "failed to drop command-not-found from build-bootstraps.sh (upstream changed?)" >&2; exit 1
+fi
+
 echo "configured $tp for $AGENTDROID_PACKAGE_NAME, repo $AGENTDROID_REPO_URL/main"
