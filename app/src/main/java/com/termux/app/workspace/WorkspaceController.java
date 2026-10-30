@@ -2297,6 +2297,9 @@ public final class WorkspaceController {
         boolean replacing = replaced != null && !replaced.isRunning() && service.getIndexOfSession(replaced) >= 0;
         if (service.getTermuxSessionsSize() >= 8 && !replacing) { activity.showToast(WorkspaceText.tr("Максимум 8 терминалов. Закройте завершённую сессию."), true); return null; }
         String directory = (!WorkspaceEnvironments.alias(profile).isEmpty() || profile.environment.equals("ssh") || (profile.environment.equals("codex") && AgentEnvironments.ubuntu(profile.codexEnvironment))) ? TermuxConstants.TERMUX_HOME_DIR_PATH : resolve(profile.directory);
+        // AGENTDROID: on a fresh install the home directory does not exist yet (it is normally created
+        // when the first shell starts, which is after this check), so create it here.
+        if (directory.equals(TermuxConstants.TERMUX_HOME_DIR_PATH)) TermuxConstants.TERMUX_HOME_DIR.mkdirs();
         if (!new File(directory).isDirectory() || !new File(directory).canExecute()) {
             activity.showToast(WorkspaceText.tr("Каталог недоступен: ") + directory, true); return null;
         }
