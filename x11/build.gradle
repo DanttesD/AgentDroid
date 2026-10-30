@@ -29,4 +29,7 @@ task verifyX11Inputs {
         }
     }
 }
+// AGENTDROID: the pinned Termux:X11 nightly APK is gone upstream and the X11 runtime is built for
+// com.termux anyway; CI builds without the native X11 runtime until it is rebuilt for com.agentdroid.
+verifyX11Inputs.onlyIf { System.getenv('AGENTDROID_SKIP_X11') == null }
 preBuild.dependsOn verifyX11Inputs

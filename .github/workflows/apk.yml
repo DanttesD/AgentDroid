@@ -37,13 +37,10 @@ jobs:
         with:
           path: .signing
           key: agentdroid-signing-v1
-      - name: Prepare the pinned X11 inputs
-        run: |
-          set -o pipefail
-          { which clang ar || sudo apt-get install -y clang binutils; clang --version | head -1; python3 scripts/prepare-x11.py; } 2>&1 | tee build.log
-
       - name: Build the debug APK
         id: build
+        env:
+          AGENTDROID_SKIP_X11: '1'
         run: |
           set -o pipefail
           chmod +x gradlew scripts/*.sh
