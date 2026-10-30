@@ -56,6 +56,10 @@ jobs:
         run: |
           sudo mkdir -p /data/data
           sudo chown -R "$(id -u):$(id -g)" /data
+          # run-docker.sh -m mounts $HOME/.termux-build; if it is missing Docker creates it
+          # owned by root and the build user in the container gets "Permission denied".
+          mkdir -p "$HOME/.termux-build"
+          chmod -R a+rwX /data "$HOME/.termux-build"
 
       - name: Restore build cache
         uses: actions/cache/restore@v4
@@ -71,7 +75,7 @@ jobs:
         working-directory: termux-packages
         run: |
           set -o pipefail
-          sudo chmod -R a+rwX /data termux-packages 2>/dev/null || true
+          sudo chmod -R a+rwX /data "$HOME/.termux-build" termux-packages 2>/dev/null || true
           # leave time for saving the cache: stop the build after 5h15m (re-run to continue)
           timeout 315m ./scripts/run-docker.sh -m ./scripts/build-bootstraps.sh \
             --architectures aarch64 ${EXTRA:+--add "$(echo $EXTRA | tr ' ' ',')"} 2>&1 | tee ../build.log
@@ -120,7 +124,7 @@ jobs:
           pkgs=$(../bootstrap/resolve-package-names.sh . < ../bootstrap/packages.list | tr '\n' ' ')
           [ -n "$pkgs" ] || exit 0
           echo "building: $pkgs"
-          sudo chmod -R a+rwX /data . 2>/dev/null || true
+          sudo chmod -R a+rwX /data "$HOME/.termux-build" . 2>/dev/null || true
           timeout 200m ./scripts/run-docker.sh -m ./build-package.sh -a aarch64 $pkgs 2>&1 | tee ../packages-build.log
 
       - name: Make build files readable for caching

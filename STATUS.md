@@ -45,3 +45,5 @@ Not verified: the workflow on GitHub, that apt on a device accepts the repositor
 Failed after 52 min: upstream build-bootstraps.sh asks for package "bzip2", which only exists as a subpackage of libbz2 at the pinned commit ("No package bzip2 found").
 Fixes: configure-termux-packages.sh patches build_package() to resolve subpackages to their parent; resolve-package-names.sh does the same for bootstrap/packages.list (curl -> libcurl).
 Resumable builds: /data, installed prefix and output/*.deb are cached (actions/cache); the build is stopped with `timeout` before the 6 h job limit and can be re-run to continue.
+
+CI run #2 failed within 3 minutes: "mkdir: cannot create directory /home/builder/.termux-build/apt: Permission denied" - run-docker.sh -m created the host mount dir as root. Fixed by creating ~/.termux-build with open permissions before the build.
