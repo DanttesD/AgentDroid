@@ -12,3 +12,4 @@ jq
 tmux
 make
 which
+cloudflared
