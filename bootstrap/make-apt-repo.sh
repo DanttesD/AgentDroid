@@ -47,9 +47,15 @@ for f in "$pool"/dpkg-perl_*.deb; do
         tmp=$(mktemp -d)
         dpkg-deb -R "$f" "$tmp"
         sed -i -E '/^Depends:/ { s/(^|, )clang(, |$)/\1/; s/, ,/,/; s/, *$//; s/^Depends: *,? */Depends: / }' "$tmp/DEBIAN/control"
-        dpkg-deb -b "$tmp" "$f" >/dev/null
+        # dpkg-deb -b insists on sane modes (Termux scripts are 0700, the temp dir 0700)
+        chmod 0755 "$tmp" "$tmp/DEBIAN"
+        for sc in preinst postinst prerm postrm config; do [ -f "$tmp/DEBIAN/$sc" ] && chmod 0755 "$tmp/DEBIAN/$sc"; done
+        if dpkg-deb -b "$tmp" "$f.new" >/dev/null && mv -f "$f.new" "$f"; then
+            echo "dpkg-perl: dropped the clang dependency"
+        else
+            rm -f "$f.new"; echo "WARNING: could not repack $f" >&2
+        fi
         rm -rf "$tmp"
-        echo "dpkg-perl: dropped the clang dependency"
     fi
 done
 n=$(find "$pool" -maxdepth 1 -name '*.deb' | wc -l)
