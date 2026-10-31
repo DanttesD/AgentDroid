@@ -1,6 +1,7 @@
 package com.termux.app;
 
 import android.app.Activity;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.text.InputType;
@@ -37,6 +38,7 @@ public class AdbConsoleActivity extends Activity {
         root.setOrientation(LinearLayout.VERTICAL);
         int pad = (int) (12 * getResources().getDisplayMetrics().density);
         root.setPadding(pad, pad, pad, pad);
+        root.setBackgroundColor(Color.parseColor("#101418"));
 
         root.addView(label("Адрес (по умолчанию этот телефон)"));
         host = edit("127.0.0.1", false);
@@ -87,10 +89,12 @@ public class AdbConsoleActivity extends Activity {
         output = new TextView(this);
         output.setTypeface(Typeface.MONOSPACE);
         output.setTextIsSelectable(true);
+        output.setTextColor(Color.WHITE);
         output.setPadding(0, pad, 0, 0);
         root.addView(output);
 
         ScrollView scroll = new ScrollView(this);
+        scroll.setBackgroundColor(Color.parseColor("#101418"));
         scroll.addView(root);
         setContentView(scroll);
     }
@@ -116,6 +120,7 @@ public class AdbConsoleActivity extends Activity {
     private TextView label(String s) {
         TextView t = new TextView(this);
         t.setText(s);
+        t.setTextColor(Color.parseColor("#9FE6D0"));
         t.setPadding(0, 24, 0, 8);
         return t;
     }
@@ -123,6 +128,8 @@ public class AdbConsoleActivity extends Activity {
     private EditText edit(String value, boolean number) {
         EditText e = new EditText(this);
         e.setText(value);
+        e.setTextColor(Color.WHITE);
+        e.setHintTextColor(Color.GRAY);
         e.setSingleLine(true);
         if (number) e.setInputType(InputType.TYPE_CLASS_NUMBER);
         return e;
