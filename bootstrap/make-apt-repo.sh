@@ -27,7 +27,34 @@ n=$(find "$debs" -maxdepth 1 -name '*.deb' | wc -l)
 [ "$n" -gt 0 ] || { echo "no .deb files in $debs" >&2; exit 1; }
 cp -f "$debs"/*.deb "$pool"/
 
-( cd "$root" && dpkg-scanpackages --multiversion pool/main /dev/null > "dists/stable/main/binary-$arch/Packages" )
+# Cached builds can leave several versions of one package in the pool (for example an old
+# termux-keyring 1.0 next to 3.14); the old one confuses apt dependency solving. Keep the newest only.
+declare -A newest_ver newest_file
+for f in "$pool"/*.deb; do
+    name=$(dpkg-deb -f "$f" Package); ver=$(dpkg-deb -f "$f" Version)
+    if [ -z "${newest_ver[$name]:-}" ] || dpkg --compare-versions "$ver" gt "${newest_ver[$name]}"; then
+        [ -n "${newest_file[$name]:-}" ] && rm -f "${newest_file[$name]}"
+        newest_ver[$name]=$ver; newest_file[$name]=$f
+    else
+        rm -f "$f"
+    fi
+done
+
+# dpkg-perl depends on clang upstream; we ship no clang, so apt could not install it. Drop that dependency.
+for f in "$pool"/dpkg-perl_*.deb; do
+    [ -e "$f" ] || continue
+    if dpkg-deb -f "$f" Depends | grep -qw clang; then
+        tmp=$(mktemp -d)
+        dpkg-deb -R "$f" "$tmp"
+        sed -i -E '/^Depends:/ { s/(^|, )clang(, |$)/\1/; s/, ,/,/; s/, *$//; s/^Depends: *,? */Depends: / }' "$tmp/DEBIAN/control"
+        dpkg-deb -b "$tmp" "$f" >/dev/null
+        rm -rf "$tmp"
+        echo "dpkg-perl: dropped the clang dependency"
+    fi
+done
+n=$(find "$pool" -maxdepth 1 -name '*.deb' | wc -l)
+
+( cd "$root" && dpkg-scanpackages pool/main /dev/null > "dists/stable/main/binary-$arch/Packages" )
 gzip -9 -k -f "$bin/Packages"
 # apt also asks for architecture-independent indexes
 mkdir -p "$dist/main/binary-all"
