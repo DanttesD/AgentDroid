@@ -75,7 +75,7 @@
             android:name=".app.TermuxActivity"
             android:exported="true"
             android:configChanges="orientation|screenSize|smallestScreenSize|density|screenLayout|uiMode|keyboard|keyboardHidden|navigation"
-            android:label="@string/application_name"
+            android:label="AgentDroid Terminal"
             android:launchMode="singleTask"
             android:resizeableActivity="true">
             <intent-filter>
