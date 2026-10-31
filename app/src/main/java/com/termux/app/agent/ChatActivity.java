@@ -26,6 +26,10 @@ import com.agentdroid.agent.ToolCall;
 import com.agentdroid.agent.Tools;
 import com.agentdroid.exec.BackendSelector;
 import com.agentdroid.exec.ExecBackend;
+import com.termux.R;
+import com.termux.app.AdbConsoleActivity;
+import com.termux.app.TermuxActivity;
+import android.content.Intent;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -69,12 +73,13 @@ public class ChatActivity extends Activity {
         TextView title = text("AgentDroid", 18, FG);
         title.setTypeface(Typeface.DEFAULT_BOLD);
         bar.addView(title, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
-        Button backendBtn = button("Backend");
-        backendBtn.setOnClickListener(v -> pickBackend());
-        bar.addView(backendBtn);
-        Button settingsBtn = button("Settings");
+        Button settingsBtn = button(getString(R.string.agent_settings));
         settingsBtn.setOnClickListener(v -> showSettings());
         bar.addView(settingsBtn);
+        Button menuBtn = button("\u22ee");
+        menuBtn.setContentDescription(getString(R.string.agent_menu));
+        menuBtn.setOnClickListener(v -> showMenu());
+        bar.addView(menuBtn);
         root.addView(bar);
 
         backendLabel = text("", 12, DIM);
@@ -91,20 +96,20 @@ public class ChatActivity extends Activity {
         input = new EditText(this);
         input.setTextColor(FG);
         input.setHintTextColor(DIM);
-        input.setHint("Message the agent…");
+        input.setHint(R.string.agent_hint);
         input.setBackgroundColor(PANEL);
         input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE);
         input.setMaxLines(5);
         input.setPadding(pad, pad, pad, pad);
         row.addView(input, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
-        sendBtn = button("Send");
+        sendBtn = button(getString(R.string.agent_send));
         sendBtn.setOnClickListener(v -> onSend());
         row.addView(sendBtn);
         root.addView(row);
         setContentView(root);
 
         refreshBackendLabel();
-        addNote("Pick a provider and API key in Settings, then write a task. Shell and file writes ask for your approval.");
+        addNote(getString(R.string.agent_intro));
     }
 
     private int dp(int v) { return (int) (v * getResources().getDisplayMetrics().density); }
@@ -153,21 +158,33 @@ public class ChatActivity extends Activity {
             ExecBackend b = sel.select();
             String pin = sel.pinned();
             String s = (b == null)
-                    ? (pin != null ? "Pinned backend '" + pin + "' is not available" : "No backend available (enable root, local ADB or install Termux)")
-                    : "Backend: " + b.displayName() + (pin != null ? " (pinned)" : " (auto)");
+                    ? (pin != null ? getString(R.string.agent_backend_pinned_missing, pin) : getString(R.string.agent_backend_none))
+                    : getString(R.string.agent_backend_line, b.displayName(),
+                            getString(pin != null ? R.string.agent_mode_pinned : R.string.agent_mode_auto));
             runOnUiThread(() -> backendLabel.setText(s + "   |   " + config.provider() + " / " + config.model()));
         }, "backend-probe").start();
+    }
+
+    private void showMenu() {
+        final String[] items = {getString(R.string.agent_menu_backend), getString(R.string.agent_menu_terminal),
+                getString(R.string.agent_menu_adb), getString(R.string.agent_menu_accounts)};
+        new AlertDialog.Builder(this).setItems(items, (d, which) -> {
+            if (which == 0) pickBackend();
+            else if (which == 1) startActivity(new Intent(this, TermuxActivity.class));
+            else if (which == 2) startActivity(new Intent(this, AdbConsoleActivity.class));
+            else addNote(getString(R.string.agent_accounts_soon));
+        }).show();
     }
 
     private void pickBackend() {
         final String[] ids = new String[selector.all().size() + 1];
         final String[] names = new String[ids.length];
-        ids[0] = ""; names[0] = "Automatic (first available)";
+        ids[0] = ""; names[0] = getString(R.string.agent_backend_auto_item);
         for (int i = 0; i < selector.all().size(); i++) {
             ids[i + 1] = selector.all().get(i).id();
             names[i + 1] = selector.all().get(i).displayName();
         }
-        new AlertDialog.Builder(this).setTitle("Where commands run").setItems(names, (d, which) -> {
+        new AlertDialog.Builder(this).setTitle(R.string.agent_backend_title).setItems(names, (d, which) -> {
             config.setBackendPin(ids[which]);
             selector.pin(ids[which].isEmpty() ? null : ids[which]);
             loop = null;
@@ -181,14 +198,18 @@ public class ChatActivity extends Activity {
         int p = dp(16);
         box.setPadding(p, p, p, 0);
         final Spinner sp = new Spinner(this);
-        sp.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, AgentConfig.PROVIDER_LABELS));
+        final int[] labelIds = {R.string.agent_provider_anthropic, R.string.agent_provider_openai,
+                R.string.agent_provider_deepseek, R.string.agent_provider_custom};
+        String[] labels = new String[labelIds.length];
+        for (int i = 0; i < labelIds.length; i++) labels[i] = getString(labelIds[i]);
+        sp.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, labels));
         int cur = 0;
         for (int i = 0; i < AgentConfig.PROVIDERS.length; i++) if (AgentConfig.PROVIDERS[i].equals(config.provider())) cur = i;
         sp.setSelection(cur);
         box.addView(sp);
-        final EditText url = field("Base URL", false);
-        final EditText model = field("Model", false);
-        final EditText key = field("API key (stored encrypted)", true);
+        final EditText url = field(getString(R.string.agent_base_url), false);
+        final EditText model = field(getString(R.string.agent_model), false);
+        final EditText key = field(getString(R.string.agent_key_hint), true);
         box.addView(url); box.addView(model); box.addView(key);
         final int[] shown = {cur};
         fill(url, model, key);
@@ -201,8 +222,8 @@ public class ChatActivity extends Activity {
             }
             @Override public void onNothingSelected(AdapterView<?> parent) { }
         });
-        new AlertDialog.Builder(this).setTitle("Model provider").setView(box)
-                .setPositiveButton("Save", (d, w) -> {
+        new AlertDialog.Builder(this).setTitle(R.string.agent_provider_title).setView(box)
+                .setPositiveButton(R.string.agent_save, (d, w) -> {
                     config.setProvider(AgentConfig.PROVIDERS[sp.getSelectedItemPosition()]);
                     config.setBaseUrl(url.getText().toString().trim());
                     config.setModel(model.getText().toString().trim());
@@ -211,14 +232,14 @@ public class ChatActivity extends Activity {
                     loop = null;
                     refreshBackendLabel();
                 })
-                .setNegativeButton("Cancel", null).show();
+                .setNegativeButton(R.string.agent_cancel, null).show();
     }
 
     private void fill(EditText url, EditText model, EditText key) {
         url.setText(config.baseUrl());
         model.setText(config.model());
         key.setText("");
-        key.setHint(config.apiKey().isEmpty() ? "API key (not set)" : "API key (saved — leave empty to keep)");
+        key.setHint(config.apiKey().isEmpty() ? R.string.agent_key_unset : R.string.agent_key_saved);
     }
 
     private EditText field(String hint, boolean secret) {
@@ -238,7 +259,7 @@ public class ChatActivity extends Activity {
         final Approver approver = (call, description) -> askUser(description);
         String system = "You are AgentDroid, an agent running on an Android phone. You act through tools: shell, read_file, "
                 + "write_file, list_dir. Commands run through: " + backend.displayName() + ". Be concise, check results, "
-                + "and explain what you did.";
+                + "and explain what you did. Reply in the language the user writes in (Russian by default).";
         l = new AgentLoop(config.build(), Tools.standard(backend, AgentBackends.TERMUX_HOME), approver, system, 25);
         loop = l;
         return l;
@@ -249,9 +270,9 @@ public class ChatActivity extends Activity {
         final CountDownLatch latch = new CountDownLatch(1);
         final AtomicBoolean ok = new AtomicBoolean(false);
         runOnUiThread(() -> new AlertDialog.Builder(ChatActivity.this)
-                .setTitle("Allow this action?").setMessage(description).setCancelable(false)
-                .setPositiveButton("Allow", (d, w) -> { ok.set(true); latch.countDown(); })
-                .setNegativeButton("Deny", (d, w) -> latch.countDown()).show());
+                .setTitle(R.string.agent_allow_title).setMessage(description).setCancelable(false)
+                .setPositiveButton(R.string.agent_allow, (d, w) -> { ok.set(true); latch.countDown(); })
+                .setNegativeButton(R.string.agent_deny, (d, w) -> latch.countDown()).show());
         try { latch.await(); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
         return ok.get();
     }
@@ -264,12 +285,12 @@ public class ChatActivity extends Activity {
         input.setText("");
         bubble(msg, FG, PANEL);
         busy = true;
-        sendBtn.setText("Stop");
+        sendBtn.setText(R.string.agent_stop);
         currentAssistant = null;
         new Thread(() -> {
             try {
                 AgentLoop l = ensureLoop();
-                if (l == null) { runOnUiThread(() -> addNote("No backend available. Choose one under Backend.")); return; }
+                if (l == null) { runOnUiThread(() -> addNote(getString(R.string.agent_no_backend))); return; }
                 l.send(msg, new StreamListener() {
                     @Override public void onText(final String delta) {
                         runOnUiThread(() -> {
@@ -292,7 +313,7 @@ public class ChatActivity extends Activity {
             } catch (final Exception e) {
                 runOnUiThread(() -> addNote("⚠ " + e.getMessage()));
             } finally {
-                runOnUiThread(() -> { busy = false; sendBtn.setText("Send"); currentAssistant = null; });
+                runOnUiThread(() -> { busy = false; sendBtn.setText(R.string.agent_send); currentAssistant = null; });
             }
         }, "agent-loop").start();
     }

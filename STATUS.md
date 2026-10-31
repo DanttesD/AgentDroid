@@ -66,3 +66,8 @@ CI run #3 (51 min, got much further: apt, bash, libbz2 etc. built) failed on `co
 - `:agent` (pure Java, 6 JUnit tests with mock HTTP server): Json, OpenAI-compatible provider (also DeepSeek), Anthropic provider, AgentLoop with approvals and step limit, tools shell/read_file/write_file/list_dir through ExecBackend.
 - App: `ChatActivity` (second launcher icon "AgentDroid"), provider/key settings (key encrypted by Android Keystore), backend picker (root / ADB 127.0.0.1:5555 / Termux).
 - Not yet compiled on CI at the time of writing — verify with the APK workflow.
+
+## 2026-10-31 — one icon, Russian UI (user request)
+- Single launcher icon "AgentDroid" = chat. Terminal (TermuxActivity) and ADB console are no longer launcher entries; they open from the chat menu (⋮) and are mainly tools for the agent.
+- Chat UI strings moved to resources (values / values-ru, `agent_strings.xml`); Russian by default on a Russian device; agent replies in the user's language.
+- Planned next: accounts screen. Facts to respect: consumer subscriptions (ChatGPT, Claude, Gemini) do not give API access to third-party apps; real sign-in routes are (1) OpenRouter OAuth (PKCE) -> API key, (2) official CLIs (Claude Code, Codex, Gemini CLI, OpenCode) with their own login inside the built-in terminal, (3) API keys.

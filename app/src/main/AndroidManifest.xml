@@ -60,12 +60,7 @@
         <activity
             android:name=".app.AdbConsoleActivity"
             android:label="AgentDroid ADB"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+            android:exported="false" />
 
 
         <uses-native-library android:name="libOpenCL.so" android:required="false" />
@@ -78,17 +73,6 @@
             android:label="AgentDroid Terminal"
             android:launchMode="singleTask"
             android:resizeableActivity="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
-            </intent-filter>
-
             <meta-data
                 android:name="android.app.shortcuts"
                 android:resource="@xml/shortcuts" />

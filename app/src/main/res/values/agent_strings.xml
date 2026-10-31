@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="agent_settings">Settings</string>
+    <string name="agent_menu">Menu</string>
+    <string name="agent_hint">Message the agent…</string>
+    <string name="agent_send">Send</string>
+    <string name="agent_stop">Stop</string>
+    <string name="agent_intro">Pick a provider and API key in Settings, then write a task. Shell commands and file writes ask for your approval.</string>
+    <string name="agent_backend_pinned_missing">Pinned backend \'%1$s\' is not available</string>
+    <string name="agent_backend_none">No backend available (enable root, local ADB or install Termux)</string>
+    <string name="agent_backend_line">Backend: %1$s (%2$s)</string>
+    <string name="agent_mode_pinned">pinned</string>
+    <string name="agent_mode_auto">auto</string>
+    <string name="agent_backend_auto_item">Automatic (first available)</string>
+    <string name="agent_backend_title">Where commands run</string>
+    <string name="agent_menu_backend">Where commands run</string>
+    <string name="agent_menu_terminal">Terminal</string>
+    <string name="agent_menu_adb">ADB console</string>
+    <string name="agent_menu_accounts">Accounts and sign-in (soon)</string>
+    <string name="agent_provider_title">Model provider</string>
+    <string name="agent_save">Save</string>
+    <string name="agent_cancel">Cancel</string>
+    <string name="agent_base_url">Base URL</string>
+    <string name="agent_model">Model</string>
+    <string name="agent_key_hint">API key (stored encrypted)</string>
+    <string name="agent_key_unset">API key (not set)</string>
+    <string name="agent_key_saved">API key (saved — leave empty to keep)</string>
+    <string name="agent_allow_title">Allow this action?</string>
+    <string name="agent_allow">Allow</string>
+    <string name="agent_deny">Deny</string>
+    <string name="agent_no_backend">No backend available. Choose one in the menu.</string>
+    <string name="agent_accounts_soon">Sign-in with accounts is being built: OpenRouter sign-in, then official agent logins (Claude Code, Codex, Gemini CLI, OpenCode) in the built-in terminal.</string>
+    <string name="agent_provider_anthropic">Anthropic (Claude)</string>
+    <string name="agent_provider_openai">OpenAI</string>
+    <string name="agent_provider_deepseek">DeepSeek</string>
+    <string name="agent_provider_custom">Custom (OpenAI-compatible, e.g. OpenRouter)</string>
+</resources>

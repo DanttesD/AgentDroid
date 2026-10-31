@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="agent_settings">Настройки</string>
+    <string name="agent_menu">Меню</string>
+    <string name="agent_hint">Напиши агенту…</string>
+    <string name="agent_send">Отправить</string>
+    <string name="agent_stop">Стоп</string>
+    <string name="agent_intro">Выбери провайдера и ключ в «Настройках», затем напиши задачу. Команды и запись файлов агент выполняет только с твоего разрешения.</string>
+    <string name="agent_backend_pinned_missing">Выбранный способ «%1$s» сейчас недоступен</string>
+    <string name="agent_backend_none">Нет доступного способа выполнения (включи root, локальный ADB или установи Termux)</string>
+    <string name="agent_backend_line">Выполнение: %1$s (%2$s)</string>
+    <string name="agent_mode_pinned">выбрано</string>
+    <string name="agent_mode_auto">авто</string>
+    <string name="agent_backend_auto_item">Автоматически (первый доступный)</string>
+    <string name="agent_backend_title">Где выполнять команды</string>
+    <string name="agent_menu_backend">Где выполнять команды</string>
+    <string name="agent_menu_terminal">Терминал</string>
+    <string name="agent_menu_adb">Консоль ADB</string>
+    <string name="agent_menu_accounts">Аккаунты и вход (скоро)</string>
+    <string name="agent_provider_title">Провайдер модели</string>
+    <string name="agent_save">Сохранить</string>
+    <string name="agent_cancel">Отмена</string>
+    <string name="agent_base_url">Адрес API (Base URL)</string>
+    <string name="agent_model">Модель</string>
+    <string name="agent_key_hint">API-ключ (хранится зашифрованным)</string>
+    <string name="agent_key_unset">API-ключ (не задан)</string>
+    <string name="agent_key_saved">API-ключ (сохранён — оставь пустым, чтобы не менять)</string>
+    <string name="agent_allow_title">Разрешить действие?</string>
+    <string name="agent_allow">Разрешить</string>
+    <string name="agent_deny">Запретить</string>
+    <string name="agent_no_backend">Нет доступного способа выполнения. Выбери его в меню.</string>
+    <string name="agent_accounts_soon">Вход через аккаунты в разработке: сначала вход через OpenRouter, затем официальные входы агентов (Claude Code, Codex, Gemini CLI, OpenCode) во встроенном терминале.</string>
+    <string name="agent_provider_anthropic">Anthropic (Claude)</string>
+    <string name="agent_provider_openai">OpenAI</string>
+    <string name="agent_provider_deepseek">DeepSeek</string>
+    <string name="agent_provider_custom">Свой (OpenAI-совместимый, например OpenRouter)</string>
+</resources>
