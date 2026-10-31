@@ -136,6 +136,10 @@ android {
         jniLibs {
             useLegacyPackaging true
         }
+        // The bouncycastle jars (used by the own ADB client) ship identical OSGi metadata.
+        resources {
+            excludes += ['META-INF/versions/9/OSGI-INF/MANIFEST.MF', 'META-INF/versions/*/OSGI-INF/MANIFEST.MF', 'META-INF/DEPENDENCIES', 'META-INF/LICENSE*', 'META-INF/NOTICE*', 'META-INF/INDEX.LIST']
+        }
     }
 
     applicationVariants.all { variant ->
