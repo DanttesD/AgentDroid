@@ -57,6 +57,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".app.agent.McpActivity" android:label="AgentDroid MCP" android:exported="false" />
+        <activity android:name=".app.agent.WebBrowserActivity" android:label="AgentDroid Browser" android:exported="false"
+            android:configChanges="orientation|screenSize|keyboardHidden" />
+        <service android:name=".app.agent.McpService" android:exported="false" />
         <activity
             android:name=".app.AdbConsoleActivity"
             android:label="AgentDroid ADB"

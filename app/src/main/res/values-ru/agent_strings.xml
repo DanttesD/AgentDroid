@@ -34,4 +34,22 @@
     <string name="agent_provider_openai">OpenAI</string>
     <string name="agent_provider_deepseek">DeepSeek</string>
     <string name="agent_provider_custom">Свой (OpenAI-совместимый, например OpenRouter)</string>
+    <string name="mcp_title">Внешние агенты (MCP)</string>
+    <string name="mcp_notification">MCP-сервер работает</string>
+    <string name="mcp_intro">Сервер даёт любому MCP-клиенту (claude.ai, Claude Code, Codex, OpenCode…) инструменты телефона: команды через выбранный способ (root, ADB или Termux), чтение и запись файлов. Каждое рискованное действие подтверждается на телефоне.</string>
+    <string name="mcp_start">Запустить сервер</string>
+    <string name="mcp_stop">Остановить сервер</string>
+    <string name="mcp_status_on">Работает на порту %1$d</string>
+    <string name="mcp_status_off">Остановлен</string>
+    <string name="mcp_local_url">Локальный адрес (для агентов на этом телефоне):\n%1$s</string>
+    <string name="mcp_copy">Скопировать адрес</string>
+    <string name="mcp_copied">Скопировано</string>
+    <string name="mcp_new_token">Сменить секрет (остановит сервер)</string>
+    <string name="mcp_tunnel_title">Для claude.ai в браузере нужен публичный адрес</string>
+    <string name="mcp_tunnel_text">claude.ai обращается к коннектору с серверов Anthropic, поэтому нужен туннель. Выполни в терминале:\n\npkg install cloudflared\ncloudflared tunnel --url http://127.0.0.1:%1$d\n\nОн покажет адрес вида https://….trycloudflare.com. В claude.ai открой Настройки → Коннекторы → Добавить свой коннектор и введи этот адрес с добавлением %2$s. В адресе есть секрет — никому его не показывай.</string>
+    <string name="mcp_open_terminal">Открыть терминал</string>
+    <string name="mcp_copy_tunnel_cmd">Скопировать команду туннеля</string>
+    <string name="mcp_open_claude">Открыть claude.ai во встроенном браузере</string>
+    <string name="agent_menu_mcp">Внешние агенты (MCP)</string>
+    <string name="agent_menu_browser">Браузер</string>
 </resources>

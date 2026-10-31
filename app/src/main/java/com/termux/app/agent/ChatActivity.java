@@ -167,11 +167,14 @@ public class ChatActivity extends Activity {
 
     private void showMenu() {
         final String[] items = {getString(R.string.agent_menu_backend), getString(R.string.agent_menu_terminal),
-                getString(R.string.agent_menu_adb), getString(R.string.agent_menu_accounts)};
+                getString(R.string.agent_menu_adb), getString(R.string.agent_menu_mcp),
+                getString(R.string.agent_menu_browser), getString(R.string.agent_menu_accounts)};
         new AlertDialog.Builder(this).setItems(items, (d, which) -> {
             if (which == 0) pickBackend();
             else if (which == 1) startActivity(new Intent(this, TermuxActivity.class));
             else if (which == 2) startActivity(new Intent(this, AdbConsoleActivity.class));
+            else if (which == 3) startActivity(new Intent(this, McpActivity.class));
+            else if (which == 4) startActivity(new Intent(this, WebBrowserActivity.class));
             else addNote(getString(R.string.agent_accounts_soon));
         }).show();
     }
@@ -267,15 +270,12 @@ public class ChatActivity extends Activity {
 
     /** Blocks the agent thread until the user answers. */
     private boolean askUser(final String description) {
-        final CountDownLatch latch = new CountDownLatch(1);
-        final AtomicBoolean ok = new AtomicBoolean(false);
-        runOnUiThread(() -> new AlertDialog.Builder(ChatActivity.this)
-                .setTitle(R.string.agent_allow_title).setMessage(description).setCancelable(false)
-                .setPositiveButton(R.string.agent_allow, (d, w) -> { ok.set(true); latch.countDown(); })
-                .setNegativeButton(R.string.agent_deny, (d, w) -> latch.countDown()).show());
-        try { latch.await(); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
-        return ok.get();
+        return ApprovalCenter.ask(getApplicationContext(), description);
     }
+
+    @Override protected void onResume() { super.onResume(); ApprovalCenter.onResume(this); }
+
+    @Override protected void onPause() { ApprovalCenter.onPause(this); super.onPause(); }
 
     private void onSend() {
         if (busy) { AgentLoop l = loop; if (l != null) l.cancel(); return; }

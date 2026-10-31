@@ -34,4 +34,22 @@
     <string name="agent_provider_openai">OpenAI</string>
     <string name="agent_provider_deepseek">DeepSeek</string>
     <string name="agent_provider_custom">Custom (OpenAI-compatible, e.g. OpenRouter)</string>
+    <string name="mcp_title">External agents (MCP)</string>
+    <string name="mcp_notification">MCP server is running</string>
+    <string name="mcp_intro">The server gives any MCP client (claude.ai, Claude Code, Codex, OpenCode…) the phone\'s tools: commands through the chosen backend (root/ADB/Termux) and file read/write. Every risky action is confirmed on the phone.</string>
+    <string name="mcp_start">Start server</string>
+    <string name="mcp_stop">Stop server</string>
+    <string name="mcp_status_on">Running on port %1$d</string>
+    <string name="mcp_status_off">Stopped</string>
+    <string name="mcp_local_url">Local address (for agents on this phone):\n%1$s</string>
+    <string name="mcp_copy">Copy address</string>
+    <string name="mcp_copied">Copied</string>
+    <string name="mcp_new_token">Change secret (stops the server)</string>
+    <string name="mcp_tunnel_title">claude.ai in a browser needs a public address</string>
+    <string name="mcp_tunnel_text">claude.ai calls the connector from Anthropic\'s servers, so a tunnel is required. Run in the terminal:\n\npkg install cloudflared\ncloudflared tunnel --url http://127.0.0.1:%1$d\n\nIt prints an address like https://….trycloudflare.com. In claude.ai open Settings → Connectors → Add custom connector and enter that address followed by %2$s. The address contains a secret — do not share it.</string>
+    <string name="mcp_open_terminal">Open terminal</string>
+    <string name="mcp_copy_tunnel_cmd">Copy tunnel command</string>
+    <string name="mcp_open_claude">Open claude.ai in the built-in browser</string>
+    <string name="agent_menu_mcp">External agents (MCP)</string>
+    <string name="agent_menu_browser">Browser</string>
 </resources>

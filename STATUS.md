@@ -71,3 +71,9 @@ CI run #3 (51 min, got much further: apt, bash, libbz2 etc. built) failed on `co
 - Single launcher icon "AgentDroid" = chat. Terminal (TermuxActivity) and ADB console are no longer launcher entries; they open from the chat menu (⋮) and are mainly tools for the agent.
 - Chat UI strings moved to resources (values / values-ru, `agent_strings.xml`); Russian by default on a Russian device; agent replies in the user's language.
 - Planned next: accounts screen. Facts to respect: consumer subscriptions (ChatGPT, Claude, Gemini) do not give API access to third-party apps; real sign-in routes are (1) OpenRouter OAuth (PKCE) -> API key, (2) official CLIs (Claude Code, Codex, Gemini CLI, OpenCode) with their own login inside the built-in terminal, (3) API keys.
+
+## 2026-10-31 — MCP server + built-in browser (user: "реализуй оба варианта")
+- `:agent` `McpServer` (plain sockets, MCP Streamable HTTP, endpoint `/mcp/<secret>` or Bearer): tools shell/read_file/write_file/list_dir through the selected backend; risky calls need approval on the phone (dialog, or notification if the app is in background). 5 JUnit tests.
+- App: `McpService` (foreground), `McpActivity` (start/stop, local URL, secret rotation, cloudflared tunnel instructions), `WebBrowserActivity` (WebView, "; wv" removed from UA for sign-ins), menu items in chat.
+- Path A (claude.ai chat uses the phone): needs public tunnel (cloudflared in Termux — package availability in our apt repo NOT verified) + custom connector in claude.ai (plan availability NOT verified).
+- Path B: our own chat (API key). Path C: external agents (Claude Code, Codex, OpenCode…) connect to local MCP URL. Not tested on a device yet.
