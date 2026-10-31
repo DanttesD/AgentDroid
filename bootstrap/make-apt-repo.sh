@@ -47,6 +47,8 @@ for f in "$pool"/dpkg-perl_*.deb; do
         tmp=$(mktemp -d)
         dpkg-deb -R "$f" "$tmp"
         sed -i -E '/^Depends:/ { s/(^|, )clang(, |$)/\1/; s/, ,/,/; s/, *$//; s/^Depends: *,? */Depends: / }' "$tmp/DEBIAN/control"
+        # new version number so that devices which already have the broken -5 upgrade to the fixed package
+        sed -i -E '0,/^Version: / s/^(Version: .*)$/\1+ad1/' "$tmp/DEBIAN/control"
         # dpkg-deb -b insists on sane modes (Termux scripts are 0700, the temp dir 0700)
         chmod 0755 "$tmp" "$tmp/DEBIAN"
         for sc in preinst postinst prerm postrm config; do [ -f "$tmp/DEBIAN/$sc" ] && chmod 0755 "$tmp/DEBIAN/$sc"; done
