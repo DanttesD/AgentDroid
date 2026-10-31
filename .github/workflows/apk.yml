@@ -37,6 +37,22 @@ jobs:
         with:
           path: .signing
           key: agentdroid-signing-v1
+      # The permanent signing key lives in the repository secret AGENTDROID_KEYSTORE_B64
+      # (base64 of the .jks file). With it every build is signed the same way, so a new APK
+      # installs over the old one without uninstalling.
+      - name: Use the permanent signing key
+        env:
+          KEYSTORE_B64: ${{ secrets.AGENTDROID_KEYSTORE_B64 }}
+        run: |
+          if [ -n "$KEYSTORE_B64" ]; then
+            mkdir -p .signing
+            printf '%s' "$KEYSTORE_B64" | tr -d ' \n\r' | base64 -d > .signing/fork-debug.jks
+            keytool -list -keystore .signing/fork-debug.jks -storepass termux-fork-debug | grep -E "Keystore type|Your keystore"
+            echo "::notice title=Signing::permanent key in use"
+          else
+            echo "::warning title=Signing::no secret AGENTDROID_KEYSTORE_B64, using a temporary key (the app must be uninstalled before updating)"
+          fi
+
       - name: Use the new aapt2 (the old Android Gradle Plugin cannot read the API 35 android.jar)
         run: |
           mkdir -p .tools/gradle-home

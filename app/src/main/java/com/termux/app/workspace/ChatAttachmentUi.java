@@ -126,7 +126,7 @@ final class ChatAttachmentUi implements AutoCloseable {
         try{
             if(Build.VERSION.SDK_INT>=26&&!activity.getPackageManager().canRequestPackageInstalls()){
                 WorkspaceDialogs.builder(activity).setTitle(t("Разрешение на установку","Installation permission"))
-                    .setMessage(t("Разрешите установку из Termux Job’s в настройках Android, затем вернитесь и снова нажмите «Установить».","Allow installs from Termux Job’s in Android settings, then return and tap Install again."))
+                    .setMessage(t("Разрешите установку из AgentDroid в настройках Android, затем вернитесь и снова нажмите «Установить».","Allow installs from AgentDroid in Android settings, then return and tap Install again."))
                     .setPositiveButton(t("Настройки Android","Android settings"),(d,w)->{try{activity.startActivity(new android.content.Intent(android.provider.Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES,android.net.Uri.parse("package:"+activity.getPackageName())));}catch(Exception e){Toast.makeText(activity,t("Не удалось открыть настройки","Could not open settings"),Toast.LENGTH_LONG).show();}})
                     .setNegativeButton(t("Отмена","Cancel"),null).show();return;
             }

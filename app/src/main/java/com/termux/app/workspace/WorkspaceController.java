@@ -343,7 +343,7 @@ public final class WorkspaceController {
         if (navigation.getParent() != null) ((ViewGroup) navigation.getParent()).removeView(navigation);
         header.removeAllViews(); header.setPadding(dp(8), dp(4), dp(8), dp(4));
         LinearLayout top = row();
-        TextView name = text("Termux Job’s v2.0", 17, TEXT); name.setTypeface(null, Typeface.BOLD_ITALIC);
+        TextView name = text("AgentDroid", 17, TEXT); name.setTypeface(null, Typeface.BOLD_ITALIC);
         name.setSingleLine(); name.setEllipsize(TextUtils.TruncateAt.END);
         LinearLayout brand = row();
         brand.addView(name, new LinearLayout.LayoutParams(0, -2, 1));

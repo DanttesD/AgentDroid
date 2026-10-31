@@ -67,7 +67,7 @@ public final class WorkspaceDiagnostics {
     static synchronized void pause(String id,boolean value){Run r=RUNS.get(id);if(r!=null&&r.paused!=value){r.paused=value;append(r,value?"COLLECTION_PAUSED":"COLLECTION_RESUMED; paused interval unavailable");}}
     static synchronized String report(WorkspaceStore.Session profile,TerminalSession terminal){
         Run r=RUNS.get(profile.id);
-        StringBuilder b=new StringBuilder("Termux Job's diagnostics\nApp: "+com.termux.BuildConfig.VERSION_NAME+"\nFormat: 2\nGenerated: ").append(stamp()).append('\n');
+        StringBuilder b=new StringBuilder("AgentDroid diagnostics\nApp: "+com.termux.BuildConfig.VERSION_NAME+"\nFormat: 2\nGenerated: ").append(stamp()).append('\n');
         b.append("Session: ").append(profile.id).append("\nEnvironment: ").append(profile.environment).append("\nAgent: ").append(agent(profile));
         b.append("\nExtended requested: ").append(profile.extendedDebug).append("\nExtended active at launch: ").append(r!=null&&r.extendedAtLaunch);
         b.append("\nDetailed collection now: ").append(r!=null&&r.extended).append("\nLaunches observed: ").append(r==null?0:r.launches).append("\nLast event timestamp: ").append(r==null?0:r.lastEvent);

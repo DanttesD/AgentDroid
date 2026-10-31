@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="application_name">"Termux Job’s"</string>
-    <string name="shared_user_label">"Пользователь Termux Job’s"</string>
-    <string name="permission_run_command_label">"Запуск команд в среде Termux Job’s"</string>
-    <string name="permission_run_command_description">"Выполнение произвольных команд в среде Termux Job’s и доступ к файлам"</string>
+    <string name="application_name">"AgentDroid"</string>
+    <string name="shared_user_label">"Пользователь AgentDroid"</string>
+    <string name="permission_run_command_label">"Запуск команд в среде AgentDroid"</string>
+    <string name="permission_run_command_description">"Выполнение произвольных команд в среде AgentDroid и доступ к файлам"</string>
     <string name="bootstrap_installer_body">"Установка базовых пакетов…"</string>
     <string name="bootstrap_error_title">"Не удалось установить базовые пакеты"</string>
-    <string name="bootstrap_error_body">"Termux Job’s не удалось установить базовые пакеты."</string>
+    <string name="bootstrap_error_body">"AgentDroid не удалось установить базовые пакеты."</string>
     <string name="bootstrap_error_abort">"Прервать"</string>
     <string name="bootstrap_error_try_again">"Повторить"</string>
-    <string name="bootstrap_error_not_primary_user_message">"Termux Job’s работает только у основного пользователя Android.\nБазовые пакеты содержат фиксированный путь $PREFIX и могут быть установлены только в %1$s."</string>
+    <string name="bootstrap_error_not_primary_user_message">"AgentDroid работает только у основного пользователя Android.\nБазовые пакеты содержат фиксированный путь $PREFIX и могут быть установлены только в %1$s."</string>
     <string name="action_new_session">"Новая сессия"</string>
     <string name="action_new_session_failsafe">"Аварийная оболочка"</string>
     <string name="title_max_terminals_reached">"Достигнут лимит терминалов"</string>
@@ -49,7 +49,7 @@
     <string name="notification_action_exit">"Выйти"</string>
     <string name="notification_action_wake_lock">"Не давать устройству уснуть"</string>
     <string name="notification_action_wake_unlock">"Разрешить устройству уснуть"</string>
-    <string name="error_display_over_other_apps_permission_not_granted">"Для запуска терминальных сессий из фона на Android 10+ приложению Termux Job’s нужно разрешение «Поверх других приложений». Включите его в Настройки → Приложения → Termux Job’s → Дополнительно."</string>
+    <string name="error_display_over_other_apps_permission_not_granted">"Для запуска терминальных сессий из фона на Android 10+ приложению AgentDroid нужно разрешение «Поверх других приложений». Включите его в Настройки → Приложения → AgentDroid → Дополнительно."</string>
     <string name="error_run_command_service_invalid_intent_action">"Некорректное действие Intent для RunCommandService: `%1$s`"</string>
     <string name="error_run_command_service_mandatory_extra_missing">"В RunCommandService отсутствует обязательный параметр: «%1$s»"</string>
     <string name="error_run_command_service_api_help">"Подробнее об использовании RUN_COMMAND Intent: %1$s."</string>
@@ -57,9 +57,9 @@
     <string name="action_file_received_edit">"Редактировать"</string>
     <string name="action_file_received_open_directory">"Открыть каталог"</string>
     <string name="error_allow_external_apps_ungranted">"Для %1$s требуется установить `allow-external-apps` в `true` в файле `%2$s`."</string>
-    <string name="title_activity_termux_settings">"Настройки Termux Job’s"</string>
-    <string name="termux_preferences_title">"Termux Job’s"</string>
-    <string name="termux_preferences_summary">"Настройки приложения Termux Job’s"</string>
+    <string name="title_activity_termux_settings">"Настройки AgentDroid"</string>
+    <string name="termux_preferences_title">"AgentDroid"</string>
+    <string name="termux_preferences_summary">"Настройки приложения AgentDroid"</string>
     <string name="termux_debugging_preferences_title">"Отладка"</string>
     <string name="termux_debugging_preferences_summary">"Настройки отладки"</string>
     <string name="termux_logging_header">"Журналирование"</string>

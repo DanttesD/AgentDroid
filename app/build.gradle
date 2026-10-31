@@ -52,7 +52,7 @@ android {
         validateVersionName(versionName)
 
         manifestPlaceholders.TERMUX_PACKAGE_NAME = "com.agentdroid"
-        manifestPlaceholders.TERMUX_APP_NAME = "Termux Job’s"
+        manifestPlaceholders.TERMUX_APP_NAME = "AgentDroid"
         manifestPlaceholders.TERMUX_API_APP_NAME = "Termux:API"
         manifestPlaceholders.TERMUX_BOOT_APP_NAME = "Termux:Boot"
         manifestPlaceholders.TERMUX_FLOAT_APP_NAME = "Termux:Float"

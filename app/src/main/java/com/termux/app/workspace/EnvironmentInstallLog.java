@@ -25,7 +25,7 @@ final class EnvironmentInstallLog {
         return text.replaceAll("\\b(?:gh[pousr]_[A-Za-z0-9_]+|github[_]pat[_][A-Za-z0-9_]+|sk-[A-Za-z0-9_-]{16,})","[token redacted]");
     }
     static String report(String alias,int code,String output){
-        return "Termux Job's environment installation\nEnvironment: "+alias+"\nExit status: "+code+"\nRecorded: "+new Date()+"\n\n"+clean(output.length()>LIMIT+TRUNCATED.length()?TRUNCATED+output.substring(output.length()-LIMIT):output);
+        return "AgentDroid environment installation\nEnvironment: "+alias+"\nExit status: "+code+"\nRecorded: "+new Date()+"\n\n"+clean(output.length()>LIMIT+TRUNCATED.length()?TRUNCATED+output.substring(output.length()-LIMIT):output);
     }
     private static Path path(File files,String alias)throws IOException{
         if(!WorkspaceLocalFilePicker.validAlias(alias)||alias.equals("termux"))throw new IOException("INVALID_ALIAS");

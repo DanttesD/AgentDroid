@@ -256,7 +256,7 @@ public class X11Service extends Service {
         String channel="workspace-x11";manager.createNotificationChannel(new NotificationChannel(channel,"X11",NotificationManager.IMPORTANCE_LOW));
         PendingIntent open=PendingIntent.getActivity(this,0,getPackageManager().getLaunchIntentForPackage(getPackageName()),PendingIntent.FLAG_UPDATE_CURRENT|PendingIntent.FLAG_IMMUTABLE);
         PendingIntent stop=PendingIntent.getService(this,environment().display,new Intent(this,getClass()).setAction(STOP),PendingIntent.FLAG_UPDATE_CURRENT|PendingIntent.FLAG_IMMUTABLE);
-        Notification notification=new Notification.Builder(this,channel).setSmallIcon(android.R.drawable.ic_menu_view).setContentTitle("Termux Job’s · "+"X11"+" · "+environment().target).setContentText(tr("Проверочная графическая сессия","Graphical test session")).setOngoing(true).setContentIntent(open).addAction(new Notification.Action.Builder(null,tr("Остановить графический рабочий стол","Stop graphical desktop"),stop).build()).build();
+        Notification notification=new Notification.Builder(this,channel).setSmallIcon(android.R.drawable.ic_menu_view).setContentTitle("AgentDroid · "+"X11"+" · "+environment().target).setContentText(tr("Проверочная графическая сессия","Graphical test session")).setOngoing(true).setContentIntent(open).addAction(new Notification.Action.Builder(null,tr("Остановить графический рабочий стол","Stop graphical desktop"),stop).build()).build();
         startForeground(NOTIFICATION+environment().display,notification);
     }
     private void startServer(X11Runtime prepared){

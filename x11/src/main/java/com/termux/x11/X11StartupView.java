@@ -11,7 +11,7 @@ public final class X11StartupView extends LinearLayout {
     public X11StartupView(Context context,Runnable show){
         super(context);setGravity(Gravity.CENTER);setOrientation(VERTICAL);
         setBackgroundColor(0xff000000);
-        for(String label:new String[]{"Termux Job’s","+","X11"}){
+        for(String label:new String[]{"AgentDroid","+","X11"}){
             TextView emblem=new TextView(context);android.text.SpannableString script=new android.text.SpannableString(label);script.setSpan(new android.text.style.StyleSpan(android.graphics.Typeface.ITALIC),0,script.length(),android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);emblem.setText(script);emblem.setTextSize(label.equals("+")?20:28);
             emblem.setTypeface(android.graphics.Typeface.create("cursive",android.graphics.Typeface.ITALIC));
             emblem.setTextColor(0xff79dacb);emblem.setGravity(Gravity.CENTER);emblem.setTag("x11-emblem-"+label);

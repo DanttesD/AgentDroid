@@ -19,7 +19,7 @@ public class X11StartupUiTest {
  }
  @Test public void emblemUsesThreeItalicLinesAndDetailStaysOnOneLine(){
   X11StartupView v=new X11StartupView(RuntimeEnvironment.application,()->{});
-  for(String label:new String[]{"Termux Job’s","+","X11"}){TextView t=v.findViewWithTag("x11-emblem-"+label);assertEquals(label,t.getText().toString());assertEquals(android.graphics.Typeface.ITALIC,((android.text.Spanned)t.getText()).getSpans(0,t.length(),android.text.style.StyleSpan.class)[0].getStyle());}
+  for(String label:new String[]{"AgentDroid","+","X11"}){TextView t=v.findViewWithTag("x11-emblem-"+label);assertEquals(label,t.getText().toString());assertEquals(android.graphics.Typeface.ITALIC,((android.text.Spanned)t.getText()).getSpans(0,t.length(),android.text.style.StyleSpan.class)[0].getStyle());}
   v.preparation("Install","42%",42,"package detail","Cancel",true,()->{});
   assertEquals(1,((TextView)v.findViewWithTag("x11-preparation-detail")).getMaxLines());assertEquals(42,((ProgressBar)v.findViewWithTag("x11-startup-progress")).getProgress());
  }
