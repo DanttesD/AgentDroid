@@ -29,7 +29,7 @@
     <string name="agent_allow">Разрешить</string>
     <string name="agent_deny">Запретить</string>
     <string name="agent_no_backend">Нет доступного способа выполнения. Выбери его в меню.</string>
-    <string name="agent_accounts_soon">Вход через аккаунты в разработке: сначала вход через OpenRouter, затем официальные входы агентов (Claude Code, Codex, Gemini CLI, OpenCode) во встроенном терминале.</string>
+    <string name="agent_accounts_soon">Вход через аккаунты в разработке: официальные входы агентов (Claude Code, Codex, Gemini CLI, OpenCode) во встроенном терминале и браузере, несколько аккаунтов на каждого агента.</string>
     <string name="agent_provider_anthropic">Anthropic (Claude)</string>
     <string name="agent_provider_openai">OpenAI</string>
     <string name="agent_provider_deepseek">DeepSeek</string>
@@ -58,4 +58,5 @@
     <string name="agent_browser_rename">Название профиля</string>
     <string name="agent_menu_mode_web">Режим: Claude в браузере</string>
     <string name="agent_menu_mode_native">Режим: чат агента</string>
+    <string name="agent_browser_attach">Прикрепить</string>
 </resources>

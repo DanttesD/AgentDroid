@@ -29,7 +29,7 @@
     <string name="agent_allow">Allow</string>
     <string name="agent_deny">Deny</string>
     <string name="agent_no_backend">No backend available. Choose one in the menu.</string>
-    <string name="agent_accounts_soon">Sign-in with accounts is being built: OpenRouter sign-in, then official agent logins (Claude Code, Codex, Gemini CLI, OpenCode) in the built-in terminal.</string>
+    <string name="agent_accounts_soon">Account sign-in is being built: official agent logins (Claude Code, Codex, Gemini CLI, OpenCode) in the built-in terminal and browser, several accounts per agent.</string>
     <string name="agent_provider_anthropic">Anthropic (Claude)</string>
     <string name="agent_provider_openai">OpenAI</string>
     <string name="agent_provider_deepseek">DeepSeek</string>
@@ -58,4 +58,5 @@
     <string name="agent_browser_rename">Profile name</string>
     <string name="agent_menu_mode_web">Mode: Claude in the browser</string>
     <string name="agent_menu_mode_native">Mode: agent chat</string>
+    <string name="agent_browser_attach">Attach</string>
 </resources>
