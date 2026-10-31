@@ -36,6 +36,7 @@ android {
         implementation project(":x11")
         implementation project(":adb")
         implementation project(":exec")
+        implementation project(":agent")
         implementation project(":terminal-view")
         implementation project(":termux-shared")
     }

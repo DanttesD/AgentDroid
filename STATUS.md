@@ -61,3 +61,8 @@ CI run #3 (51 min, got much further: apt, bash, libbz2 etc. built) failed on `co
   tests under app/src/test still assert com.termux; update checker points at the fork's releases;
   shell survival with the screen off is not tested yet; clang is not in our repository.
 - Next: Stage 2 — Compose chat + agent loop with one provider.
+
+## 2026-10-31 — Stage 2 started: chat + agent loop
+- `:agent` (pure Java, 6 JUnit tests with mock HTTP server): Json, OpenAI-compatible provider (also DeepSeek), Anthropic provider, AgentLoop with approvals and step limit, tools shell/read_file/write_file/list_dir through ExecBackend.
+- App: `ChatActivity` (second launcher icon "AgentDroid"), provider/key settings (key encrypted by Android Keystore), backend picker (root / ADB 127.0.0.1:5555 / Termux).
+- Not yet compiled on CI at the time of writing — verify with the APK workflow.

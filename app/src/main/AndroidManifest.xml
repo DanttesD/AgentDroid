@@ -48,6 +48,16 @@
         android:supportsRtl="false"
         android:theme="@style/Theme.Termux">
         <activity
+            android:name=".app.agent.ChatActivity"
+            android:label="AgentDroid"
+            android:windowSoftInputMode="adjustResize"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
             android:name=".app.AdbConsoleActivity"
             android:label="AgentDroid ADB"
             android:exported="true">
