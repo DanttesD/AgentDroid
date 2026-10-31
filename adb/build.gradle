@@ -5,6 +5,8 @@ plugins {
 
 android {
     compileSdkVersion project.properties.compileSdkVersion.toInteger()
+    // boringssl is built with a recent clang and needs its runtime (outline atomics): NDK 27, not the app's NDK 22
+    ndkVersion "27.0.12077973"
 
     defaultConfig {
         minSdkVersion project.properties.minSdkVersion.toInteger()
