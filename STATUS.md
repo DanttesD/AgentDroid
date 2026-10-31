@@ -82,3 +82,4 @@ CI run #3 (51 min, got much further: apt, bash, libbz2 etc. built) failed on `co
 - Tunnel (cloudflared from our apt repo) + MCP server + claude.ai custom connector verified end to end: shell tool ran on the phone (ASUS_AI2201_A, Android 14). Quick-tunnel address changes on every restart (update connector); named tunnel needs a domain.
 - apt repo hygiene: newest version only; dpkg-perl repacked (no clang dep, no CPAN postinst, version +ad2).
 - Built-in browser: pop-ups supported (Google sign-in); 8 profiles (separate process + data dir suffix per profile => separate cookies/accounts), renameable by long press. Not yet verified on device.
+- Main screen "web mode" (menu ⋮ -> "Режим: Claude в браузере"): claude.ai fills the area under the top bar (profile 0); file/photo picker, pop-ups and back button handled by `BrowserHelper`. Not verified on device.

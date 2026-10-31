@@ -13,6 +13,7 @@ import android.view.WindowManager;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.Spinner;
@@ -52,6 +53,12 @@ public class ChatActivity extends Activity {
     private volatile AgentLoop loop;
     private volatile boolean busy;
     private TextView currentAssistant;
+    private LinearLayout nativeBox;
+    private FrameLayout webBox;
+    private FrameLayout outer;
+    private BrowserHelper helper;
+    private android.webkit.WebView web;
+    private boolean webMode;
 
     @Override protected void onCreate(Bundle b) {
         super.onCreate(b);
@@ -82,14 +89,21 @@ public class ChatActivity extends Activity {
         bar.addView(menuBtn);
         root.addView(bar);
 
+        nativeBox = new LinearLayout(this);
+        nativeBox.setOrientation(LinearLayout.VERTICAL);
+        root.addView(nativeBox, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
+        webBox = new FrameLayout(this);
+        webBox.setVisibility(View.GONE);
+        root.addView(webBox, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
+
         backendLabel = text("", 12, DIM);
-        root.addView(backendLabel);
+        nativeBox.addView(backendLabel);
 
         scroll = new ScrollView(this);
         messages = new LinearLayout(this);
         messages.setOrientation(LinearLayout.VERTICAL);
         scroll.addView(messages);
-        root.addView(scroll, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
+        nativeBox.addView(scroll, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
 
         LinearLayout row = new LinearLayout(this);
         row.setOrientation(LinearLayout.HORIZONTAL);
@@ -105,8 +119,12 @@ public class ChatActivity extends Activity {
         sendBtn = button(getString(R.string.agent_send));
         sendBtn.setOnClickListener(v -> onSend());
         row.addView(sendBtn);
-        root.addView(row);
-        setContentView(root);
+        nativeBox.addView(row);
+        outer = new FrameLayout(this);
+        outer.addView(root, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        setContentView(outer);
+        helper = new BrowserHelper(this, outer, null);
+        if (getSharedPreferences("agentdroid_agent", MODE_PRIVATE).getBoolean("web_mode", false)) setWebMode(true);
 
         refreshBackendLabel();
         addNote(getString(R.string.agent_intro));
@@ -168,15 +186,40 @@ public class ChatActivity extends Activity {
     private void showMenu() {
         final String[] items = {getString(R.string.agent_menu_backend), getString(R.string.agent_menu_terminal),
                 getString(R.string.agent_menu_adb), getString(R.string.agent_menu_mcp),
-                getString(R.string.agent_menu_browser), getString(R.string.agent_menu_accounts)};
+                getString(R.string.agent_menu_browser), getString(R.string.agent_menu_accounts),
+                getString(webMode ? R.string.agent_menu_mode_native : R.string.agent_menu_mode_web)};
         new AlertDialog.Builder(this).setItems(items, (d, which) -> {
             if (which == 0) pickBackend();
             else if (which == 1) startActivity(new Intent(this, TermuxActivity.class));
             else if (which == 2) startActivity(new Intent(this, AdbConsoleActivity.class));
             else if (which == 3) startActivity(new Intent(this, McpActivity.class));
             else if (which == 4) BrowserPicker.show(this, null);
+            else if (which == 5) setWebMode(!webMode);
             else addNote(getString(R.string.agent_accounts_soon));
         }).show();
+    }
+
+    /** Web mode: claude.ai fills the main area (below the top bar) instead of the agent chat. */
+    private void setWebMode(boolean on) {
+        webMode = on;
+        getSharedPreferences("agentdroid_agent", MODE_PRIVATE).edit().putBoolean("web_mode", on).apply();
+        nativeBox.setVisibility(on ? View.GONE : View.VISIBLE);
+        webBox.setVisibility(on ? View.VISIBLE : View.GONE);
+        if (on && web == null) {
+            web = helper.create();
+            webBox.addView(web, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+            web.loadUrl("https://claude.ai/new");
+        }
+    }
+
+    @Override protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (!helper.onActivityResult(requestCode, resultCode, data)) super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    @Override public void onBackPressed() {
+        if (helper.hasPopup()) { helper.closePopup(); return; }
+        if (webMode && web != null && web.canGoBack()) { web.goBack(); return; }
+        super.onBackPressed();
     }
 
     private void pickBackend() {

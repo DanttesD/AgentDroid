@@ -23,7 +23,7 @@ import android.widget.LinearLayout;
 public class WebBrowserActivity extends Activity {
     private FrameLayout frame;
     private WebView web;
-    private WebView popup;
+    private BrowserHelper helper;
     private EditText bar;
 
     /** Browser profile number; 0 is the main one. Each profile runs in its own process with its own cookies. */
@@ -49,52 +49,13 @@ public class WebBrowserActivity extends Activity {
         bar.setOnEditorActionListener((v, actionId, ev) -> { go(bar.getText().toString()); return true; });
         root.addView(bar, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 
-        web = newWebView();
+        helper = new BrowserHelper(this, frame, (v, url) -> { if (v == web) bar.setText(url); });
+        web = helper.create();
         root.addView(web, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
         frame.addView(root, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         setContentView(frame);
         String url = getIntent().getStringExtra("url");
         go(url == null ? "https://claude.ai" : url);
-    }
-
-    private WebView newWebView() {
-        final WebView w = new WebView(this);
-        WebSettings st = w.getSettings();
-        st.setJavaScriptEnabled(true);
-        st.setDomStorageEnabled(true);
-        st.setLoadWithOverviewMode(true);
-        st.setSupportMultipleWindows(true);
-        st.setJavaScriptCanOpenWindowsAutomatically(true);
-        // Sites (notably Google sign-in) refuse the "; wv" embedded-WebView marker.
-        st.setUserAgentString(st.getUserAgentString().replace("; wv", ""));
-        CookieManager.getInstance().setAcceptCookie(true);
-        CookieManager.getInstance().setAcceptThirdPartyCookies(w, true);
-        w.setWebViewClient(new WebViewClient() {
-            @Override public void onPageFinished(WebView v, String url) { if (v == web) bar.setText(url); }
-        });
-        w.setWebChromeClient(new WebChromeClient() {
-            @Override public boolean onCreateWindow(WebView view, boolean isDialog, boolean isUserGesture, Message resultMsg) {
-                closePopup();
-                popup = newWebView();
-                frame.addView(popup, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-                ((WebView.WebViewTransport) resultMsg.obj).setWebView(popup);
-                resultMsg.sendToTarget();
-                return true;
-            }
-
-            @Override public void onCloseWindow(WebView window) {
-                if (window == popup) closePopup();
-            }
-        });
-        return w;
-    }
-
-    private void closePopup() {
-        if (popup != null) {
-            frame.removeView(popup);
-            popup.destroy();
-            popup = null;
-        }
     }
 
     private void go(String s) {
@@ -106,9 +67,13 @@ public class WebBrowserActivity extends Activity {
 
     @Override public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
-            if (popup != null) { closePopup(); return true; }
+            if (helper.hasPopup()) { helper.closePopup(); return true; }
             if (web.canGoBack()) { web.goBack(); return true; }
         }
         return super.onKeyDown(keyCode, event);
+    }
+
+    @Override protected void onActivityResult(int requestCode, int resultCode, android.content.Intent data) {
+        if (!helper.onActivityResult(requestCode, resultCode, data)) super.onActivityResult(requestCode, resultCode, data);
     }
 }

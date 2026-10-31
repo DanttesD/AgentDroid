@@ -56,4 +56,6 @@
     <string name="agent_browser_profile">Профиль %1$d</string>
     <string name="agent_browser_pick">В каком профиле открыть (долгое нажатие — переименовать)</string>
     <string name="agent_browser_rename">Название профиля</string>
+    <string name="agent_menu_mode_web">Режим: Claude в браузере</string>
+    <string name="agent_menu_mode_native">Режим: чат агента</string>
 </resources>
