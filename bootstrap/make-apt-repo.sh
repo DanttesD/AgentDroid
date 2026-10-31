@@ -48,12 +48,14 @@ for f in "$pool"/dpkg-perl_*.deb; do
         dpkg-deb -R "$f" "$tmp"
         sed -i -E '/^Depends:/ { s/(^|, )clang(, |$)/\1/; s/, ,/,/; s/, *$//; s/^Depends: *,? */Depends: / }' "$tmp/DEBIAN/control"
         # new version number so that devices which already have the broken -5 upgrade to the fixed package
-        sed -i -E '0,/^Version: / s/^(Version: .*)$/\1+ad1/' "$tmp/DEBIAN/control"
+        sed -i -E '0,/^Version: / s/^(Version: .*)$/\1+ad2/' "$tmp/DEBIAN/control"
+        # its postinst builds Locale::gettext through CPAN, which needs a compiler we do not ship: drop it
+        rm -f "$tmp/DEBIAN/postinst"
         # dpkg-deb -b insists on sane modes (Termux scripts are 0700, the temp dir 0700)
         chmod 0755 "$tmp" "$tmp/DEBIAN"
         for sc in preinst postinst prerm postrm config; do [ -f "$tmp/DEBIAN/$sc" ] && chmod 0755 "$tmp/DEBIAN/$sc"; done
         if dpkg-deb -b "$tmp" "$f.new" >/dev/null && mv -f "$f.new" "$f"; then
-            echo "dpkg-perl: dropped the clang dependency"
+            echo "dpkg-perl: dropped the clang dependency and the CPAN postinst"
         else
             rm -f "$f.new"; echo "WARNING: could not repack $f" >&2
         fi
