@@ -49,3 +49,15 @@ Resumable builds: /data, installed prefix and output/*.deb are cached (actions/c
 CI run #2 failed within 3 minutes: "mkdir: cannot create directory /home/builder/.termux-build/apt: Permission denied" - run-docker.sh -m created the host mount dir as root. Fixed by creating ~/.termux-build with open permissions before the build.
 
 CI run #3 (51 min, got much further: apt, bash, libbz2 etc. built) failed on `command-not-found`: its build downloads Contents-aarch64.gz from our repository -> 404 (repository does not exist yet). Fix: configure-termux-packages.sh drops it from the bootstrap package list (optional "Recommends" only). Can be added back to packages.list later once the repository has been published once.
+
+## 2026-10-31 — Stage 1 verified on a device (ASUS AI2201)
+- Package com.agentdroid; own bootstrap (CI run #13) and signed apt repository on GitHub Pages work:
+  `pkg update`, `pkg install`, `pkg upgrade`, git, node 26, tmux, jq.
+- Own ADB client (no Shizuku): pairing by code, mDNS port discovery, shell as uid=2000, switch to local
+  TCP 5555 — works with Wi-Fi turned off (until the next reboot).
+- Test console: second launcher icon "AgentDroid ADB". App renamed to AgentDroid.
+- Permanent APK signing key via the secret AGENTDROID_KEYSTORE_B64 (workflow "Build APK").
+- Known leftovers: X11/graphics payloads are still built for com.termux (X11 native runtime is skipped in CI);
+  tests under app/src/test still assert com.termux; update checker points at the fork's releases;
+  shell survival with the screen off is not tested yet; clang is not in our repository.
+- Next: Stage 2 — Compose chat + agent loop with one provider.
