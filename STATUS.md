@@ -77,3 +77,8 @@ CI run #3 (51 min, got much further: apt, bash, libbz2 etc. built) failed on `co
 - App: `McpService` (foreground), `McpActivity` (start/stop, local URL, secret rotation, cloudflared tunnel instructions), `WebBrowserActivity` (WebView, "; wv" removed from UA for sign-ins), menu items in chat.
 - Path A (claude.ai chat uses the phone): needs public tunnel (cloudflared in Termux — package availability in our apt repo NOT verified) + custom connector in claude.ai (plan availability NOT verified).
 - Path B: our own chat (API key). Path C: external agents (Claude Code, Codex, OpenCode…) connect to local MCP URL. Not tested on a device yet.
+
+## 2026-11-01 — verified: claude.ai custom connector -> phone
+- Tunnel (cloudflared from our apt repo) + MCP server + claude.ai custom connector verified end to end: shell tool ran on the phone (ASUS_AI2201_A, Android 14). Quick-tunnel address changes on every restart (update connector); named tunnel needs a domain.
+- apt repo hygiene: newest version only; dpkg-perl repacked (no clang dep, no CPAN postinst, version +ad2).
+- Built-in browser: pop-ups supported (Google sign-in); 8 profiles (separate process + data dir suffix per profile => separate cookies/accounts), renameable by long press. Not yet verified on device.

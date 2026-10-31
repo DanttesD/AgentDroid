@@ -26,8 +26,14 @@ public class WebBrowserActivity extends Activity {
     private WebView popup;
     private EditText bar;
 
+    /** Browser profile number; 0 is the main one. Each profile runs in its own process with its own cookies. */
+    protected int slot() { return 0; }
+
     @Override protected void onCreate(Bundle b) {
         super.onCreate(b);
+        if (slot() > 0 && android.os.Build.VERSION.SDK_INT >= 28) {
+            try { WebView.setDataDirectorySuffix("profile" + slot()); } catch (IllegalStateException ignored) { }
+        }
         frame = new FrameLayout(this);
         frame.setBackgroundColor(Color.parseColor("#121418"));
         LinearLayout root = new LinearLayout(this);
@@ -35,6 +41,7 @@ public class WebBrowserActivity extends Activity {
         root.setPadding(0, (int) (28 * getResources().getDisplayMetrics().density), 0, 0);
         bar = new EditText(this);
         bar.setSingleLine(true);
+        bar.setHint(BrowserPicker.name(this, slot()));
         bar.setTextColor(Color.WHITE);
         bar.setBackgroundColor(Color.parseColor("#1c1f26"));
         bar.setImeOptions(EditorInfo.IME_ACTION_GO);

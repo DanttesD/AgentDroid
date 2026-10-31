@@ -52,4 +52,8 @@
     <string name="mcp_open_claude">Open claude.ai in the built-in browser</string>
     <string name="agent_menu_mcp">External agents (MCP)</string>
     <string name="agent_menu_browser">Browser</string>
+    <string name="agent_browser_main">Main profile</string>
+    <string name="agent_browser_profile">Profile %1$d</string>
+    <string name="agent_browser_pick">Open in profile (long press to rename)</string>
+    <string name="agent_browser_rename">Profile name</string>
 </resources>

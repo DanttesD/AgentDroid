@@ -60,6 +60,27 @@
         <activity android:name=".app.agent.McpActivity" android:label="AgentDroid MCP" android:exported="false" />
         <activity android:name=".app.agent.WebBrowserActivity" android:label="AgentDroid Browser" android:exported="false"
             android:configChanges="orientation|screenSize|keyboardHidden" />
+        <activity android:name=".app.agent.WebBrowserSlots$Slot1" android:label="AgentDroid Browser 2" android:exported="false"
+            android:process=":web1" android:taskAffinity="com.agentdroid.web1"
+            android:configChanges="orientation|screenSize|keyboardHidden" />
+        <activity android:name=".app.agent.WebBrowserSlots$Slot2" android:label="AgentDroid Browser 3" android:exported="false"
+            android:process=":web2" android:taskAffinity="com.agentdroid.web2"
+            android:configChanges="orientation|screenSize|keyboardHidden" />
+        <activity android:name=".app.agent.WebBrowserSlots$Slot3" android:label="AgentDroid Browser 4" android:exported="false"
+            android:process=":web3" android:taskAffinity="com.agentdroid.web3"
+            android:configChanges="orientation|screenSize|keyboardHidden" />
+        <activity android:name=".app.agent.WebBrowserSlots$Slot4" android:label="AgentDroid Browser 5" android:exported="false"
+            android:process=":web4" android:taskAffinity="com.agentdroid.web4"
+            android:configChanges="orientation|screenSize|keyboardHidden" />
+        <activity android:name=".app.agent.WebBrowserSlots$Slot5" android:label="AgentDroid Browser 6" android:exported="false"
+            android:process=":web5" android:taskAffinity="com.agentdroid.web5"
+            android:configChanges="orientation|screenSize|keyboardHidden" />
+        <activity android:name=".app.agent.WebBrowserSlots$Slot6" android:label="AgentDroid Browser 7" android:exported="false"
+            android:process=":web6" android:taskAffinity="com.agentdroid.web6"
+            android:configChanges="orientation|screenSize|keyboardHidden" />
+        <activity android:name=".app.agent.WebBrowserSlots$Slot7" android:label="AgentDroid Browser 8" android:exported="false"
+            android:process=":web7" android:taskAffinity="com.agentdroid.web7"
+            android:configChanges="orientation|screenSize|keyboardHidden" />
         <service android:name=".app.agent.McpService" android:exported="false" />
         <activity
             android:name=".app.AdbConsoleActivity"

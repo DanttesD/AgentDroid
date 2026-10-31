@@ -52,4 +52,8 @@
     <string name="mcp_open_claude">Открыть claude.ai во встроенном браузере</string>
     <string name="agent_menu_mcp">Внешние агенты (MCP)</string>
     <string name="agent_menu_browser">Браузер</string>
+    <string name="agent_browser_main">Основной профиль</string>
+    <string name="agent_browser_profile">Профиль %1$d</string>
+    <string name="agent_browser_pick">В каком профиле открыть (долгое нажатие — переименовать)</string>
+    <string name="agent_browser_rename">Название профиля</string>
 </resources>

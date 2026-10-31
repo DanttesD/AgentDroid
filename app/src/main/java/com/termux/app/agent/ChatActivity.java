@@ -174,7 +174,7 @@ public class ChatActivity extends Activity {
             else if (which == 1) startActivity(new Intent(this, TermuxActivity.class));
             else if (which == 2) startActivity(new Intent(this, AdbConsoleActivity.class));
             else if (which == 3) startActivity(new Intent(this, McpActivity.class));
-            else if (which == 4) startActivity(new Intent(this, WebBrowserActivity.class));
+            else if (which == 4) BrowserPicker.show(this, null);
             else addNote(getString(R.string.agent_accounts_soon));
         }).show();
     }

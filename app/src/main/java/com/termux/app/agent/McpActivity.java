@@ -68,7 +68,7 @@ public class McpActivity extends Activity {
         cmd.setOnClickListener(v -> copy("pkg install -y cloudflared && cloudflared tunnel --url http://127.0.0.1:" + McpHost.port(this)));
         root.addView(cmd);
         Button claude = btn(getString(R.string.mcp_open_claude));
-        claude.setOnClickListener(v -> startActivity(new Intent(this, WebBrowserActivity.class).putExtra("url", "https://claude.ai")));
+        claude.setOnClickListener(v -> BrowserPicker.show(this, "https://claude.ai"));
         root.addView(claude);
         setContentView(sv);
     }
