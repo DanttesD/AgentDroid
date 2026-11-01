@@ -81,4 +81,8 @@
     <string name="acc_note_codex">Sign in with a ChatGPT account or with a key.</string>
     <string name="acc_note_gemini">Sign in with Google. Separate accounts use their own home folder.</string>
     <string name="acc_note_opencode">Connects providers with the keys and logins it offers.</string>
+    <string name="agent_allow_hour">Allow for 1 hour</string>
+    <string name="mcp_approval_ask">Approvals: ask every time (tap to change)</string>
+    <string name="mcp_approval_hour">Approvals: allowed for 1 hour (tap to change)</string>
+    <string name="mcp_approval_always">Approvals: always allow, no questions (tap to change)</string>
 </resources>

@@ -25,7 +25,26 @@ public final class ApprovalCenter {
     private static final String CHANNEL = "agentdroid_approvals";
     private static volatile WeakReference<Activity> visible = new WeakReference<>(null);
 
+    private static final String PREFS = "agentdroid_approvals";
+    public static final long HOUR_MS = TimeUnit.HOURS.toMillis(1);
+
     private ApprovalCenter() {}
+
+    private static android.content.SharedPreferences prefs(Context c) {
+        return c.getApplicationContext().getSharedPreferences(PREFS, Context.MODE_PRIVATE);
+    }
+
+    /** 0 = ask every time, 1 = allow for one hour, 2 = always allow. */
+    public static int mode(Context c) {
+        android.content.SharedPreferences p = prefs(c);
+        if (p.getBoolean("always", false)) return 2;
+        return System.currentTimeMillis() < p.getLong("until", 0) ? 1 : 0;
+    }
+
+    public static void setMode(Context c, int mode) {
+        prefs(c).edit().putBoolean("always", mode == 2)
+                .putLong("until", mode == 1 ? System.currentTimeMillis() + HOUR_MS : 0).apply();
+    }
 
     public static void onResume(Activity a) { visible = new WeakReference<>(a); }
 
@@ -33,6 +52,7 @@ public final class ApprovalCenter {
 
     /** Blocks the calling (non-UI) thread until the user answers; false on denial or timeout. */
     public static boolean ask(Context appContext, String description) {
+        if (mode(appContext) != 0) return true;
         long deadline = System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(3);
         boolean notified = false;
         while (System.currentTimeMillis() < deadline) {
@@ -56,6 +76,7 @@ public final class ApprovalCenter {
                 try {
                     new AlertDialog.Builder(a).setTitle(R.string.agent_allow_title).setMessage(description).setCancelable(false)
                             .setPositiveButton(R.string.agent_allow, (d, w) -> { ok.set(true); latch.countDown(); })
+                            .setNeutralButton(R.string.agent_allow_hour, (d, w) -> { setMode(a, 1); ok.set(true); latch.countDown(); })
                             .setNegativeButton(R.string.agent_deny, (d, w) -> latch.countDown()).show();
                 } catch (RuntimeException e) {
                     latch.countDown();

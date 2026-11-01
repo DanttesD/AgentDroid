@@ -44,6 +44,13 @@ public class McpActivity extends Activity {
         start.setOnClickListener(v -> { McpService.start(this); v.postDelayed(this::refresh, 800); });
         Button stop = btn(getString(R.string.mcp_stop));
         stop.setOnClickListener(v -> { McpService.stop(this); v.postDelayed(this::refresh, 500); });
+        final Button approval = btn("");
+        approval.setOnClickListener(v -> {
+            ApprovalCenter.setMode(this, (ApprovalCenter.mode(this) + 1) % 3);
+            approval.setText(approvalLabel());
+        });
+        approval.setText(approvalLabel());
+        root.addView(approval);
         root.addView(start);
         root.addView(stop);
 
@@ -76,6 +83,11 @@ public class McpActivity extends Activity {
     @Override protected void onResume() { super.onResume(); ApprovalCenter.onResume(this); refresh(); }
 
     @Override protected void onPause() { ApprovalCenter.onPause(this); super.onPause(); }
+
+    private String approvalLabel() {
+        int m = ApprovalCenter.mode(this);
+        return getString(m == 0 ? R.string.mcp_approval_ask : m == 1 ? R.string.mcp_approval_hour : R.string.mcp_approval_always);
+    }
 
     private void refresh() {
         boolean on = McpHost.isRunning();

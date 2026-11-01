@@ -81,4 +81,8 @@
     <string name="acc_note_codex">Вход через аккаунт ChatGPT или по ключу.</string>
     <string name="acc_note_gemini">Вход через Google. Для отдельных аккаунтов используется своя домашняя папка.</string>
     <string name="acc_note_opencode">Подключает провайдеров по ключам и входам, которые сам предлагает.</string>
+    <string name="agent_allow_hour">Разрешить на 1 час</string>
+    <string name="mcp_approval_ask">Подтверждения: спрашивать каждый раз (нажми, чтобы сменить)</string>
+    <string name="mcp_approval_hour">Подтверждения: разрешено на 1 час (нажми, чтобы сменить)</string>
+    <string name="mcp_approval_always">Подтверждения: всегда разрешать, без вопросов (нажми, чтобы сменить)</string>
 </resources>
