@@ -85,4 +85,12 @@
     <string name="mcp_approval_ask">Подтверждения: спрашивать каждый раз (нажми, чтобы сменить)</string>
     <string name="mcp_approval_hour">Подтверждения: разрешено на 1 час (нажми, чтобы сменить)</string>
     <string name="mcp_approval_always">Подтверждения: всегда разрешать, без вопросов (нажми, чтобы сменить)</string>
+    <string name="mcp_tunnel_start">Запустить туннель (публичный адрес)</string>
+    <string name="mcp_tunnel_stop">Остановить туннель</string>
+    <string name="mcp_tunnel_off">Туннель выключен</string>
+    <string name="mcp_tunnel_wait">Туннель подключается… Если долго не подключается, выключи Wi-Fi: он может блокировать порт 7844</string>
+    <string name="mcp_tunnel_ok">Туннель работает: %1$s</string>
+    <string name="mcp_tunnel_err">Ошибка туннеля: %1$s (нужен пакет cloudflared: pkg install cloudflared)</string>
+    <string name="mcp_copy_public">Скопировать адрес для коннектора claude.ai</string>
+    <string name="mcp_no_public">Адрес ещё не готов</string>
 </resources>

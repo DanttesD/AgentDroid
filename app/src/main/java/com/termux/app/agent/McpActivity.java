@@ -63,6 +63,23 @@ public class McpActivity extends Activity {
         renew.setOnClickListener(v -> { McpHost.newToken(this); McpService.stop(this); v.postDelayed(this::refresh, 500); });
         root.addView(renew);
 
+        tunnelState = tv("", 14, Color.parseColor("#7aa2ff"));
+        final Button tunBtn = btn("");
+        tunBtn.setOnClickListener(v -> {
+            if (TunnelManager.isRunning()) TunnelManager.stop();
+            else { if (!McpHost.isRunning()) McpService.start(this); TunnelManager.start(McpHost.port(this)); }
+            refresh();
+        });
+        tunnelButton = tunBtn;
+        Button copyPublic = btn(getString(R.string.mcp_copy_public));
+        copyPublic.setOnClickListener(v -> {
+            if (TunnelManager.url().isEmpty()) toast(R.string.mcp_no_public);
+            else copy(TunnelManager.url() + "/mcp/" + McpHost.token(this));
+        });
+        root.addView(tunBtn);
+        root.addView(tunnelState);
+        root.addView(copyPublic);
+
         TextView tt = tv(getString(R.string.mcp_tunnel_title), 16, Color.WHITE);
         tt.setTypeface(android.graphics.Typeface.DEFAULT_BOLD);
         root.addView(tt);
@@ -82,14 +99,29 @@ public class McpActivity extends Activity {
 
     @Override protected void onResume() { super.onResume(); ApprovalCenter.onResume(this); refresh(); }
 
-    @Override protected void onPause() { ApprovalCenter.onPause(this); super.onPause(); }
+    @Override protected void onPause() { if (tunnelState != null) tunnelState.removeCallbacks(tick); ApprovalCenter.onPause(this); super.onPause(); }
 
     private String approvalLabel() {
         int m = ApprovalCenter.mode(this);
         return getString(m == 0 ? R.string.mcp_approval_ask : m == 1 ? R.string.mcp_approval_hour : R.string.mcp_approval_always);
     }
 
+    private TextView tunnelState;
+    private Button tunnelButton;
+    private final Runnable tick = this::refresh;
+
+    private void toast(int res) { android.widget.Toast.makeText(this, res, android.widget.Toast.LENGTH_SHORT).show(); }
+
     private void refresh() {
+        tunnelButton.setText(TunnelManager.isRunning() ? R.string.mcp_tunnel_stop : R.string.mcp_tunnel_start);
+        String st;
+        if (!TunnelManager.error().isEmpty()) st = getString(R.string.mcp_tunnel_err, TunnelManager.error());
+        else if (!TunnelManager.isRunning()) st = getString(R.string.mcp_tunnel_off);
+        else if (TunnelManager.isConnected()) st = getString(R.string.mcp_tunnel_ok, TunnelManager.url());
+        else st = getString(R.string.mcp_tunnel_wait);
+        tunnelState.setText(st);
+        tunnelState.removeCallbacks(tick);
+        if (TunnelManager.isRunning()) tunnelState.postDelayed(tick, 1500);
         boolean on = McpHost.isRunning();
         status.setText(on ? getString(R.string.mcp_status_on, McpHost.port(this)) : getString(R.string.mcp_status_off));
         local.setText(getString(R.string.mcp_local_url, McpHost.localUrl(this)));

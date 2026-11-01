@@ -85,4 +85,12 @@
     <string name="mcp_approval_ask">Approvals: ask every time (tap to change)</string>
     <string name="mcp_approval_hour">Approvals: allowed for 1 hour (tap to change)</string>
     <string name="mcp_approval_always">Approvals: always allow, no questions (tap to change)</string>
+    <string name="mcp_tunnel_start">Start tunnel (public address)</string>
+    <string name="mcp_tunnel_stop">Stop tunnel</string>
+    <string name="mcp_tunnel_off">Tunnel is off</string>
+    <string name="mcp_tunnel_wait">Tunnel is connecting… If it takes long, turn Wi-Fi off: it may block port 7844</string>
+    <string name="mcp_tunnel_ok">Tunnel is up: %1$s</string>
+    <string name="mcp_tunnel_err">Tunnel error: %1$s (needs the cloudflared package: pkg install cloudflared)</string>
+    <string name="mcp_copy_public">Copy address for the claude.ai connector</string>
+    <string name="mcp_no_public">Address is not ready yet</string>
 </resources>

@@ -27,6 +27,7 @@ public class McpService extends Service {
     @Override public int onStartCommand(Intent intent, int flags, int startId) {
         if (intent != null && ACTION_STOP.equals(intent.getAction())) {
             McpHost.stop();
+            TunnelManager.stop();
             stopForeground(true);
             stopSelf();
             return START_NOT_STICKY;
@@ -51,5 +52,5 @@ public class McpService extends Service {
 
     @Override public IBinder onBind(Intent intent) { return null; }
 
-    @Override public void onDestroy() { McpHost.stop(); super.onDestroy(); }
+    @Override public void onDestroy() { McpHost.stop(); TunnelManager.stop(); super.onDestroy(); }
 }

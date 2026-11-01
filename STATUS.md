@@ -91,3 +91,4 @@ CI run #3 (51 min, got much further: apt, bash, libbz2 etc. built) failed on `co
 - Unverified on device: npm install of each CLI under Termux, login redirects/callbacks.
 - Agents run inside a proot-distro Debian (verified by the developer on the device: Claude Code 2.1.316 installs and runs there; Termux/Android has no native Claude Code build). Install/check/run/login all go through `proot-distro login debian`, account dir is bind-mounted and used as CLAUDE_CONFIG_DIR etc.
 - Unverified: login flow in Debian (URL must be copied manually, no BROWSER bridge into proot yet), Codex/Gemini/OpenCode installs.
+- MCP screen: built-in tunnel control (`TunnelManager` runs cloudflared as a child process, parses the trycloudflare URL and "Registered tunnel connection"), button to copy the full connector address. Unverified on device. Note: port 7844 is blocked on the developer's home Wi-Fi; works on mobile data.
