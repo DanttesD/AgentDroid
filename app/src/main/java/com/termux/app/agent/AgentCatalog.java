@@ -32,7 +32,7 @@ public final class AgentCatalog {
             String inner = "command -v " + bin + " >/dev/null 2>&1 || { apt-get update && "
                     + "DEBIAN_FRONTEND=noninteractive apt-get install -y nodejs npm curl ca-certificates && " + install + "; }";
             return "{ command -v proot-distro >/dev/null 2>&1 || pkg install -y proot-distro; } && "
-                    + "{ [ -d \"$PREFIX/var/lib/proot-distro/installed-rootfs/debian\" ] || proot-distro install debian; } && "
+                    + "{ [ -d \"$PREFIX/var/lib/proot-distro/containers/debian\" ] || [ -d \"$PREFIX/var/lib/proot-distro/installed-rootfs/debian\" ] || proot-distro install debian; } && "
                     + "proot-distro login debian -- bash -lc " + ShellQuote.quote(inner);
         }
 
