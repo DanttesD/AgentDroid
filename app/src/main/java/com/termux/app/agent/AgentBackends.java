@@ -40,7 +40,7 @@ public final class AgentBackends {
         String prefix = TermuxConstants.TERMUX_PREFIX_DIR_PATH;
         l.add(new ProcessBackend("termux", "Termux (app sandbox)",
                 prefix + "/bin/env", "PATH=" + prefix + "/bin", "HOME=" + TERMUX_HOME,
-                "PREFIX=" + prefix, "TMPDIR=" + prefix + "/tmp", prefix + "/bin/bash", "-c"));
+                "PREFIX=" + prefix, "TERMUX__PREFIX=" + prefix, "TERMUX__HOME=" + TERMUX_HOME, "TMPDIR=" + prefix + "/tmp", prefix + "/bin/bash", "-c"));
         return new BackendSelector(l);
     }
 }
