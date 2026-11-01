@@ -71,6 +71,28 @@ public final class TunnelManager {
                 + "proot-distro login debian -- bash -lc " + com.agentdroid.exec.ShellQuote.quote(inner);
     }
 
+    /** Kills ngrok processes left over from an earlier app process; they would keep the permanent address busy. */
+    private static void killStale() {
+        File[] procs = new File("/proc").listFiles();
+        if (procs == null) return;
+        boolean killed = false;
+        for (File f : procs) {
+            String n = f.getName();
+            if (!n.matches("\\d+")) continue;
+            try (BufferedReader r = new BufferedReader(new InputStreamReader(new java.io.FileInputStream(new File(f, "cmdline")), StandardCharsets.UTF_8))) {
+                String cmd = r.readLine();
+                if (cmd != null && cmd.contains(NGROK_BIN) && cmd.contains("http")) {
+                    android.os.Process.killProcess(Integer.parseInt(n));
+                    killed = true;
+                }
+            } catch (IOException | RuntimeException ignored) {
+            }
+        }
+        if (killed) {
+            try { Thread.sleep(1500); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
+        }
+    }
+
     public static synchronized void start(Context c, int port) {
         if (isRunning()) return;
         url = ""; connected = false; error = "";
@@ -81,6 +103,7 @@ public final class TunnelManager {
         ngrok = !forceCloudflare && !token.isEmpty() && ngrokInstalled();
         List<String> cmd = new ArrayList<>();
         if (ngrok) {
+            killStale();
             String domain = ngrokDomain(c);
             cmd.add(prefix + "/bin/proot-distro"); cmd.add("login"); cmd.add("debian"); cmd.add("--shared-tmp"); cmd.add("--");
             cmd.add("env"); cmd.add("NGROK_AUTHTOKEN=" + token); cmd.add(NGROK_BIN);
@@ -154,6 +177,7 @@ public final class TunnelManager {
 
     public static synchronized void stop() {
         if (process != null) process.destroy();
+        if (ngrok) killStale();
         process = null; connected = false; url = "";
     }
 }
