@@ -16,7 +16,7 @@
     <string name="agent_menu_backend">Где выполнять команды</string>
     <string name="agent_menu_terminal">Терминал</string>
     <string name="agent_menu_adb">Консоль ADB</string>
-    <string name="agent_menu_accounts">Аккаунты и вход (скоро)</string>
+    <string name="agent_menu_accounts">Аккаунты и вход</string>
     <string name="agent_provider_title">Провайдер модели</string>
     <string name="agent_save">Сохранить</string>
     <string name="agent_cancel">Отмена</string>
@@ -59,4 +59,26 @@
     <string name="agent_menu_mode_web">Режим: Claude в браузере</string>
     <string name="agent_menu_mode_native">Режим: чат агента</string>
     <string name="agent_browser_attach">Прикрепить</string>
+    <string name="acc_title">Аккаунты и вход</string>
+    <string name="acc_intro">Подключай внешних агентов под своими аккаунтами. Вход выполняется на сайте самого сервиса (почта, Google и т.д.) во встроенном браузере. У каждого аккаунта свой профиль браузера и своя папка данных, поэтому можно держать несколько аккаунтов одного агента.</string>
+    <string name="acc_installed">Установлен</string>
+    <string name="acc_not_installed">Не установлен</string>
+    <string name="acc_checking">Проверка…</string>
+    <string name="acc_install">Установить (в терминале)</string>
+    <string name="acc_add">Добавить аккаунт и войти</string>
+    <string name="acc_run">Запустить</string>
+    <string name="acc_relogin">Войти заново</string>
+    <string name="acc_delete">Удалить</string>
+    <string name="acc_name_title">Название аккаунта (латиница, цифры, - и _), например personal</string>
+    <string name="acc_account_line">Аккаунт %1$s · браузер: %2$s</string>
+    <string name="acc_delete_confirm">Удалить аккаунт «%1$s»? Данные входа в его папке будут стёрты.</string>
+    <string name="acc_name_bad">Только латиница, цифры, дефис и подчёркивание</string>
+    <string name="acc_name_exists">Такой аккаунт уже есть</string>
+    <string name="acc_limit">Не больше 7 аккаунтов на одного агента</string>
+    <string name="acc_install_note">Установка идёт в терминале. Когда закончится, вернись сюда: статус обновится.</string>
+    <string name="acc_session_done">готово — можно продолжать работу в этой оболочке</string>
+    <string name="acc_note_claude">Вход через аккаунт claude.ai (подписка) или Console. Если страница не вернёт данные сама, скопируй показанный код в терминал.</string>
+    <string name="acc_note_codex">Вход через аккаунт ChatGPT или по ключу.</string>
+    <string name="acc_note_gemini">Вход через Google. Для отдельных аккаунтов используется своя домашняя папка.</string>
+    <string name="acc_note_opencode">Подключает провайдеров по ключам и входам, которые сам предлагает.</string>
 </resources>

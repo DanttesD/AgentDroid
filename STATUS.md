@@ -83,3 +83,9 @@ CI run #3 (51 min, got much further: apt, bash, libbz2 etc. built) failed on `co
 - apt repo hygiene: newest version only; dpkg-perl repacked (no clang dep, no CPAN postinst, version +ad2).
 - Built-in browser: pop-ups supported (Google sign-in); 8 profiles (separate process + data dir suffix per profile => separate cookies/accounts), renameable by long press. Not yet verified on device.
 - Main screen "web mode" (menu ⋮ -> "Режим: Claude в браузере"): claude.ai fills the area under the top bar (profile 0); file/photo picker, pop-ups and back button handled by `BrowserHelper`. Not verified on device.
+
+## Accounts and sign-in (Stage 3, step 1)
+- `AccountsActivity`: cards for Claude Code, Codex, Gemini CLI, OpenCode; install via a Termux session (`npm install -g`), status via `command -v`.
+- Multiple named accounts per agent (`AccountsStore`), each with its own data dir (`~/.agentdroid/accounts/<agent>/<name>`) and its own browser profile slot.
+- Login runs in a visible Termux session with `BROWSER=agentdroid-open`, which opens the login URL in the account's browser profile.
+- Unverified on device: npm install of each CLI under Termux, login redirects/callbacks.

@@ -81,6 +81,7 @@
         <activity android:name=".app.agent.WebBrowserSlots$Slot7" android:label="AgentDroid Browser 8" android:exported="false"
             android:process=":web7" android:taskAffinity="com.agentdroid.web7"
             android:configChanges="orientation|screenSize|keyboardHidden" />
+        <activity android:name=".app.agent.AccountsActivity" android:label="AgentDroid Accounts" android:exported="false" />
         <service android:name=".app.agent.McpService" android:exported="false" />
         <activity
             android:name=".app.AdbConsoleActivity"

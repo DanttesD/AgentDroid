@@ -16,7 +16,7 @@
     <string name="agent_menu_backend">Where commands run</string>
     <string name="agent_menu_terminal">Terminal</string>
     <string name="agent_menu_adb">ADB console</string>
-    <string name="agent_menu_accounts">Accounts and sign-in (soon)</string>
+    <string name="agent_menu_accounts">Accounts and sign-in</string>
     <string name="agent_provider_title">Model provider</string>
     <string name="agent_save">Save</string>
     <string name="agent_cancel">Cancel</string>
@@ -59,4 +59,26 @@
     <string name="agent_menu_mode_web">Mode: Claude in the browser</string>
     <string name="agent_menu_mode_native">Mode: agent chat</string>
     <string name="agent_browser_attach">Attach</string>
+    <string name="acc_title">Accounts and sign-in</string>
+    <string name="acc_intro">Connect external agents under your own accounts. Sign-in happens on the service\'s own site (email, Google, etc.) in the built-in browser. Every account has its own browser profile and data folder, so you can keep several accounts of one agent.</string>
+    <string name="acc_installed">Installed</string>
+    <string name="acc_not_installed">Not installed</string>
+    <string name="acc_checking">Checking…</string>
+    <string name="acc_install">Install (in the terminal)</string>
+    <string name="acc_add">Add account and sign in</string>
+    <string name="acc_run">Run</string>
+    <string name="acc_relogin">Sign in again</string>
+    <string name="acc_delete">Delete</string>
+    <string name="acc_name_title">Account name (letters, digits, - and _), e.g. personal</string>
+    <string name="acc_account_line">Account %1$s · browser: %2$s</string>
+    <string name="acc_delete_confirm">Delete account "%1$s"? Its sign-in data folder will be erased.</string>
+    <string name="acc_name_bad">Letters, digits, dash and underscore only</string>
+    <string name="acc_name_exists">This account already exists</string>
+    <string name="acc_limit">At most 7 accounts per agent</string>
+    <string name="acc_install_note">Installation runs in the terminal. When it finishes, come back here: the status will update.</string>
+    <string name="acc_session_done">done — you can keep working in this shell</string>
+    <string name="acc_note_claude">Sign in with a claude.ai account (subscription) or Console. If the page does not return the data by itself, copy the shown code into the terminal.</string>
+    <string name="acc_note_codex">Sign in with a ChatGPT account or with a key.</string>
+    <string name="acc_note_gemini">Sign in with Google. Separate accounts use their own home folder.</string>
+    <string name="acc_note_opencode">Connects providers with the keys and logins it offers.</string>
 </resources>

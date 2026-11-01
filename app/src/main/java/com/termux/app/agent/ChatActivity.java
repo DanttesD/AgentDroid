@@ -194,7 +194,7 @@ public class ChatActivity extends Activity {
             else if (which == 2) startActivity(new Intent(this, AdbConsoleActivity.class));
             else if (which == 3) startActivity(new Intent(this, McpActivity.class));
             else if (which == 4) BrowserPicker.show(this, null);
-            else if (which == 5) addNote(getString(R.string.agent_accounts_soon));
+            else if (which == 5) startActivity(new Intent(this, AccountsActivity.class));
             else setWebMode(!webMode);
         }).show();
     }
