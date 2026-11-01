@@ -31,6 +31,7 @@ public final class TunnelManager {
     private static volatile String error = "";
     private static volatile boolean ngrok;
     private static volatile boolean forceCloudflare;
+    private static volatile boolean viaSu;
     private static volatile String note = "";
 
     private TunnelManager() {}
@@ -105,10 +106,20 @@ public final class TunnelManager {
         if (ngrok) {
             killStale();
             String domain = ngrokDomain(c);
-            cmd.add(prefix + "/bin/proot-distro"); cmd.add("login"); cmd.add("debian"); cmd.add("--shared-tmp"); cmd.add("--");
-            cmd.add("env"); cmd.add("NGROK_AUTHTOKEN=" + token); cmd.add(NGROK_BIN);
-            cmd.add("http"); cmd.add("127.0.0.1:" + port); cmd.add("--log=stdout"); cmd.add("--log-format=logfmt");
-            if (!domain.isEmpty()) cmd.add("--url=" + domain);
+            List<String> inner = new ArrayList<>();
+            inner.add(prefix + "/bin/proot-distro"); inner.add("login"); inner.add("debian"); inner.add("--shared-tmp"); inner.add("--");
+            inner.add("env"); inner.add("NGROK_AUTHTOKEN=" + token); inner.add(NGROK_BIN);
+            inner.add("http"); inner.add("127.0.0.1:" + port); inner.add("--log=stdout"); inner.add("--log-format=logfmt");
+            if (!domain.isEmpty()) inner.add("--url=" + domain);
+            if (viaSu) {
+                // Android hides network card addresses from normal apps; the same app user started through su sees them.
+                StringBuilder sb = new StringBuilder("env -i PATH=" + prefix + "/bin HOME=" + home + " PREFIX=" + prefix
+                        + " TERMUX__PREFIX=" + prefix + " TERMUX__HOME=" + home + " TMPDIR=" + prefix + "/tmp LD_LIBRARY_PATH=" + prefix + "/lib");
+                for (String a : inner) sb.append(' ').append(com.agentdroid.exec.ShellQuote.quote(a));
+                cmd.add("su"); cmd.add(String.valueOf(android.os.Process.myUid())); cmd.add("-c"); cmd.add(sb.toString());
+            } else {
+                cmd.addAll(inner);
+            }
         } else {
             File bin = new File(prefix + "/bin/cloudflared");
             if (!bin.exists()) { error = "cloudflared"; return; }
@@ -128,12 +139,18 @@ public final class TunnelManager {
             process = p;
             final Context app = c.getApplicationContext();
             final boolean wasNgrok = ngrok;
+            final boolean wasSu = viaSu;
             final int fport = port;
-            Thread t = new Thread(() -> { read(p, wasNgrok); afterExit(app, fport, wasNgrok); }, "tunnel-reader");
+            Thread t = new Thread(() -> { read(p, wasNgrok); afterExit(app, fport, wasNgrok, wasSu); }, "tunnel-reader");
             t.setDaemon(true);
             t.start();
         } catch (IOException e) {
             error = String.valueOf(e.getMessage());
+            if (ngrok) { // could not even start (for example no su): use the temporary tunnel
+                note = error;
+                forceCloudflare = true;
+                try { start(c, port); } finally { forceCloudflare = false; }
+            }
         }
     }
 
@@ -159,19 +176,22 @@ public final class TunnelManager {
         connected = false;
     }
 
-    /** ngrok ended without ever connecting: run the temporary Cloudflare tunnel instead. */
-    private static void afterExit(Context c, int port, boolean wasNgrok) {
+    /** ngrok ended without connecting: retry through su when the network card address was hidden, then fall back to Cloudflare. */
+    private static void afterExit(Context c, int port, boolean wasNgrok, boolean wasSu) {
         if (!wasNgrok || forceCloudflare) return;
+        boolean retrySu;
         synchronized (TunnelManager.class) {
             if (process == null) return; // stopped by the user
+            retrySu = !wasSu && error.contains("hardware address");
             note = error;
-            forceCloudflare = true;
             process = null;
+            if (retrySu) { viaSu = true; } else { forceCloudflare = true; }
         }
         try {
             start(c, port);
         } finally {
             forceCloudflare = false;
+            viaSu = false;
         }
     }
 
