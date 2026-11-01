@@ -24,7 +24,7 @@ public final class AgentCatalog {
 
         /** Installs Node.js and the agent when they are missing; safe to run every time. */
         public String ensureInstalled() {
-            return "command -v " + bin + " >/dev/null 2>&1 || { command -v npm >/dev/null 2>&1 || pkg install -y nodejs; "
+            return "command -v " + bin + " >/dev/null 2>&1 || { command -v npm >/dev/null 2>&1 || pkg install -y nodejs npm; "
                     + install + "; }";
         }
 
