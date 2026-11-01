@@ -35,7 +35,7 @@ public final class AgentCatalog {
     }
 
     public static final Entry[] ALL = {
-            new Entry("claude", "Claude Code", "claude", "npm install -g @anthropic-ai/claude-code",
+            new Entry("claude", "Claude Code", "claude", "npm install -g --allow-scripts=@anthropic-ai/claude-code @anthropic-ai/claude-code",
                     "claude auth login", "claude", "CLAUDE_CONFIG_DIR", com.termux.R.string.acc_note_claude),
             new Entry("codex", "Codex (OpenAI)", "codex", "npm install -g @openai/codex",
                     "codex login", "codex", "CODEX_HOME", com.termux.R.string.acc_note_codex),
