@@ -80,7 +80,7 @@ public class AccountsActivity extends Activity {
         Button install = btn(getString(R.string.acc_install));
         install.setOnClickListener(v -> {
             Toast.makeText(this, R.string.acc_install_note, Toast.LENGTH_LONG).show();
-            TermuxSessions.run(this, e.title, e.install, BrowserPicker.SLOTS[0]);
+            TermuxSessions.run(this, e.title, e.ensureInstalled(), BrowserPicker.SLOTS[0]);
         });
         card.addView(install);
         Button add = btn(getString(R.string.acc_add));
@@ -100,7 +100,7 @@ public class AccountsActivity extends Activity {
         btns.setOrientation(LinearLayout.HORIZONTAL);
         Button run = small(getString(R.string.acc_run));
         run.setOnClickListener(v -> TermuxSessions.run(this, e.title + " " + a.name,
-                "mkdir -p " + ShellQuote.quote(a.dir()) + "; " + e.withAccount(e.run, a.dir()), BrowserPicker.SLOTS[a.browserSlot]));
+                e.ensureInstalled() + "; mkdir -p " + ShellQuote.quote(a.dir()) + "; " + e.withAccount(e.run, a.dir()), BrowserPicker.SLOTS[a.browserSlot]));
         Button relogin = small(getString(R.string.acc_relogin));
         relogin.setOnClickListener(v -> login(e, a));
         Button del = small(getString(R.string.acc_delete));
@@ -112,7 +112,7 @@ public class AccountsActivity extends Activity {
 
     private void login(AgentCatalog.Entry e, AccountsStore.Account a) {
         TermuxSessions.run(this, e.title + " " + a.name,
-                "mkdir -p " + ShellQuote.quote(a.dir()) + "; " + e.withAccount(e.login, a.dir()), BrowserPicker.SLOTS[a.browserSlot]);
+                e.ensureInstalled() + "; mkdir -p " + ShellQuote.quote(a.dir()) + "; " + e.withAccount(e.login, a.dir()), BrowserPicker.SLOTS[a.browserSlot]);
     }
 
     private void askName(final AgentCatalog.Entry e) {
