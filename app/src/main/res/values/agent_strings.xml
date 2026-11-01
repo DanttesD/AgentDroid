@@ -93,4 +93,13 @@
     <string name="mcp_tunnel_err">Tunnel error: %1$s (needs the cloudflared package: pkg install cloudflared)</string>
     <string name="mcp_copy_public">Copy address for the claude.ai connector</string>
     <string name="mcp_no_public">Address is not ready yet</string>
+    <string name="agent_menu_web_add">Add web account</string>
+    <string name="agent_web_default">Web account</string>
+    <string name="agent_web_pick_title">Choose a service</string>
+    <string name="agent_web_add_service">Add service…</string>
+    <string name="agent_web_service_name">Service name</string>
+    <string name="agent_web_service_url">Address, e.g. example.com</string>
+    <string name="agent_web_rename">Rename</string>
+    <string name="agent_web_change_service">Change service</string>
+    <string name="agent_web_delete">Delete</string>
 </resources>

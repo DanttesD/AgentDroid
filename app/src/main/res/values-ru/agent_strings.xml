@@ -93,4 +93,13 @@
     <string name="mcp_tunnel_err">Ошибка туннеля: %1$s (нужен пакет cloudflared: pkg install cloudflared)</string>
     <string name="mcp_copy_public">Скопировать адрес для коннектора claude.ai</string>
     <string name="mcp_no_public">Адрес ещё не готов</string>
+    <string name="agent_menu_web_add">Добавить веб-аккаунт</string>
+    <string name="agent_web_default">Веб-аккаунт</string>
+    <string name="agent_web_pick_title">Выбери сервис</string>
+    <string name="agent_web_add_service">Добавить сервис…</string>
+    <string name="agent_web_service_name">Название сервиса</string>
+    <string name="agent_web_service_url">Адрес, например example.com</string>
+    <string name="agent_web_rename">Переименовать</string>
+    <string name="agent_web_change_service">Сменить сервис</string>
+    <string name="agent_web_delete">Удалить</string>
 </resources>

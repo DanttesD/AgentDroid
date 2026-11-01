@@ -47,8 +47,27 @@ public final class BrowserHelper {
         this.urlListener = urlListener;
     }
 
-    public WebView create() {
+    public WebView create() { return create(null); }
+
+    /** True when this device's WebView can keep several independent accounts (profiles) in one process. */
+    public static boolean profilesSupported() {
+        try {
+            return androidx.webkit.WebViewFeature.isFeatureSupported(androidx.webkit.WebViewFeature.MULTI_PROFILE);
+        } catch (Throwable t) {
+            return false;
+        }
+    }
+
+    /** @param profile WebView profile name (own cookies and storage), or null for the default profile. */
+    public WebView create(final String profile) {
         final WebView w = new WebView(activity);
+        if (profile != null && profilesSupported()) {
+            try {
+                androidx.webkit.WebViewCompat.setProfile(w, profile);
+            } catch (Throwable ignored) {
+                // falls back to the default profile
+            }
+        }
         WebSettings st = w.getSettings();
         st.setJavaScriptEnabled(true);
         st.setDomStorageEnabled(true);
@@ -68,7 +87,7 @@ public final class BrowserHelper {
         w.setWebChromeClient(new WebChromeClient() {
             @Override public boolean onCreateWindow(WebView view, boolean isDialog, boolean isUserGesture, Message resultMsg) {
                 closePopup();
-                popup = create();
+                popup = create(profile);
                 popupHost.addView(popup, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
                 ((WebView.WebViewTransport) resultMsg.obj).setWebView(popup);
                 resultMsg.sendToTarget();
