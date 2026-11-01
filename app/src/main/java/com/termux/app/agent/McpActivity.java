@@ -67,7 +67,7 @@ public class McpActivity extends Activity {
         final Button tunBtn = btn("");
         tunBtn.setOnClickListener(v -> {
             if (TunnelManager.isRunning()) TunnelManager.stop();
-            else { if (!McpHost.isRunning()) McpService.start(this); TunnelManager.start(McpHost.port(this)); }
+            else { if (!McpHost.isRunning()) McpService.start(this); TunnelManager.start(this, McpHost.port(this)); }
             refresh();
         });
         tunnelButton = tunBtn;
@@ -78,6 +78,16 @@ public class McpActivity extends Activity {
         });
         root.addView(tunBtn);
         root.addView(tunnelState);
+        Button ngrokSetup = btn(getString(R.string.mcp_ngrok_setup));
+        ngrokSetup.setOnClickListener(v -> askNgrok());
+        Button ngrokInstall = btn(getString(R.string.mcp_ngrok_install));
+        ngrokInstall.setOnClickListener(v -> TermuxSessions.run(this, "ngrok", TunnelManager.ngrokInstallScript(), BrowserPicker.SLOTS[0]));
+        Button ngrokSite = btn(getString(R.string.mcp_ngrok_site));
+        ngrokSite.setOnClickListener(v -> BrowserPicker.show(this, "https://dashboard.ngrok.com/get-started/your-authtoken"));
+        root.addView(tv(getString(R.string.mcp_ngrok_hint), 13, Color.parseColor("#b6bccb")));
+        root.addView(ngrokSite);
+        root.addView(ngrokInstall);
+        root.addView(ngrokSetup);
         root.addView(copyPublic);
 
         TextView tt = tv(getString(R.string.mcp_tunnel_title), 16, Color.WHITE);
@@ -106,6 +116,30 @@ public class McpActivity extends Activity {
         return getString(m == 0 ? R.string.mcp_approval_ask : m == 1 ? R.string.mcp_approval_hour : R.string.mcp_approval_always);
     }
 
+    private void askNgrok() {
+        final android.widget.EditText token = new android.widget.EditText(this);
+        token.setHint(R.string.mcp_ngrok_token);
+        token.setSingleLine(true);
+        final android.widget.EditText domain = new android.widget.EditText(this);
+        domain.setHint(R.string.mcp_ngrok_domain);
+        domain.setSingleLine(true);
+        domain.setText(TunnelManager.ngrokDomain(this));
+        LinearLayout box = new LinearLayout(this);
+        box.setOrientation(LinearLayout.VERTICAL);
+        box.setPadding(40, 10, 40, 0);
+        box.addView(token);
+        box.addView(domain);
+        new android.app.AlertDialog.Builder(this).setTitle(R.string.mcp_ngrok_setup).setView(box)
+                .setPositiveButton(R.string.agent_save, (d, w) -> {
+                    String t = token.getText().toString().trim();
+                    if (t.isEmpty() && TunnelManager.ngrokConfigured(this)) t = new SecretStore(this).get("ngrok_token");
+                    TunnelManager.saveNgrok(this, t, domain.getText().toString());
+                    TunnelManager.stop();
+                    refresh();
+                })
+                .setNegativeButton(R.string.agent_cancel, null).show();
+    }
+
     private TextView tunnelState;
     private Button tunnelButton;
     private final Runnable tick = this::refresh;
@@ -116,7 +150,9 @@ public class McpActivity extends Activity {
         tunnelButton.setText(TunnelManager.isRunning() ? R.string.mcp_tunnel_stop : R.string.mcp_tunnel_start);
         String st;
         if (!TunnelManager.error().isEmpty()) st = getString(R.string.mcp_tunnel_err, TunnelManager.error());
-        else if (!TunnelManager.isRunning()) st = getString(R.string.mcp_tunnel_off);
+        else if (!TunnelManager.isRunning()) st = getString(R.string.mcp_tunnel_off) + (TunnelManager.ngrokConfigured(this)
+                ? "\n" + getString(TunnelManager.ngrokInstalled() ? R.string.mcp_ngrok_ready : R.string.mcp_ngrok_need_install, TunnelManager.ngrokDomain(this))
+                : "");
         else if (TunnelManager.isConnected()) st = getString(R.string.mcp_tunnel_ok, TunnelManager.url());
         else st = getString(R.string.mcp_tunnel_wait);
         tunnelState.setText(st);

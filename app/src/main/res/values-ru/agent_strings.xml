@@ -102,4 +102,12 @@
     <string name="agent_web_rename">Переименовать</string>
     <string name="agent_web_change_service">Сменить сервис</string>
     <string name="agent_web_delete">Удалить</string>
+    <string name="mcp_ngrok_setup">Постоянный адрес: токен и адрес ngrok</string>
+    <string name="mcp_ngrok_install">Установить ngrok (в терминале)</string>
+    <string name="mcp_ngrok_site">Открыть ngrok: взять токен</string>
+    <string name="mcp_ngrok_hint">Постоянный адрес (бесплатно): 1) зарегистрируйся на ngrok.com, 2) нажми «Открыть ngrok» и скопируй токен, 3) на странице Domains скопируй свой бесплатный адрес вида имя.ngrok-free.app, 4) нажми «Установить ngrok», 5) введи токен и адрес в настройке и запускай туннель. Адрес с /mcp/секрет вставь в коннектор claude.ai один раз.</string>
+    <string name="mcp_ngrok_token">Токен ngrok (оставь пустым, чтобы не менять)</string>
+    <string name="mcp_ngrok_domain">Адрес, например имя.ngrok-free.app</string>
+    <string name="mcp_ngrok_ready">Постоянный адрес ngrok включён: %1$s</string>
+    <string name="mcp_ngrok_need_install">ngrok ещё не установлен: нажми «Установить ngrok» (адрес %1$s)</string>
 </resources>

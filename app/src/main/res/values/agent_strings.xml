@@ -102,4 +102,12 @@
     <string name="agent_web_rename">Rename</string>
     <string name="agent_web_change_service">Change service</string>
     <string name="agent_web_delete">Delete</string>
+    <string name="mcp_ngrok_setup">Permanent address: ngrok token and address</string>
+    <string name="mcp_ngrok_install">Install ngrok (in the terminal)</string>
+    <string name="mcp_ngrok_site">Open ngrok: get the token</string>
+    <string name="mcp_ngrok_hint">Permanent address (free): 1) sign up at ngrok.com, 2) tap "Open ngrok" and copy the token, 3) on the Domains page copy your free address like name.ngrok-free.app, 4) tap "Install ngrok", 5) enter the token and address in the setup and start the tunnel. Put the address with /mcp/secret into the claude.ai connector once.</string>
+    <string name="mcp_ngrok_token">ngrok token (leave empty to keep)</string>
+    <string name="mcp_ngrok_domain">Address, e.g. name.ngrok-free.app</string>
+    <string name="mcp_ngrok_ready">Permanent ngrok address is on: %1$s</string>
+    <string name="mcp_ngrok_need_install">ngrok is not installed yet: tap "Install ngrok" (address %1$s)</string>
 </resources>
