@@ -22,21 +22,31 @@ public final class AgentCatalog {
             this.login = login; this.run = run; this.envKey = envKey; this.noteRes = noteRes;
         }
 
-        /** Installs Node.js and the agent when they are missing; safe to run every time. */
-        public String ensureInstalled() {
-            return "command -v " + bin + " >/dev/null 2>&1 || { command -v npm >/dev/null 2>&1 || pkg install -y nodejs npm; "
-                    + install + "; }";
+        /** Command that checks, inside the Debian environment, whether the agent is present. */
+        public String checkCommand() {
+            return "proot-distro login debian -- bash -lc " + ShellQuote.quote("command -v " + bin);
         }
 
-        /** Command with the account directory applied. */
+        /** Installs proot-distro, Debian and the agent when missing; safe to run every time. */
+        public String ensureInstalled() {
+            String inner = "command -v " + bin + " >/dev/null 2>&1 || { apt-get update && "
+                    + "DEBIAN_FRONTEND=noninteractive apt-get install -y nodejs npm curl ca-certificates && " + install + "; }";
+            return "{ command -v proot-distro >/dev/null 2>&1 || pkg install -y proot-distro; } && "
+                    + "{ [ -d \"$PREFIX/var/lib/proot-distro/installed-rootfs/debian\" ] || proot-distro install debian; } && "
+                    + "proot-distro login debian -- bash -lc " + ShellQuote.quote(inner);
+        }
+
+        /** Runs cmd in Debian with the account directory shared and used as this agent's data dir. */
         public String withAccount(String cmd, String accountDir) {
-            return "env " + envKey + "=" + ShellQuote.quote(accountDir) + " " + cmd;
+            String q = ShellQuote.quote(accountDir);
+            return "proot-distro login debian --shared-tmp --bind " + q + ":" + q + " -- env "
+                    + envKey + "=" + q + " bash -lc " + ShellQuote.quote(cmd);
         }
     }
 
     public static final Entry[] ALL = {
-            new Entry("claude", "Claude Code", "claude", "npm install -g --allow-scripts=@anthropic-ai/claude-code @anthropic-ai/claude-code",
-                    "claude auth login", "claude", "CLAUDE_CONFIG_DIR", com.termux.R.string.acc_note_claude),
+            new Entry("claude", "Claude Code", "claude", "npm install -g @anthropic-ai/claude-code",
+                    "claude auth login || claude", "claude", "CLAUDE_CONFIG_DIR", com.termux.R.string.acc_note_claude),
             new Entry("codex", "Codex (OpenAI)", "codex", "npm install -g @openai/codex",
                     "codex login", "codex", "CODEX_HOME", com.termux.R.string.acc_note_codex),
             new Entry("gemini", "Gemini CLI", "gemini", "npm install -g @google/gemini-cli",

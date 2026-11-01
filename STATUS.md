@@ -89,3 +89,5 @@ CI run #3 (51 min, got much further: apt, bash, libbz2 etc. built) failed on `co
 - Multiple named accounts per agent (`AccountsStore`), each with its own data dir (`~/.agentdroid/accounts/<agent>/<name>`) and its own browser profile slot.
 - Login runs in a visible Termux session with `BROWSER=agentdroid-open`, which opens the login URL in the account's browser profile.
 - Unverified on device: npm install of each CLI under Termux, login redirects/callbacks.
+- Agents run inside a proot-distro Debian (verified by the developer on the device: Claude Code 2.1.316 installs and runs there; Termux/Android has no native Claude Code build). Install/check/run/login all go through `proot-distro login debian`, account dir is bind-mounted and used as CLAUDE_CONFIG_DIR etc.
+- Unverified: login flow in Debian (URL must be copied manually, no BROWSER bridge into proot yet), Codex/Gemini/OpenCode installs.

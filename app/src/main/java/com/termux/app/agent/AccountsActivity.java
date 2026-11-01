@@ -150,7 +150,7 @@ public class AccountsActivity extends Activity {
             boolean ok = false;
             try {
                 if (termux != null) {
-                    ExecResult r = termux.exec(ExecRequest.builder("command -v " + e.bin).timeoutMs(10_000).build());
+                    ExecResult r = termux.exec(ExecRequest.builder(e.checkCommand()).timeoutMs(60_000).build());
                     ok = r.ok() && !r.stdout().trim().isEmpty();
                 }
             } catch (Exception ignored) { }
