@@ -110,4 +110,5 @@
     <string name="mcp_ngrok_domain">Address, e.g. name.ngrok-free.app</string>
     <string name="mcp_ngrok_ready">Permanent ngrok address is on: %1$s</string>
     <string name="mcp_ngrok_need_install">ngrok is not installed yet: tap "Install ngrok" (address %1$s)</string>
+    <string name="mcp_tunnel_fallback">ngrok failed to start, using a temporary Cloudflare address: %1$s</string>
 </resources>

@@ -110,4 +110,5 @@
     <string name="mcp_ngrok_domain">Адрес, например имя.ngrok-free.app</string>
     <string name="mcp_ngrok_ready">Постоянный адрес ngrok включён: %1$s</string>
     <string name="mcp_ngrok_need_install">ngrok ещё не установлен: нажми «Установить ngrok» (адрес %1$s)</string>
+    <string name="mcp_tunnel_fallback">ngrok не запустился, использован временный адрес Cloudflare: %1$s</string>
 </resources>

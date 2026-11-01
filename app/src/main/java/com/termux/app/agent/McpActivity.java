@@ -153,7 +153,8 @@ public class McpActivity extends Activity {
         else if (!TunnelManager.isRunning()) st = getString(R.string.mcp_tunnel_off) + (TunnelManager.ngrokConfigured(this)
                 ? "\n" + getString(TunnelManager.ngrokInstalled() ? R.string.mcp_ngrok_ready : R.string.mcp_ngrok_need_install, TunnelManager.ngrokDomain(this))
                 : "");
-        else if (TunnelManager.isConnected()) st = getString(R.string.mcp_tunnel_ok, TunnelManager.url());
+        else if (TunnelManager.isConnected()) st = getString(R.string.mcp_tunnel_ok, TunnelManager.url())
+                + (TunnelManager.note().isEmpty() ? "" : "\n" + getString(R.string.mcp_tunnel_fallback, TunnelManager.note()));
         else st = getString(R.string.mcp_tunnel_wait);
         tunnelState.setText(st);
         tunnelState.removeCallbacks(tick);

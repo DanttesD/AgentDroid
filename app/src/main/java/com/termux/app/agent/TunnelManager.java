@@ -30,6 +30,8 @@ public final class TunnelManager {
     private static volatile boolean connected;
     private static volatile String error = "";
     private static volatile boolean ngrok;
+    private static volatile boolean forceCloudflare;
+    private static volatile String note = "";
 
     private TunnelManager() {}
 
@@ -38,6 +40,8 @@ public final class TunnelManager {
     public static boolean isConnected() { return connected && isRunning(); }
     public static String error() { return error; }
     public static boolean usesNgrok() { return ngrok; }
+    /** Non-empty when the permanent tunnel failed and the temporary one is used instead. */
+    public static String note() { return note; }
 
     public static String ngrokDomain(Context c) {
         return c.getApplicationContext().getSharedPreferences(PREFS, Context.MODE_PRIVATE).getString("domain", "");
@@ -70,10 +74,11 @@ public final class TunnelManager {
     public static synchronized void start(Context c, int port) {
         if (isRunning()) return;
         url = ""; connected = false; error = "";
+        if (!forceCloudflare) note = "";
         String prefix = TermuxConstants.TERMUX_PREFIX_DIR_PATH;
         String home = TermuxConstants.TERMUX_HOME_DIR_PATH;
         String token = new SecretStore(c).get("ngrok_token");
-        ngrok = !token.isEmpty() && ngrokInstalled();
+        ngrok = !forceCloudflare && !token.isEmpty() && ngrokInstalled();
         List<String> cmd = new ArrayList<>();
         if (ngrok) {
             String domain = ngrokDomain(c);
@@ -98,7 +103,10 @@ public final class TunnelManager {
             pb.redirectErrorStream(true);
             final Process p = pb.start();
             process = p;
-            Thread t = new Thread(() -> read(p, ngrok), "tunnel-reader");
+            final Context app = c.getApplicationContext();
+            final boolean wasNgrok = ngrok;
+            final int fport = port;
+            Thread t = new Thread(() -> { read(p, wasNgrok); afterExit(app, fport, wasNgrok); }, "tunnel-reader");
             t.setDaemon(true);
             t.start();
         } catch (IOException e) {
@@ -126,6 +134,22 @@ public final class TunnelManager {
         } catch (IOException ignored) {
         }
         connected = false;
+    }
+
+    /** ngrok ended without ever connecting: run the temporary Cloudflare tunnel instead. */
+    private static void afterExit(Context c, int port, boolean wasNgrok) {
+        if (!wasNgrok || forceCloudflare) return;
+        synchronized (TunnelManager.class) {
+            if (process == null) return; // stopped by the user
+            note = error;
+            forceCloudflare = true;
+            process = null;
+        }
+        try {
+            start(c, port);
+        } finally {
+            forceCloudflare = false;
+        }
     }
 
     public static synchronized void stop() {
