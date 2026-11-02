@@ -100,9 +100,14 @@ public final class UiTools {
         }
         public String describe(Map<String, Object> a) { return "Take a screenshot of the screen"; }
         public ToolResult run(Map<String, Object> a) throws Exception {
-            ExecResult r = sh(b, "screencap -p", 30_000L);
-            byte[] d = r.stdoutBytes();
-            if (!r.ok() || d.length < 8 || (d[0] & 0xff) != 0x89 || d[1] != 'P') {
+            ExecResult r = null;
+            byte[] d = new byte[0];
+            try { r = sh(b, "screencap -p", 30_000L); d = r.stdoutBytes(); } catch (Exception ignored) { }
+            if (r == null || !r.ok() || d.length < 8 || (d[0] & 0xff) != 0x89 || d[1] != 'P') {
+                ScreenBridge sb = ScreenBridge.Holder.current;
+                byte[] viaService = sb == null ? null : sb.screenshot();
+                if (viaService != null) return new ToolResult("Screenshot (accessibility service).", viaService);
+                if (r == null) throw new IllegalStateException("screencap failed. Screenshots need root/ADB or the accessibility service (Android 11+).");
                 throw new IllegalStateException("screencap failed (" + (r.stderr().isEmpty() ? "exit " + r.exitCode() : r.stderr().trim())
                         + "). Screenshots need the root or ADB backend.");
             }

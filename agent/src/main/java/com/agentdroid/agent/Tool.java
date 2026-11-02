@@ -8,6 +8,9 @@ public interface Tool {
     /** True when the user must confirm before this call runs. */
     boolean needsApproval(Map<String, Object> args);
 
+    /** True for actions that must be confirmed even when the user allowed everything (sending, paying, deleting). */
+    default boolean sensitive(Map<String, Object> args) { return false; }
+
     /** Short human-readable description of what the call will do (for the approval prompt). */
     String describe(Map<String, Object> args);
 

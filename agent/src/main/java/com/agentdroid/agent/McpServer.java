@@ -30,6 +30,8 @@ public final class McpServer {
     private final Approver approver;
     private final String token;
     private final int requestedPort;
+    private volatile Guard guard;
+    private volatile String instructions = "";
     private volatile ServerSocket server;
     private volatile boolean running;
 
@@ -39,6 +41,10 @@ public final class McpServer {
         this.token = token;
         this.requestedPort = port;
     }
+
+    public void setGuard(Guard g) { this.guard = g; }
+
+    public void setInstructions(String s) { this.instructions = s == null ? "" : s; }
 
     public synchronized int start() throws IOException {
         if (running) return server.getLocalPort();
@@ -159,7 +165,8 @@ public final class McpServer {
                 case "initialize":
                     result = Json.obj("protocolVersion", PROTOCOL_VERSION,
                             "capabilities", Json.obj("tools", Json.obj()),
-                            "serverInfo", Json.obj("name", "agentdroid", "version", "0.1"));
+                            "serverInfo", Json.obj("name", "agentdroid", "version", "0.2"));
+                    if (!instructions.isEmpty()) ((Map<String, Object>) result).put("instructions", instructions);
                     break;
                 case "ping":
                     result = Json.obj();
@@ -194,10 +201,20 @@ public final class McpServer {
         if (tool == null) throw new IllegalArgumentException("unknown tool: " + name);
         Map<String, Object> args = params.get("arguments") instanceof Map
                 ? (Map<String, Object>) params.get("arguments") : new LinkedHashMap<String, Object>();
-        String text;
+        String text = "";
         byte[] png = null;
         boolean error = false;
-        if (tool.needsApproval(args) && !approver.approve(new ToolCall("mcp", name, args), tool.describe(args))) {
+        Guard g = guard;
+        boolean refused = false;
+        if (g != null) {
+            try { g.before(name, args, tool.describe(args)); }
+            catch (SecurityException e) { text = "refused: " + e.getMessage(); error = true; refused = true; }
+            catch (RuntimeException ignored) { }
+        }
+        if (refused) {
+            // text already set
+        } else if ((tool.needsApproval(args) || tool.sensitive(args))
+                && !approver.approve(new ToolCall("mcp", name, args), (tool.sensitive(args) ? "!" : "") + tool.describe(args))) {
             text = "the user denied this action"; error = true;
         } else {
             try {
@@ -208,6 +225,9 @@ public final class McpServer {
                 if (e instanceof InterruptedException) Thread.currentThread().interrupt();
                 text = "error: " + e.getMessage(); error = true;
             }
+        }
+        if (g != null) {
+            try { g.after(name, args, text, error); } catch (RuntimeException ignored) { }
         }
         if (text.length() > 50_000) text = text.substring(0, 50_000) + "\n...[truncated]";
         List<Object> content = new ArrayList<>();

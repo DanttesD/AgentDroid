@@ -97,5 +97,13 @@ CI run #3 (51 min, got much further: apt, bash, libbz2 etc. built) failed on `co
 - Menu ⋮: "Веб-аккаунт" entries (long press: rename / change service / delete) + "Добавить веб-аккаунт". Tapping an account without a service opens the service window (Claude, ChatGPT, DeepSeek, Gemini, Grok, Perplexity, Mistral, Qwen, Copilot + user-added services). The page opens in the main window; each account keeps its own cookies via androidx.webkit profiles (first account = default profile, so existing logins stay). If the device WebView lacks MULTI_PROFILE, other accounts open in the separate profile screens instead. Not compiled or tested yet (androidx.webkit 1.12.1 added).
 - Permanent tunnel address: ngrok (free static dev domain, port 443) runs inside the Debian proot (`/opt/ngrok/ngrok`, verified on the device: ngrok 3.39.13 starts); `TunnelManager` uses it when a token is saved (encrypted in SecretStore) and ngrok is installed, otherwise cloudflared. Setup buttons on the MCP screen. Not yet verified end to end (needs the user's ngrok token and domain).
 
-## Коннектор видит и управляет интерфейсом
-MCP-инструменты (через root/ADB-бэкенд): screenshot (картинка), ui_tree (элементы с координатами), tap (в т.ч. долгое нажатие), swipe, type_text (кириллица через буфер обмена), key, open_app, list_apps, current_app, wait. Позже: AccessibilityService для режима без root/ADB.
+## Коннектор: экран, Android, разработка, безопасность (2026-11-02)
+Не проверено на устройстве; модуль :agent собран и протестирован (19 JUnit), приложение собирается только в CI.
+- Экран через root/ADB: screenshot (картинка), ui_tree (координаты), tap, swipe, type_text (кириллица через буфер), key, open_app, list_apps, current_app, wait.
+- Экран через службу специальных возможностей (`AgentAccessibilityService`, без root): ui_read (нумерованные элементы, пароли маскируются), click(id), long_click, set_text, scroll, global_action, wait_for; скриншот через службу как запасной вариант (Android 11+). Включение: настройки или кнопка «через root/ADB» на экране MCP.
+- Android: device_info, intent, settings, logcat, dumpsys, app_install/uninstall, toggle (wifi/bt/data/nfc/экран), notifications (через dumpsys), sms_read, contacts, calendar, location, notify, clipboard_get/set.
+- Разработка: edit, glob, grep.
+- Безопасность: `ActionGuard` — аварийная остановка (кнопка и действие в уведомлении), список запрещённых приложений, журнал действий (agent-actions.log, стирается кнопкой); «чувствительные» вызовы (звонки/отправка, SMS, контакты, календарь, геолокация, установка/удаление) всегда спрашивают, даже в режиме «всегда разрешать».
+- Среда для агентов: текст `instructions` в ответе initialize + файл ~/.agentdroid/ENVIRONMENT.md.
+- Автозапуск сервера/туннеля после перезагрузки и обновления (BootReceiver, кнопка на экране MCP).
+- Ещё не сделано: управление браузером (DOM/CDP), камера, уведомления через NotificationListenerService, шифрование журнала, подробные уровни доверия по приложениям, режим «человек и агент вместе», оверлей.

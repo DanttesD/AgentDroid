@@ -54,6 +54,37 @@ public class McpActivity extends Activity {
         root.addView(start);
         root.addView(stop);
 
+        final Button stopAgent = btn("");
+        stopAgent.setOnClickListener(v -> {
+            if (McpHost.isRunning()) startService(new Intent(this, McpService.class).setAction(McpService.ACTION_PAUSE));
+            else ActionGuard.setPaused(!ActionGuard.isPaused());
+            v.postDelayed(() -> stopAgent.setText(stopLabel()), 300);
+        });
+        stopAgent.setText(stopLabel());
+        root.addView(stopAgent);
+
+        TextView sec = tv(getString(R.string.mcp_security_title), 16, Color.WHITE);
+        sec.setTypeface(android.graphics.Typeface.DEFAULT_BOLD);
+        root.addView(sec);
+        a11yState = tv("", 14, Color.parseColor("#7aa2ff"));
+        root.addView(a11yState);
+        Button a11y = btn(getString(R.string.mcp_a11y_open));
+        a11y.setOnClickListener(v -> startActivity(new Intent(android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS)));
+        root.addView(a11y);
+        Button a11yAuto = btn(getString(R.string.mcp_a11y_auto));
+        a11yAuto.setOnClickListener(v -> enableA11yViaShell());
+        root.addView(a11yAuto);
+        Button blocked = btn(getString(R.string.mcp_blocked_apps));
+        blocked.setOnClickListener(v -> editBlocked());
+        root.addView(blocked);
+        Button logBtn = btn(getString(R.string.mcp_action_log));
+        logBtn.setOnClickListener(v -> showLog());
+        root.addView(logBtn);
+        final Button boot = btn("");
+        boot.setOnClickListener(v -> { BootReceiver.setMode(this, (BootReceiver.mode(this) + 1) % 3); boot.setText(bootLabel()); });
+        boot.setText(bootLabel());
+        root.addView(boot);
+
         local = tv("", 13, Color.parseColor("#e6e8ee"));
         root.addView(local);
         Button copy = btn(getString(R.string.mcp_copy));
@@ -140,6 +171,57 @@ public class McpActivity extends Activity {
                 .setNegativeButton(R.string.agent_cancel, null).show();
     }
 
+    private TextView a11yState;
+
+    private String stopLabel() { return getString(ActionGuard.isPaused() ? R.string.mcp_resume : R.string.mcp_stop_now); }
+
+    private String bootLabel() {
+        int m = BootReceiver.mode(this);
+        return getString(m == 0 ? R.string.mcp_boot_off : m == 1 ? R.string.mcp_boot_server : R.string.mcp_boot_tunnel);
+    }
+
+    private void enableA11yViaShell() {
+        final String comp = getPackageName() + "/" + AgentAccessibilityService.class.getName();
+        final Context app = getApplicationContext();
+        new Thread(() -> {
+            String msg;
+            try {
+                com.agentdroid.exec.BackendSelector sel = AgentBackends.create(app);
+                String pin = new AgentConfig(app).backendPin();
+                if (!pin.isEmpty()) { try { sel.pin(pin); } catch (Exception ignored) { } }
+                SelectedBackend b = new SelectedBackend(sel);
+                String cmd = "cur=$(settings get secure enabled_accessibility_services); "
+                        + "case \"$cur\" in *" + comp + "*) ;; ''|null) settings put secure enabled_accessibility_services " + comp + " ;; "
+                        + "*) settings put secure enabled_accessibility_services \"$cur:" + comp + "\" ;; esac; "
+                        + "settings put secure accessibility_enabled 1";
+                com.agentdroid.exec.ExecResult r = b.exec(com.agentdroid.exec.ExecRequest.builder(cmd).timeoutMs(15000L).build());
+                msg = r.ok() ? getString(R.string.mcp_a11y_done) : getString(R.string.mcp_a11y_fail, r.stderr().trim());
+            } catch (Exception e) {
+                msg = getString(R.string.mcp_a11y_fail, String.valueOf(e.getMessage()));
+            }
+            final String m = msg;
+            runOnUiThread(() -> { Toast.makeText(this, m, Toast.LENGTH_LONG).show(); refresh(); });
+        }, "a11y-enable").start();
+    }
+
+    private void editBlocked() {
+        final android.widget.EditText et = new android.widget.EditText(this);
+        et.setMinLines(6);
+        et.setGravity(android.view.Gravity.TOP);
+        et.setText(ActionGuard.blocked(this));
+        new android.app.AlertDialog.Builder(this).setTitle(R.string.mcp_blocked_apps).setMessage(R.string.mcp_blocked_hint).setView(et)
+                .setPositiveButton(R.string.agent_save, (d, w) -> ActionGuard.setBlocked(this, et.getText().toString()))
+                .setNegativeButton(R.string.agent_cancel, null).show();
+    }
+
+    private void showLog() {
+        String log = ActionGuard.readLog(this);
+        new android.app.AlertDialog.Builder(this).setTitle(R.string.mcp_action_log)
+                .setMessage(log.isEmpty() ? getString(R.string.mcp_log_empty) : log)
+                .setPositiveButton(android.R.string.ok, null)
+                .setNeutralButton(R.string.mcp_log_clear, (d, w) -> ActionGuard.clearLog(this)).show();
+    }
+
     private TextView tunnelState;
     private Button tunnelButton;
     private final Runnable tick = this::refresh;
@@ -159,6 +241,7 @@ public class McpActivity extends Activity {
         tunnelState.setText(st);
         tunnelState.removeCallbacks(tick);
         if (TunnelManager.isRunning()) tunnelState.postDelayed(tick, 1500);
+        if (a11yState != null) a11yState.setText(getString(AgentAccessibilityService.isRunning() ? R.string.mcp_a11y_on : R.string.mcp_a11y_off));
         boolean on = McpHost.isRunning();
         status.setText(on ? getString(R.string.mcp_status_on, McpHost.port(this)) : getString(R.string.mcp_status_off));
         local.setText(getString(R.string.mcp_local_url, McpHost.localUrl(this)));

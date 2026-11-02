@@ -111,4 +111,23 @@
     <string name="mcp_ngrok_ready">Permanent ngrok address is on: %1$s</string>
     <string name="mcp_ngrok_need_install">ngrok is not installed yet: tap "Install ngrok" (address %1$s)</string>
     <string name="mcp_tunnel_fallback">ngrok failed to start, using a temporary Cloudflare address: %1$s</string>
+    <string name="a11y_desc">Lets the AgentDroid agent read the screen and press elements when the user asks.</string>
+    <string name="mcp_security_title">Screen control and safety</string>
+    <string name="mcp_a11y_on">Accessibility service is on: ui_read, click, set_text, scroll work</string>
+    <string name="mcp_a11y_off">Accessibility service is off (the screen is read through root/ADB instead)</string>
+    <string name="mcp_a11y_open">Open accessibility settings</string>
+    <string name="mcp_a11y_auto">Turn the service on via root/ADB</string>
+    <string name="mcp_a11y_done">Done. If the service is not listed, turn it on in settings.</string>
+    <string name="mcp_a11y_fail">Failed: %1$s</string>
+    <string name="mcp_blocked_apps">Blocked apps</string>
+    <string name="mcp_blocked_hint">One package per line. While such an app is on screen, the agent cannot tap or type.</string>
+    <string name="mcp_action_log">Agent action log</string>
+    <string name="mcp_log_empty">Empty so far</string>
+    <string name="mcp_log_clear">Erase</string>
+    <string name="mcp_stop_now">Emergency stop for the agent</string>
+    <string name="mcp_resume">Resume the agent</string>
+    <string name="mcp_paused_note">Agent stopped. Tap Resume.</string>
+    <string name="mcp_boot_off">Start after reboot: off</string>
+    <string name="mcp_boot_server">Start after reboot: server</string>
+    <string name="mcp_boot_tunnel">Start after reboot: server and tunnel</string>
 </resources>

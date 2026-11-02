@@ -51,15 +51,18 @@ public final class ApprovalCenter {
     public static void onPause(Activity a) { if (visible.get() == a) visible = new WeakReference<>(null); }
 
     /** Blocks the calling (non-UI) thread until the user answers; false on denial or timeout. */
-    public static boolean ask(Context appContext, String description) {
-        if (mode(appContext) != 0) return true;
+    public static boolean ask(Context appContext, String description) { return ask(appContext, description, false); }
+
+    /** {@code force}: ask even when the user allowed everything (sending, paying, deleting). */
+    public static boolean ask(Context appContext, String description, boolean force) {
+        if (!force && mode(appContext) != 0) return true;
         long deadline = System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(3);
         boolean notified = false;
         while (System.currentTimeMillis() < deadline) {
             final Activity a = visible.get();
             if (a != null && !a.isFinishing()) {
                 cancelNotification(appContext);
-                return showDialog(a, description);
+                return showDialog(a, description, force);
             }
             if (!notified) { notify(appContext, description); notified = true; }
             try { Thread.sleep(500); } catch (InterruptedException e) { Thread.currentThread().interrupt(); return false; }
@@ -68,16 +71,17 @@ public final class ApprovalCenter {
         return false;
     }
 
-    private static boolean showDialog(final Activity a, final String description) {
+    private static boolean showDialog(final Activity a, final String description, final boolean force) {
         final CountDownLatch latch = new CountDownLatch(1);
         final AtomicBoolean ok = new AtomicBoolean(false);
         a.runOnUiThread(new Runnable() {
             @Override public void run() {
                 try {
-                    new AlertDialog.Builder(a).setTitle(R.string.agent_allow_title).setMessage(description).setCancelable(false)
+                    AlertDialog.Builder db = new AlertDialog.Builder(a).setTitle(R.string.agent_allow_title).setMessage(description).setCancelable(false)
                             .setPositiveButton(R.string.agent_allow, (d, w) -> { ok.set(true); latch.countDown(); })
-                            .setNeutralButton(R.string.agent_allow_hour, (d, w) -> { setMode(a, 1); ok.set(true); latch.countDown(); })
-                            .setNegativeButton(R.string.agent_deny, (d, w) -> latch.countDown()).show();
+                            .setNegativeButton(R.string.agent_deny, (d, w) -> latch.countDown());
+                    if (!force) db.setNeutralButton(R.string.agent_allow_hour, (d, w) -> { setMode(a, 1); ok.set(true); latch.countDown(); });
+                    db.show();
                 } catch (RuntimeException e) {
                     latch.countDown();
                 }

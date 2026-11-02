@@ -111,4 +111,23 @@
     <string name="mcp_ngrok_ready">Постоянный адрес ngrok включён: %1$s</string>
     <string name="mcp_ngrok_need_install">ngrok ещё не установлен: нажми «Установить ngrok» (адрес %1$s)</string>
     <string name="mcp_tunnel_fallback">ngrok не запустился, использован временный адрес Cloudflare: %1$s</string>
+    <string name="a11y_desc">Позволяет агенту AgentDroid читать экран и нажимать элементы по просьбе пользователя.</string>
+    <string name="mcp_security_title">Управление экраном и безопасность</string>
+    <string name="mcp_a11y_on">Служба доступа включена: работают ui_read, click, set_text, scroll</string>
+    <string name="mcp_a11y_off">Служба доступа выключена (без неё экран читается через root/ADB)</string>
+    <string name="mcp_a11y_open">Открыть настройки специальных возможностей</string>
+    <string name="mcp_a11y_auto">Включить службу через root/ADB</string>
+    <string name="mcp_a11y_done">Готово. Если служба не появилась в списке, включите её в настройках.</string>
+    <string name="mcp_a11y_fail">Не удалось: %1$s</string>
+    <string name="mcp_blocked_apps">Запрещённые приложения</string>
+    <string name="mcp_blocked_hint">Один пакет в строке. Пока такое приложение на экране, агент не сможет нажимать и вводить.</string>
+    <string name="mcp_action_log">Журнал действий агента</string>
+    <string name="mcp_log_empty">Пока пусто</string>
+    <string name="mcp_log_clear">Стереть</string>
+    <string name="mcp_stop_now">Аварийная остановка агента</string>
+    <string name="mcp_resume">Продолжить работу агента</string>
+    <string name="mcp_paused_note">Агент остановлен. Нажмите «Продолжить».</string>
+    <string name="mcp_boot_off">Автозапуск после перезагрузки: выкл</string>
+    <string name="mcp_boot_server">Автозапуск после перезагрузки: сервер</string>
+    <string name="mcp_boot_tunnel">Автозапуск после перезагрузки: сервер и туннель</string>
 </resources>
