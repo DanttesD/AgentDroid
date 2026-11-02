@@ -71,12 +71,21 @@ def resolve_xkb(pin):
     Read the repository index, take the current xkeyboard-config entry and verify the download against the
     SHA-256 and size listed there."""
     base=pin['url'].split('/pool/')[0]
-    index=None;last=None
-    for name,opener in (('binary-all/Packages',lambda b:b),('binary-all/Packages.gz',__import__('gzip').decompress),('binary-all/Packages.xz',__import__('lzma').decompress)):
-        try:
-            with urllib.request.urlopen(base+'/dists/x11/main/'+name,timeout=60) as r:index=opener(r.read()).decode();break
-        except Exception as e:last=e
-    if index is None:raise ValueError('Cannot read the Termux X11 package index: '+str(last))
+    index=None;last=[]
+    import gzip,lzma
+    root=base.rsplit('/apt/',1)[0]+'/apt/'
+    for repo,dist in (('termux-x11','x11'),('termux-main','stable')):
+      for arch in ('aarch64','all'):
+        for name,opener in (('Packages',lambda b:b),('Packages.gz',gzip.decompress),('Packages.xz',lzma.decompress)):
+            url=root+repo+'/dists/'+dist+'/main/binary-'+arch+'/'+name
+            try:
+                with urllib.request.urlopen(url,timeout=60) as r:text=opener(r.read()).decode()
+                if 'Package: xkeyboard-config' in text:
+                    index=text;base=root+repo;print('package index',url);break
+            except Exception as e:last.append(url+' -> '+str(e))
+        if index is not None:break
+      if index is not None:break
+    if index is None:raise ValueError('Cannot read the Termux X11 package index: '+' | '.join(last))
     for block in index.split('\n\n'):
         fields=dict(l.split(': ',1) for l in block.splitlines() if ': ' in l and not l.startswith(' '))
         if fields.get('Package')=='xkeyboard-config':
