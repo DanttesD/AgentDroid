@@ -130,4 +130,6 @@
     <string name="mcp_boot_off">Автозапуск после перезагрузки: выкл</string>
     <string name="mcp_boot_server">Автозапуск после перезагрузки: сервер</string>
     <string name="mcp_boot_tunnel">Автозапуск после перезагрузки: сервер и туннель</string>
+    <string name="agent_menu_desktop">Рабочий стол (X11)</string>
+    <string name="agent_desktop_hint">В терминале выберите Termux или дистрибутив Linux и нажмите «Терминал» → «Переключиться на рабочий стол».</string>
 </resources>

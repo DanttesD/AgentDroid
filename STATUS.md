@@ -107,3 +107,10 @@ CI run #3 (51 min, got much further: apt, bash, libbz2 etc. built) failed on `co
 - Среда для агентов: текст `instructions` в ответе initialize + файл ~/.agentdroid/ENVIRONMENT.md.
 - Автозапуск сервера/туннеля после перезагрузки и обновления (BootReceiver, кнопка на экране MCP).
 - Ещё не сделано: управление браузером (DOM/CDP), камера, уведомления через NotificationListenerService, шифрование журнала, подробные уровни доверия по приложениям, режим «человек и агент вместе», оверлей.
+
+## 2026-11-03 — X11-рабочий стол: включение в сборку
+- Вывод из анализа исходников апстрима: libXlorie.so не нужно пересобирать под com.agentdroid. Жёстко заданные пути com.termux — только запасные; X11Service задаёт TMPDIR и XKB_CONFIG_ROOT из нашего префикса. Все 34 JNI-метода нашего Java-кода есть в свежем nightly.
+- Апстримный тег `nightly` плавающий (меняется ежедневно), поэтому libXlorie.so (nightly, коммит f1d9834) лежит в репозитории `third-party/termux-x11/libXlorie.so`, закреплена по SHA-256; prepare-x11.py берёт её оттуда, а не скачивает APK.
+- CI: отдельный шаг «Prepare the X11 desktop runtime» (continue-on-error). Если он упал, APK собирается без X11 и в предупреждении указана причина.
+- Меню чата: пункт «Рабочий стол (X11)» открывает терминал с подсказкой; сам переключатель рабочего стола — в старом интерфейсе терминала (WorkspaceDesktop).
+- Не проверено: что prepare-x11.py проходит целиком в CI (остальные закрепы: xkeyboard-config с packages.termux.dev, openh264 и musl-dev с зеркал Debian/Alpine, стиль через cairo); запуск рабочего стола на телефоне; переименование Java-пакета com.termux.x11 не требуется (JNI привязан к имени класса, а не к applicationId).

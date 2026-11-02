@@ -63,13 +63,13 @@ def gst_openh264(assets):
 
 def main():
     pins=json.loads((ROOT/'third-party/termux-x11/provenance.json').read_text())
-    apk=verified_file('termux-x11-universal-debug.apk',pins['apk']);deb=verified_file('xkeyboard-config.deb',pins['xkb'])
+    deb=verified_file('xkeyboard-config.deb',pins['xkb'])
     out=ROOT/'.tools/x11-runtime';lib=out/'jniLibs/arm64-v8a';assets=out/'assets';lib.mkdir(parents=True,exist_ok=True);assets.mkdir(parents=True,exist_ok=True)
-    with zipfile.ZipFile(apk) as z:
-        if pins['commit'].encode() not in z.read('classes.dex'):raise ValueError('Java/native provenance mismatch')
-        native=z.read('lib/arm64-v8a/libXlorie.so')
-        if native[:4]!=b'\x7fELF' or int.from_bytes(native[18:20],'little')!=183:raise ValueError('Not ARM64 ELF')
-        (lib/'libXlorie.so').write_bytes(native)
+    # AGENTDROID: upstream "nightly" is a floating tag, so libXlorie.so is vendored and pinned instead of downloaded.
+    nat=pins['native'];native=(ROOT/nat['path']).read_bytes()
+    if len(native)!=nat['size'] or hashlib.sha256(native).hexdigest()!=nat['sha256']:raise ValueError('Pinned libXlorie.so integrity failure')
+    if native[:4]!=b'\x7fELF' or int.from_bytes(native[18:20],'little')!=183:raise ValueError('Not ARM64 ELF')
+    (lib/'libXlorie.so').write_bytes(native)
     parts=subprocess.check_output(['ar','t',str(deb)],text=True).splitlines()
     part=next(p for p in parts if p.startswith('data.tar.'))
     tar=tarfile.open(fileobj=io.BytesIO(subprocess.check_output(['ar','p',str(deb),part])))

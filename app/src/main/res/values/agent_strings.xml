@@ -130,4 +130,6 @@
     <string name="mcp_boot_off">Start after reboot: off</string>
     <string name="mcp_boot_server">Start after reboot: server</string>
     <string name="mcp_boot_tunnel">Start after reboot: server and tunnel</string>
+    <string name="agent_menu_desktop">Desktop (X11)</string>
+    <string name="agent_desktop_hint">In the terminal pick Termux or a Linux distribution, then tap Terminal → Switch to desktop.</string>
 </resources>

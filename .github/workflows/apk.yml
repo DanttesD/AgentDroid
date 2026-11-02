@@ -59,12 +59,26 @@ jobs:
           echo "android.aapt2FromMavenOverride=$GITHUB_WORKSPACE/.tools/sdk/build-tools/35.0.0/aapt2" >> .tools/gradle-home/gradle.properties
           ls -la .tools/sdk/build-tools/35.0.0/aapt2
 
+      - name: Prepare the X11 desktop runtime
+        id: x11
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          sudo apt-get install -y --no-install-recommends binutils gcc libcairo2 fonts-dejavu-core >/dev/null 2>&1 || true
+          python3 -B scripts/prepare-x11.py 2>&1 | tee x11.log
+      - name: Explain why the APK has no X11 desktop
+        if: steps.x11.outcome != 'success'
+        run: |
+          msg=$(tail -15 x11.log | cut -c1-220 | sed ':a;N;$!ba;s/%/%25/g;s/\r/%0D/g;s/\n/%0A/g')
+          echo "::warning title=X11 runtime not prepared, building without the desktop::$msg"
+
       - name: Build the debug APK
         id: build
         env:
-          AGENTDROID_SKIP_X11: '1'
+          X11_OK: ${{ steps.x11.outcome }}
         run: |
           set -o pipefail
+          if [ "$X11_OK" != "success" ]; then export AGENTDROID_SKIP_X11=1; fi
           chmod +x gradlew scripts/*.sh
           ./scripts/build-debug.sh 2>&1 | tee build.log
       - name: Save the signing key

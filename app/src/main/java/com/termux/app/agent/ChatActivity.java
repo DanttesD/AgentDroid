@@ -201,6 +201,7 @@ public class ChatActivity extends Activity {
         items.add(getString(R.string.agent_menu_adb));
         items.add(getString(R.string.agent_menu_mcp));
         items.add(getString(R.string.agent_menu_accounts));
+        items.add(getString(R.string.agent_menu_desktop));
         final int webStart = items.size();
         for (WebAccounts.Account a : accs) items.add(a.name + (a.url.isEmpty() ? "" : "  (" + hostOf(a.url) + ")"));
         items.add(getString(R.string.agent_menu_web_add));
@@ -212,6 +213,10 @@ public class ChatActivity extends Activity {
             else if (which == 2) startActivity(new Intent(this, AdbConsoleActivity.class));
             else if (which == 3) startActivity(new Intent(this, McpActivity.class));
             else if (which == 4) startActivity(new Intent(this, AccountsActivity.class));
+            else if (which == 5) {
+                android.widget.Toast.makeText(this, R.string.agent_desktop_hint, android.widget.Toast.LENGTH_LONG).show();
+                startActivity(new Intent(this, TermuxActivity.class));
+            }
             else if (which == addIndex) { WebAccounts.Account n = webAccounts.add(); pickService(n); }
             else if (which > addIndex) setWebMode(false);
             else openWebAccount(accs.get(which - webStart));
