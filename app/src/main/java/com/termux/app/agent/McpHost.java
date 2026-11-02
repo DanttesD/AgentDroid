@@ -50,7 +50,19 @@ public final class McpHost {
         com.agentdroid.exec.BackendSelector sel = AgentBackends.create(app);
         String pin = new AgentConfig(app).backendPin();
         if (!pin.isEmpty()) { try { sel.pin(pin); } catch (Exception ignored) { } }
-        server = new McpServer(Tools.standard(new SelectedBackend(sel), AgentBackends.TERMUX_HOME),
+        SelectedBackend backend = new SelectedBackend(sel);
+        java.util.List<com.agentdroid.agent.Tool> all = new java.util.ArrayList<>(Tools.standard(backend, AgentBackends.TERMUX_HOME));
+        all.addAll(com.agentdroid.agent.UiTools.create(backend, text -> {
+            final java.util.concurrent.CountDownLatch done = new java.util.concurrent.CountDownLatch(1);
+            new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
+                try {
+                    android.content.ClipboardManager cm = (android.content.ClipboardManager) app.getSystemService(Context.CLIPBOARD_SERVICE);
+                    cm.setPrimaryClip(android.content.ClipData.newPlainText("agentdroid", text));
+                } finally { done.countDown(); }
+            });
+            try { done.await(2, java.util.concurrent.TimeUnit.SECONDS); } catch (InterruptedException ignored) { }
+        }));
+        server = new McpServer(all,
                 (call, description) -> ApprovalCenter.ask(app, description), token(app), port(app));
         server.start();
     }

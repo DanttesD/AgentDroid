@@ -13,4 +13,9 @@ public interface Tool {
 
     /** Runs the tool; return text for the model. Throw to report an error. */
     String execute(Map<String, Object> args) throws Exception;
+
+    /** Like {@link #execute} but may also return an image. Default: text only. */
+    default ToolResult run(Map<String, Object> args) throws Exception {
+        return new ToolResult(execute(args), null);
+    }
 }

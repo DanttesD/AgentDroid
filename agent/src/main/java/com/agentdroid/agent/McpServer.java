@@ -195,12 +195,15 @@ public final class McpServer {
         Map<String, Object> args = params.get("arguments") instanceof Map
                 ? (Map<String, Object>) params.get("arguments") : new LinkedHashMap<String, Object>();
         String text;
+        byte[] png = null;
         boolean error = false;
         if (tool.needsApproval(args) && !approver.approve(new ToolCall("mcp", name, args), tool.describe(args))) {
             text = "the user denied this action"; error = true;
         } else {
             try {
-                text = tool.execute(args);
+                ToolResult tr = tool.run(args);
+                text = tr.text;
+                png = tr.png;
             } catch (Exception e) {
                 if (e instanceof InterruptedException) Thread.currentThread().interrupt();
                 text = "error: " + e.getMessage(); error = true;
@@ -209,6 +212,7 @@ public final class McpServer {
         if (text.length() > 50_000) text = text.substring(0, 50_000) + "\n...[truncated]";
         List<Object> content = new ArrayList<>();
         content.add(Json.obj("type", "text", "text", text));
+        if (png != null) content.add(Json.obj("type", "image", "data", UiTools.base64(png), "mimeType", "image/png"));
         return Json.obj("content", content, "isError", error);
     }
 
