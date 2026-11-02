@@ -123,6 +123,7 @@ def main():
 
     # AGENTDROID: the Kali theme is an optional runtime component (not an APK asset). Its pixels depend on the
     # cairo/fonts of the build host, so a different hash here is a warning, not a reason to drop the desktop.
+    COMPONENTS.mkdir(parents=True,exist_ok=True)
     try:
         subprocess.run(["python3","-B",str(ROOT/"scripts/prepare-x11-style.py")],check=True,env=dict(__import__("os").environ,XDG_CACHE_HOME=str(ROOT/".tools/font-cache")))
         style_pin=re.search(r"^PIN='([a-f0-9]{64})'$",(ROOT/'x11/src/main/assets/x11-style.py').read_text(),re.M)
