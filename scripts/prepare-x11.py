@@ -61,9 +61,32 @@ def gst_openh264(assets):
     (assets/'x11-gst-openh264.so').write_bytes(plugin)
     licenses=assets/'licenses';licenses.mkdir(exist_ok=True);(licenses/'GStreamer-OpenH264-copyright.txt').write_bytes(copyright)
 
+def optional(step,assets):
+    """Guest-desktop extras (Alpine/openSUSE/Fedora helpers): a failed download must not block the Termux desktop."""
+    try:step(assets)
+    except Exception as e:print('WARNING: skipped optional X11 component '+step.__name__+': '+str(e))
+
+def resolve_xkb(pin):
+    """AGENTDROID: the Termux repository drops old package versions, so a fixed file URL goes stale (HTTP 404).
+    Read the repository index, take the current xkeyboard-config entry and verify the download against the
+    SHA-256 and size listed there."""
+    base=pin['url'].split('/pool/')[0]
+    index=None;last=None
+    for name,opener in (('binary-all/Packages',lambda b:b),('binary-all/Packages.gz',__import__('gzip').decompress),('binary-all/Packages.xz',__import__('lzma').decompress)):
+        try:
+            with urllib.request.urlopen(base+'/dists/x11/main/'+name,timeout=60) as r:index=opener(r.read()).decode();break
+        except Exception as e:last=e
+    if index is None:raise ValueError('Cannot read the Termux X11 package index: '+str(last))
+    for block in index.split('\n\n'):
+        fields=dict(l.split(': ',1) for l in block.splitlines() if ': ' in l and not l.startswith(' '))
+        if fields.get('Package')=='xkeyboard-config':
+            print('xkeyboard-config',fields.get('Version'))
+            return dict(url=base+'/'+fields['Filename'],size=int(fields['Size']),sha256=fields['SHA256'],version=fields.get('Version'))
+    raise ValueError('xkeyboard-config is not in the Termux X11 package index')
+
 def main():
     pins=json.loads((ROOT/'third-party/termux-x11/provenance.json').read_text())
-    deb=verified_file('xkeyboard-config.deb',pins['xkb'])
+    deb=verified_file('xkeyboard-config.deb',resolve_xkb(pins['xkb']))
     out=ROOT/'.tools/x11-runtime';lib=out/'jniLibs/arm64-v8a';assets=out/'assets';lib.mkdir(parents=True,exist_ok=True);assets.mkdir(parents=True,exist_ok=True)
     # AGENTDROID: upstream "nightly" is a floating tag, so libXlorie.so is vendored and pinned instead of downloaded.
     nat=pins['native'];native=(ROOT/nat['path']).read_bytes()
@@ -105,9 +128,9 @@ def main():
     (COMPONENTS/'x11-virgl-alpine.zip').write_bytes(client)
     (assets/'x11-virgl-alpine.zip').unlink(missing_ok=True)
     (assets/'x11-virgl-alpine-LICENSE.txt').write_bytes((ROOT/'third-party/virgl-client/LICENSE.txt').read_bytes())
-    alpine_compat(assets)
-    openh264(assets)
-    gst_openh264(assets)
+    optional(alpine_compat,assets)
+    optional(openh264,assets)
+    optional(gst_openh264,assets)
     # A separate glibc module: never load Alpine's musl shim in Fedora.
     subprocess.run(['cc','-fPIC','-shared','-nostdlib','-O2','-Wall','-Wextra','-Werror',
         '-Wl,-z,now,-z,relro,-z,noexecstack','-Wl,-soname,x11-fedora-glycin.so',
