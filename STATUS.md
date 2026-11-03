@@ -129,3 +129,7 @@ CI run #3 (51 min, got much further: apt, bash, libbz2 etc. built) failed on `co
 ## X11: первый запуск на телефоне (2026-11-03)
 - Цель «Termux» требует `pkg install x11-repo` и нативный XFCE из репозитория Termux-X11; в нашем apt-репозитории их нет, а бинарники из репозитория Termux собраны под /data/data/com.termux и под com.agentdroid не заработают. Решение: рабочий стол запускать в proot-дистрибутивах (Ubuntu/Debian…): их пакеты берутся из репозиториев дистрибутива. Нативный рабочий стол Termux потребует сборки x11-packages под наш префикс (очень долго) — отложено.
 - Для proot-дистрибутивов в нашем репозитории не хватало pulseaudio (проверка jobs_audio_available требует pulseaudio и модули sles/native-protocol) и util-linux (setsid). Добавлены в bootstrap/packages.list; нужен перезапуск workflow «Build bootstrap (com.agentdroid)» (publish-apt).
+
+## Порядок работ (решение пользователя, 2026-11-03)
+1. Linux и дистрибутивы (запуск рабочего стола в proot Debian/Ubuntu и др.); после запуска вернуться к разбору того, как в Termux Job's устроены окружения.
+2. Затем либо оставшийся функционал Termux, либо агенты (OpenCode, дополнительные аккаунты по образцу веб-аккаунтов) — порядок ещё не выбран.
