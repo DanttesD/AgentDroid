@@ -14,6 +14,8 @@ import androidx.annotation.Keep;
 @Keep public final class MainActivity extends Activity {
     // Required by the pinned core registration; freeform launching is unused here.
     @Keep private static native void nativeSetLaunchWindowingModeFreeform(Object activityOptions);
+    // Looked up by name (GetFieldID, "J") in nativeInit of the pinned core; it is only a heartbeat stamp.
+    @Keep public volatile long lastServerHeartbeat;
     private LorieView display;
     private TextView status;
     private X11Service service;
