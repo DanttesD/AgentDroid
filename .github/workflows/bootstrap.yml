@@ -147,6 +147,17 @@ jobs:
           sudo chmod -R a+rwX /data "$HOME/.termux-build" . 2>/dev/null || true
           timeout 200m ./scripts/run-docker.sh -m ./build-package.sh -a aarch64 $pkgs 2>&1 | tee ../packages-build.log
 
+      - name: Build optional graphics packages (VirGL)
+        working-directory: termux-packages
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          pkgs=$(../bootstrap/resolve-package-names.sh . < ../bootstrap/packages-optional.list | tr '\n' ' ')
+          [ -n "$pkgs" ] || exit 0
+          echo "building optional: $pkgs"
+          sudo chmod -R a+rwX /data "$HOME/.termux-build" . 2>/dev/null || true
+          timeout 100m ./scripts/run-docker.sh -m ./build-package.sh -a aarch64 $pkgs 2>&1 | tee ../packages-optional-build.log
+
       - name: Make build files readable for caching
         if: always()
         run: sudo chmod -R a+rX /data termux-packages/output 2>/dev/null || true
@@ -180,6 +191,7 @@ jobs:
             debs/*.deb
             build.log
             packages-build.log
+            packages-optional-build.log
           if-no-files-found: warn
 
       - name: Hand the debs to the publish job

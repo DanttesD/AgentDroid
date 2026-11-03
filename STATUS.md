@@ -135,3 +135,8 @@ CI run #3 (51 min, got much further: apt, bash, libbz2 etc. built) failed on `co
 ## Порядок работ (решение пользователя, 2026-11-03)
 1. Linux и дистрибутивы (запуск рабочего стола в proot Debian/Ubuntu и др.); после запуска вернуться к разбору того, как в Termux Job's устроены окружения.
 2. Затем либо оставшийся функционал Termux, либо агенты (OpenCode, дополнительные аккаунты по образцу веб-аккаунтов) — порядок ещё не выбран.
+
+## VirGL и пакеты (2026-11-04)
+- Тема Kali и Turnip проверены на телефоне — работают. VirGL падал: в нашем apt нет mesa, angle-android, virglrenderer-android (в x11-packages их нет, они в основном packages/).
+- Добавлен bootstrap/packages-optional.list и необязательный шаг в bootstrap.yml (continue-on-error, лимит 100 мин, кэш сохраняется): libc++, mesa, angle-android (собирается из исходников Chromium, может понадобиться два запуска), virglrenderer-android.
+- Debian в proot уже установлен; «container is busy» — потому что в нём работает туннель ngrok для коннектора (не трогать).
