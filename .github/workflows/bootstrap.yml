@@ -126,8 +126,17 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           tag="bootstrap-$(date +%Y.%m.%d)-${GITHUB_RUN_NUMBER}"
-          gh release create "$tag" termux-packages/output/bootstrap-aarch64.zip bootstrap-aarch64.zip.sha256 \
-            --title "Bootstrap $tag" --notes "Built from termux-packages $TERMUX_PACKAGES_REF for com.agentdroid"
+          # GitHub sometimes answers HTTP 500 here; retry, and finish an interrupted release instead of failing.
+          for attempt in 1 2 3 4; do
+            if gh release view "$tag" >/dev/null 2>&1; then
+              gh release upload "$tag" termux-packages/output/bootstrap-aarch64.zip bootstrap-aarch64.zip.sha256 --clobber && break
+            else
+              gh release create "$tag" termux-packages/output/bootstrap-aarch64.zip bootstrap-aarch64.zip.sha256 \
+                --title "Bootstrap $tag" --notes "Built from termux-packages $TERMUX_PACKAGES_REF for com.agentdroid" && break
+            fi
+            echo "release attempt $attempt failed, retrying"; sleep $((attempt*20))
+            [ "$attempt" -lt 4 ] || { echo "::warning title=Release::could not publish the bootstrap release; the apt repository is still published"; break; }
+          done
           sha=$(cut -d' ' -f1 bootstrap-aarch64.zip.sha256)
           {
             echo "### Put this into bootstrap/bootstrap.properties"
