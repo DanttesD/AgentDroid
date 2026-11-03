@@ -29,7 +29,7 @@ def alpine_compat(assets):
             if member.isfile() and str(path).startswith('usr/include/'):
                 if path.is_absolute() or '..' in path.parts:raise ValueError('Unsafe musl header path')
                 out=headers/str(path);out.parent.mkdir(parents=True,exist_ok=True);out.write_bytes(tar.extractfile(member).read())
-    subprocess.run(['clang','--target=aarch64-linux-musl','-fPIC','-shared','-nostdlib','-O2','-Wall','-Wextra','-Werror','-I',str(headers/'usr/include'),'-Wl,-z,now,-z,relro,-z,noexecstack','-Wl,-soname,x11-alpine-compat.so',str(ROOT/'x11/src/main/cpp/x11-alpine-compat.c'),'-o',str(assets/'x11-alpine-compat.so')],check=True)
+    subprocess.run(['clang','--target=aarch64-linux-musl','-fPIC','-shared','-fuse-ld=lld','-nostdlib','-O2','-Wall','-Wextra','-Werror','-I',str(headers/'usr/include'),'-Wl,-z,now,-z,relro,-z,noexecstack','-Wl,-soname,x11-alpine-compat.so',str(ROOT/'x11/src/main/cpp/x11-alpine-compat.c'),'-o',str(assets/'x11-alpine-compat.so')],check=True)
     data=(assets/'x11-alpine-compat.so').read_bytes()
     if data[:4]!=b'\x7fELF' or int.from_bytes(data[18:20],'little')!=183:raise ValueError('Alpine compatibility is not ARM64')
 
@@ -147,11 +147,15 @@ def main():
     optional(openh264,assets)
     optional(gst_openh264,assets)
     # A separate glibc module: never load Alpine's musl shim in Fedora.
-    subprocess.run(['cc','-fPIC','-shared','-nostdlib','-O2','-Wall','-Wextra','-Werror',
-        '-Wl,-z,now,-z,relro,-z,noexecstack','-Wl,-soname,x11-fedora-glycin.so',
-        str(ROOT/'x11/src/main/cpp/x11-fedora-glycin.c'),'-o',str(assets/'x11-fedora-glycin.so')],check=True)
-    data=(assets/'x11-fedora-glycin.so').read_bytes()
-    if data[:4]!=b'\x7fELF' or int.from_bytes(data[18:20],'little')!=183:raise ValueError('Fedora compatibility is not ARM64')
+    def fedora(assets):
+        import shutil
+        cc=shutil.which('aarch64-linux-gnu-gcc') or 'cc'  # the CI host is x86_64: cross-compile for the phone
+        subprocess.run([cc,'-fPIC','-shared','-nostdlib','-O2','-Wall','-Wextra','-Werror',
+            '-Wl,-z,now,-z,relro,-z,noexecstack','-Wl,-soname,x11-fedora-glycin.so',
+            str(ROOT/'x11/src/main/cpp/x11-fedora-glycin.c'),'-o',str(assets/'x11-fedora-glycin.so')],check=True)
+        data=(assets/'x11-fedora-glycin.so').read_bytes()
+        if data[:4]!=b'\x7fELF' or int.from_bytes(data[18:20],'little')!=183:raise ValueError('Fedora compatibility is not ARM64')
+    optional(fedora,assets)
 
     # Verify the release component, but do not embed the optional download in APKs.
     bridge=ROOT/'third-party/bionic-glibc/ubuntu-arm64-runtime.zip'

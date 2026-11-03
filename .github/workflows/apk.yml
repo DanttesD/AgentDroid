@@ -64,7 +64,7 @@ jobs:
         continue-on-error: true
         run: |
           set -o pipefail
-          sudo apt-get install -y --no-install-recommends binutils gcc libcairo2 fonts-dejavu-core >/dev/null 2>&1 || true
+          sudo apt-get install -y --no-install-recommends binutils gcc gcc-aarch64-linux-gnu clang lld libcairo2 fonts-dejavu-core >/dev/null 2>&1 || true
           python3 -B scripts/prepare-x11.py 2>&1 | tee x11.log
       - name: Explain why the APK has no X11 desktop
         if: steps.x11.outcome != 'success'
