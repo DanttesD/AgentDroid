@@ -14,3 +14,5 @@ tmux
 make
 which
 cloudflared
+pulseaudio
+util-linux

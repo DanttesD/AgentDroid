@@ -125,3 +125,7 @@ CI run #3 (51 min, got much further: apt, bash, libbz2 etc. built) failed on `co
 Не проверено на телефоне: запуск рабочего стола Termux/Ubuntu; остальные дистрибутивы; графика (Turnip, VirGL); пути в старом интерфейсе терминала, привязанные к com.termux.
 
 Итог сборки #37 (подготовка X11 прошла, предупреждения «X11 runtime not prepared» нет): библиотека X11, раскладки (296 файлов), помощник Alpine и декодеры OpenH264 собраны. Пропущены: помощник Fedora (не хватало заголовков glibc для кросс-компиляции — добавлен libc6-dev-arm64-cross, проверить в следующей сборке) и тема Kali (хэш не совпал с эталоном).
+
+## X11: первый запуск на телефоне (2026-11-03)
+- Цель «Termux» требует `pkg install x11-repo` и нативный XFCE из репозитория Termux-X11; в нашем apt-репозитории их нет, а бинарники из репозитория Termux собраны под /data/data/com.termux и под com.agentdroid не заработают. Решение: рабочий стол запускать в proot-дистрибутивах (Ubuntu/Debian…): их пакеты берутся из репозиториев дистрибутива. Нативный рабочий стол Termux потребует сборки x11-packages под наш префикс (очень долго) — отложено.
+- Для proot-дистрибутивов в нашем репозитории не хватало pulseaudio (проверка jobs_audio_available требует pulseaudio и модули sles/native-protocol) и util-linux (setsid). Добавлены в bootstrap/packages.list; нужен перезапуск workflow «Build bootstrap (com.agentdroid)» (publish-apt).
