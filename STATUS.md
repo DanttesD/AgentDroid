@@ -183,3 +183,9 @@ CI run #3 (51 min, got much further: apt, bash, libbz2 etc. built) failed on `co
 - App side: `AgentNotificationListener` (needs notification access) → `TriggerRunner` (confirm mode = notification with a «Выполнить» button via `TriggerActionReceiver`; auto mode runs at once; one run at a time; skipped while the emergency stop is on) → result notification. Sensitive actions inside a run still ask (overlay or notification).
 - UI: chat menu → «Правила по уведомлениям» (`TriggersActivity`).
 - Not done: local time schedules (AlarmManager), per-rule app picker, running rules while the screen is locked.
+
+## OpenCode integration, step 1 (MCP wiring)
+- The fork's native OpenCode chat (Ubuntu via proot, pinned v2.0.28, per-connection XDG roots) is already in the code; unverified under com.agentdroid.
+- New: `assets/agentdroid-mcp.cjs` + `AiAgents.writeMcpDescriptor`: when the OpenCode server starts, the connection's own `config/opencode/opencode.json` gets `mcp.agentdroid` (remote, loopback URL with the app's secret) and an `instructions` entry pointing to an environment file ("you run on the user's phone"). User keys are preserved; invalid user config is never overwritten. Test: `scripts/tests/test_agentdroid_mcp.cjs` (node).
+- Needs the MCP server running (start it on the MCP screen) for OpenCode to see the phone tools.
+- Next: device check of the OpenCode install/launch, OpenRouter free models, the Accounts card (Debian npm path) vs the fork's AI Agents path.

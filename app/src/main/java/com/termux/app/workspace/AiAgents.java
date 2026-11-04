@@ -28,13 +28,29 @@ public final class AiAgents {
     }
     public static void prepare(Context context) throws IOException {
         File dir=directory(context.getFilesDir());if(!dir.isDirectory()&&!dir.mkdirs())throw new IOException("Cannot create AI controls");protect(dir);
-        for(String asset:new String[]{"ai-agents-control.js","ai-agents-bootstrap.sh","agent-receipts.cjs","agent-attachments.cjs","opencode-permissions.cjs","opencode-chat.cjs","opencode-session-settings.cjs"}) {
+        for(String asset:new String[]{"ai-agents-control.js","ai-agents-bootstrap.sh","agent-receipts.cjs","agent-attachments.cjs","opencode-permissions.cjs","opencode-chat.cjs","opencode-session-settings.cjs","agentdroid-mcp.cjs"}) {
         File bridge=new File(dir,asset.equals("ai-agents-bootstrap.sh")?"bootstrap-v1.sh":asset.equals("ai-agents-control.js")?"bridge-v1.js":asset);
         if(asset.endsWith(".bundle")&&bridge.isFile()&&bridge.length()>0)continue;
         File temporary=File.createTempFile("bridge-",".tmp",dir);
         try(InputStream in=context.getAssets().open(asset);OutputStream out=new FileOutputStream(temporary)) {byte[] b=new byte[8192];int n;while((n=in.read(b))!=-1)out.write(b,0,n);}
         protect(temporary);if(!temporary.renameTo(bridge)){temporary.delete();throw new IOException("Cannot replace AI bridge");}
         }
+        writeMcpDescriptor(context,dir);
+    }
+    /** Tells the OpenCode bridge where the phone's MCP server is (loopback only; the guest shares the host network). */
+    private static void writeMcpDescriptor(Context context,File dir) {
+        try {
+            String url="http://127.0.0.1:"+com.termux.app.agent.McpHost.port(context)+"/mcp/"+com.termux.app.agent.McpHost.token(context);
+            File envFile=new File(com.termux.app.agent.AgentBackends.TERMUX_HOME,".agentdroid/ENVIRONMENT.md");
+            String env="You are running inside AgentDroid, an Android app, on the user's own phone. The agentdroid MCP tools give the same access as the app: shell, files, screen (accessibility), apps, notifications. Sensitive actions ask the user on the phone.";
+            if(envFile.isFile()&&envFile.length()<20000){env=new String(java.nio.file.Files.readAllBytes(envFile.toPath()),"UTF-8");}
+            org.json.JSONObject o=new org.json.JSONObject().put("url",url).put("environment",env);
+            File temporary=File.createTempFile("mcp-",".tmp",dir);
+            try(OutputStream out=new FileOutputStream(temporary)){out.write(o.toString().getBytes("UTF-8"));}
+            protect(temporary);
+            File target=new File(dir,"agentdroid-mcp.json");
+            if(!temporary.renameTo(target))temporary.delete();
+        } catch(Exception ignored) {}
     }
     static String command(File files,WorkspaceStore.Session s) {
         if(!s.aiAgent.equals("opencode")||!s.environment.equals("ubuntu")||!AgentEnvironments.ubuntu(s.codexEnvironment)||!validThread(s.aiThread)||!validModel(s.aiModel))throw new IllegalArgumentException("Invalid AI profile");

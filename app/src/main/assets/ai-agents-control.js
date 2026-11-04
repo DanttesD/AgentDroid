@@ -62,6 +62,7 @@ async function start(root) {
     XDG_CACHE_HOME:path.join(root,'cache'), XDG_STATE_HOME:path.join(root,'state')};
   // Prevent ambient API keys silently overriding the named connection.
   for (const key of ['OPENAI_API_KEY','ANTHROPIC_API_KEY','GOOGLE_API_KEY','GOOGLE_GENERATIVE_AI_API_KEY','GEMINI_API_KEY','OPENROUTER_API_KEY','OPENCODE_API_KEY']) delete env[key];
+  try{require(path.join(__dirname,'agentdroid-mcp.cjs')).apply(root,path.join(__dirname,'agentdroid-mcp.json'));}catch(e){} // AgentDroid: let OpenCode use the phone's MCP tools
   const direct=path.join(process.env.HOME || '', '.local/share/termux-jobs/agents/bin/opencode');
   const local = fs.existsSync(direct)?direct:path.join(process.env.HOME || '', '.local/share/termux-jobs/agents/node_modules/.bin/opencode');
   const exe = fs.existsSync(local) ? local : 'opencode';
