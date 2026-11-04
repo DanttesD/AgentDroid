@@ -98,4 +98,6 @@
     <string name="termux_widget_preferences_summary">"Настройки Termux:Widget"</string>
     <string name="about_preference_title">"О приложении"</string>
     <string name="donate_preference_title">"Поддержать проект"</string>
+    <string name="mcp_keepalive">Не засыпать при выключенном экране</string>
+    <string name="mcp_keepalive_done">Готово: приложение исключено из ограничений батареи.</string>
 </resources>

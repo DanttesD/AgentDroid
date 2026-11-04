@@ -226,4 +226,6 @@
     <!-- Donate Preference -->
     <string name="donate_preference_title">Donate</string>
 
+    <string name="mcp_keepalive">Keep awake with the screen off</string>
+    <string name="mcp_keepalive_done">Done: the app is exempt from battery limits.</string>
 </resources>

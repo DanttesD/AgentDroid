@@ -146,3 +146,8 @@ CI run #3 (51 min, got much further: apt, bash, libbz2 etc. built) failed on `co
 - WorkspaceUpdates теперь смотрит релизы DanttesD/AgentDroid (список, берётся самый новый с update.json), тег `apk-ГГГГ.ММ.ДД-N`, файл `agentdroid-debug.apk`; проверка пакета, версии, подписи и SHA-256 осталась прежней.
 - CI (apk.yml): versionCode = 2000 + номер запуска, versionName = 2.1.<номер>; к релизу прикладывается update.json.
 - Не проверено на телефоне (нужна сборка, потом ещё одна, чтобы увидеть предложение обновиться). Юнит-тесты WorkspaceUpdatesTest/WorkspaceUpdateInstallTest всё ещё написаны под com.termux и старые теги — переписать.
+
+## Работа при выключенном экране (2026-11-04)
+- На телефоне уже: приложение в белом списке Doze, standby-bucket 5 (active), phantom-processes без лимита (2147483647) — убийца дочерних процессов Android 12+ не мешает.
+- Добавлено: McpService держит PARTIAL_WAKE_LOCK, пока работает туннель; в экране коннектора кнопка «Не засыпать при выключенном экране» (whitelist Doze, RUN_ANY_IN_BACKGROUND, bucket active через root/ADB).
+- Не проверено на практике: многочасовой простой с выключенным экраном (проверить: туннель и сессия терминала живы утром).

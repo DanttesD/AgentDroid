@@ -14,6 +14,23 @@ import com.termux.R;
 
 /** Keeps the MCP server alive while the app is in the background. */
 public class McpService extends Service {
+    // Keeps the CPU awake while the phone is reachable through the tunnel, so the connection survives a switched-off screen.
+    private android.os.PowerManager.WakeLock wake;
+    private void syncWake() {
+        boolean need = TunnelManager.isRunning();
+        try {
+            if (need && wake == null) {
+                android.os.PowerManager pm = (android.os.PowerManager) getSystemService(POWER_SERVICE);
+                wake = pm.newWakeLock(android.os.PowerManager.PARTIAL_WAKE_LOCK, "agentdroid:mcp");
+                wake.setReferenceCounted(false);
+                wake.acquire();
+            } else if (!need && wake != null) {
+                if (wake.isHeld()) wake.release();
+                wake = null;
+            }
+        } catch (Exception ignored) { }
+    }
+
     public static final String ACTION_STOP = "com.agentdroid.MCP_STOP";
     public static final String ACTION_PAUSE = "com.agentdroid.MCP_PAUSE";
     private static final String EXTRA_TUNNEL = "tunnel";
@@ -32,6 +49,7 @@ public class McpService extends Service {
         if (intent != null && ACTION_STOP.equals(intent.getAction())) {
             McpHost.stop();
             TunnelManager.stop();
+            syncWake();
             stopForeground(true);
             stopSelf();
             return START_NOT_STICKY;
@@ -43,6 +61,7 @@ public class McpService extends Service {
             if (intent != null && intent.getBooleanExtra(EXTRA_TUNNEL, false) && !TunnelManager.isRunning()) {
                 TunnelManager.start(this, McpHost.port(this));
             }
+            syncWake();
         } catch (Exception e) {
             stopForeground(true);
             stopSelf();
@@ -69,5 +88,5 @@ public class McpService extends Service {
 
     @Override public IBinder onBind(Intent intent) { return null; }
 
-    @Override public void onDestroy() { McpHost.stop(); TunnelManager.stop(); super.onDestroy(); }
+    @Override public void onDestroy() { McpHost.stop(); TunnelManager.stop(); syncWake(); super.onDestroy(); }
 }

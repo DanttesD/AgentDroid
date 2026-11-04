@@ -74,6 +74,9 @@ public class McpActivity extends Activity {
         Button a11yAuto = btn(getString(R.string.mcp_a11y_auto));
         a11yAuto.setOnClickListener(v -> enableA11yViaShell());
         root.addView(a11yAuto);
+        Button awake = btn(getString(R.string.mcp_keepalive));
+        awake.setOnClickListener(v -> keepAliveViaShell());
+        root.addView(awake);
         Button blocked = btn(getString(R.string.mcp_blocked_apps));
         blocked.setOnClickListener(v -> editBlocked());
         root.addView(blocked);
@@ -202,6 +205,29 @@ public class McpActivity extends Activity {
             final String m = msg;
             runOnUiThread(() -> { Toast.makeText(this, m, Toast.LENGTH_LONG).show(); refresh(); });
         }, "a11y-enable").start();
+    }
+
+    /** Exempts the app from Doze and background restrictions so the shell, server and tunnel survive a switched-off screen. */
+    private void keepAliveViaShell() {
+        final String pkg = getPackageName();
+        final Context app = getApplicationContext();
+        new Thread(() -> {
+            String msg;
+            try {
+                com.agentdroid.exec.BackendSelector sel = AgentBackends.create(app);
+                String pin = new AgentConfig(app).backendPin();
+                if (!pin.isEmpty()) { try { sel.pin(pin); } catch (Exception ignored) { } }
+                SelectedBackend b = new SelectedBackend(sel);
+                String cmd = "dumpsys deviceidle whitelist +" + pkg + "; cmd appops set " + pkg + " RUN_ANY_IN_BACKGROUND allow; "
+                        + "cmd appops set " + pkg + " RUN_IN_BACKGROUND allow; am set-standby-bucket " + pkg + " active";
+                com.agentdroid.exec.ExecResult r = b.exec(com.agentdroid.exec.ExecRequest.builder(cmd).timeoutMs(15000L).build());
+                msg = r.ok() ? getString(R.string.mcp_keepalive_done) : getString(R.string.mcp_a11y_fail, r.stderr().trim());
+            } catch (Exception e) {
+                msg = getString(R.string.mcp_a11y_fail, String.valueOf(e.getMessage()));
+            }
+            final String m = msg;
+            runOnUiThread(() -> Toast.makeText(this, m, Toast.LENGTH_LONG).show());
+        }, "keepalive").start();
     }
 
     private void editBlocked() {
