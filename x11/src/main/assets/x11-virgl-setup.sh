@@ -22,7 +22,7 @@ if [[ $target == alpine ]];then
  client_bind=(--bind "${PREFIX%/usr}/workspace-x11-virgl-alpine:/tmp/termux-jobs-virgl")
 fi
 host_ready() {
- for package in virglrenderer-android angle-android mesa libc++;do
+ for package in virglrenderer-android angle-android libc++;do
   case "$(dpkg-query -W -f='${Status}' "$package" 2>/dev/null)" in *' ok installed') ;;*) return 1;;esac
  done
  [[ -x $PREFIX/bin/virgl_test_server_android && -f $PREFIX/opt/angle-android/$backend/libEGL_angle.so && -f $PREFIX/opt/angle-android/$backend/libGLESv2_angle.so ]] || return 1
@@ -106,7 +106,7 @@ if [[ $op == install ]];then
   echo JOBS_APT_PHASE:update
   apt-get -o Acquire::Retries=3 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 -o Debug::acquire::progress=true -o APT::Status-Fd=3 -o Dpkg::Use-Pty=0 update 3>&1
   echo JOBS_APT_PHASE:install
-  apt-get -o APT::Keep-Downloaded-Packages=true -o Acquire::Retries=3 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 -o Debug::acquire::progress=true -o APT::Status-Fd=3 -o Dpkg::Use-Pty=0 install -y --no-remove --no-install-recommends virglrenderer-android angle-android mesa libc++ 3>&1
+  apt-get -o APT::Keep-Downloaded-Packages=true -o Acquire::Retries=3 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 -o Debug::acquire::progress=true -o APT::Status-Fd=3 -o Dpkg::Use-Pty=0 install -y --no-remove --no-install-recommends virglrenderer-android angle-android libc++ 3>&1
  fi
  if ! guest_components check;then guest_components install;fi
 fi
