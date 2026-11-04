@@ -141,3 +141,8 @@ CI run #3 (51 min, got much further: apt, bash, libbz2 etc. built) failed on `co
 - Добавлен bootstrap/packages-optional.list и необязательный шаг в bootstrap.yml (continue-on-error, лимит 100 мин, кэш сохраняется): libc++, mesa, angle-android (собирается из исходников Chromium, может понадобиться два запуска), virglrenderer-android.
 - Debian в proot уже установлен; «container is busy» — потому что в нём работает туннель ngrok для коннектора (не трогать).
 - Сборка #22: основное опубликовано; необязательный шаг упёрся в 100 мин на сборке LLVM (из-за mesa). mesa убрана из списка и из проверки/установки хоста VirGL (x11-virgl-setup.sh) — это ещё одно смягчение: вернуться и проверить, нужна ли mesa хосту VirGL.
+
+## Обновление из приложения (2026-11-04)
+- WorkspaceUpdates теперь смотрит релизы DanttesD/AgentDroid (список, берётся самый новый с update.json), тег `apk-ГГГГ.ММ.ДД-N`, файл `agentdroid-debug.apk`; проверка пакета, версии, подписи и SHA-256 осталась прежней.
+- CI (apk.yml): versionCode = 2000 + номер запуска, versionName = 2.1.<номер>; к релизу прикладывается update.json.
+- Не проверено на телефоне (нужна сборка, потом ещё одна, чтобы увидеть предложение обновиться). Юнит-тесты WorkspaceUpdatesTest/WorkspaceUpdateInstallTest всё ещё написаны под com.termux и старые теги — переписать.

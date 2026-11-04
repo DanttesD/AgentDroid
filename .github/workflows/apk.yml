@@ -80,6 +80,10 @@ jobs:
           set -o pipefail
           if [ "$X11_OK" != "success" ]; then export AGENTDROID_SKIP_X11=1; fi
           chmod +x gradlew scripts/*.sh
+          # every build gets a higher versionCode than the previous one, so the in-app updater can offer it
+          export TERMUX_APP_VERSION_CODE=$((2000 + GITHUB_RUN_NUMBER))
+          export TERMUX_APP_VERSION_NAME="2.1.${GITHUB_RUN_NUMBER}"
+          echo "$TERMUX_APP_VERSION_CODE $TERMUX_APP_VERSION_NAME" > .version
           ./scripts/build-debug.sh 2>&1 | tee build.log
       - name: Save the signing key
         if: always() && hashFiles('.signing/fork-debug.jks') != ''
@@ -101,7 +105,20 @@ jobs:
           apk=$(ls app/build/outputs/apk/debug/*.apk | head -1)
           tag="apk-$(date +%Y.%m.%d)-${GITHUB_RUN_NUMBER}"
           cp "$apk" agentdroid-debug.apk
-          gh release create "$tag" agentdroid-debug.apk --title "AgentDroid debug APK $tag" \
+          read -r vcode vname < .version
+          python3 - "$vcode" "$vname" "$tag" "$GITHUB_REPOSITORY" "$GITHUB_SHA" <<'PY'
+          import hashlib, json, pathlib, sys
+          code, name, tag, repo, sha = sys.argv[1:6]
+          apk = pathlib.Path('agentdroid-debug.apk')
+          note_ru = ['Сборка из коммита ' + sha[:7] + '.']
+          note_en = ['Build from commit ' + sha[:7] + '.']
+          manifest = dict(schema=1, packageId='com.agentdroid', versionCode=int(code), versionName=name, minSdk=26,
+              apk=dict(abi='arm64-v8a', url='https://github.com/%s/releases/download/%s/agentdroid-debug.apk' % (repo, tag),
+                       size=apk.stat().st_size, sha256=hashlib.sha256(apk.read_bytes()).hexdigest()),
+              changes=dict(ru=note_ru, en=note_en))
+          pathlib.Path('update.json').write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + '\n')
+          PY
+          gh release create "$tag" agentdroid-debug.apk update.json --title "AgentDroid debug APK $tag" \
             --notes "Debug build from commit $GITHUB_SHA. Install over the previous build or uninstall first if Android reports a signature conflict." --prerelease
           {
             echo "## APK is ready"

@@ -23,8 +23,10 @@ import java.util.zip.ZipFile;
 
 /** Manual public-release updates. Never reads shell credentials or changes user data. */
 final class WorkspaceUpdates {
-    static final String API="https://api.github.com/repos/HezeAI/termux-jobs/releases/latest";
-    static final String DOWNLOAD="https://github.com/HezeAI/termux-jobs/releases/download/";
+    static final String API="https://api.github.com/repos/DanttesD/AgentDroid/releases?per_page=10";
+    static final String DOWNLOAD="https://github.com/DanttesD/AgentDroid/releases/download/";
+    static final String APK_NAME="agentdroid-debug.apk";
+    static final String TAG="apk-[0-9]{4}\\.[0-9]{2}\\.[0-9]{2}-[0-9]+";
     private static final long MAX_APK=256L*1024*1024;
     private static final AtomicBoolean BUSY=new AtomicBoolean();
     private WorkspaceUpdates() {}
@@ -68,13 +70,18 @@ final class WorkspaceUpdates {
         new Thread(()->{try{Release release=latest(a,new UpdateConnection());if(release!=null)remember(a,release);}catch(Exception ignored){}finally{BUSY.set(false);a.runOnUiThread(()->{if(alive(a))changed.run();});}},"jobs-update-auto").start();
     }
     private static Release latest(Activity a,UpdateConnection cancelled)throws Exception{
-        JSONObject latest=new JSONObject(new String(fetch(API,1024*1024,cancelled),"UTF-8"));
-        if(latest.optBoolean("draft")||latest.optBoolean("prerelease"))throw new IOException("Not a stable release");
-        String tag=latest.getString("tag_name");JSONArray assets=latest.getJSONArray("assets");
-        for(int i=0;i<assets.length();i++){JSONObject asset=assets.getJSONObject(i);if(asset.getString("name").equals("update.json")){
-            String url=asset.getString("browser_download_url");if(!validAsset(url,tag,"update.json"))throw new IOException("Invalid manifest URL");
-            return new Release(new JSONObject(new String(fetch(url,64*1024,cancelled),"UTF-8")),tag,WorkspaceLanguage.code(a).equals("ru"));
-        }}return null;
+        // Our CI publishes every build as a pre-release "apk-YYYY.MM.DD-N" with update.json; take the newest one that has it.
+        JSONArray list=new JSONArray(new String(fetch(API,2*1024*1024,cancelled),"UTF-8"));
+        for(int r=0;r<list.length();r++){
+            JSONObject latest=list.getJSONObject(r);if(latest.optBoolean("draft"))continue;
+            String tag=latest.getString("tag_name");if(!tag.matches(TAG))continue;
+            JSONArray assets=latest.getJSONArray("assets");
+            for(int i=0;i<assets.length();i++){JSONObject asset=assets.getJSONObject(i);if(asset.getString("name").equals("update.json")){
+                String url=asset.getString("browser_download_url");if(!validAsset(url,tag,"update.json"))throw new IOException("Invalid manifest URL");
+                return new Release(new JSONObject(new String(fetch(url,64*1024,cancelled),"UTF-8")),tag,WorkspaceLanguage.code(a).equals("ru"));
+            }}
+        }
+        return null;
     }
     static long version(PackageInfo p){return Build.VERSION.SDK_INT>=28?p.getLongVersionCode():p.versionCode;}
     static final class Release {
@@ -83,13 +90,13 @@ final class WorkspaceUpdates {
             if(m.getInt("schema")!=1)throw new IOException("Unsupported update manifest");
             code=m.getLong("versionCode");name=m.getString("versionName");minSdk=m.getInt("minSdk");
             JSONObject apk=m.getJSONObject("apk");url=apk.getString("url");hash=apk.getString("sha256");size=apk.getLong("size");
-            if(code<=0||!name.matches("[0-9]+\\.[0-9]+\\.[0-9]+")||!tag.equals("v"+name)||!hash.matches("[a-f0-9]{64}")||size<=0||size>MAX_APK||minSdk<24||!m.getString("packageId").equals("com.agentdroid")||!apk.getString("abi").equals("arm64-v8a")||!validAsset(url,tag,"Termux-Jobs-v"+name+"-arm64.apk"))throw new IOException("Invalid update manifest");
+            if(code<=0||!name.matches("[0-9]+\\.[0-9]+\\.[0-9]+")||!tag.matches(TAG)||!hash.matches("[a-f0-9]{64}")||size<=0||size>MAX_APK||minSdk<24||!m.getString("packageId").equals("com.agentdroid")||!apk.getString("abi").equals("arm64-v8a")||!validAsset(url,tag,APK_NAME))throw new IOException("Invalid update manifest");
             JSONArray lines=m.getJSONObject("changes").getJSONArray(ru?"ru":"en");
             if(lines.length()==0||lines.length()>20)throw new IOException("Invalid release notes");
             StringBuilder b=new StringBuilder();for(int i=0;i<lines.length();i++){String s=lines.getString(i);if(s.length()>1000)throw new IOException("Release note too long");b.append("• ").append(s).append('\n');}notes=b.toString();
         }
     }
-    static boolean validAsset(String url,String tag,String name){return tag.matches("v[0-9]+\\.[0-9]+\\.[0-9]+")&&url.equals(DOWNLOAD+tag+"/"+name);}
+    static boolean validAsset(String url,String tag,String name){return tag.matches(TAG)&&url.equals(DOWNLOAD+tag+"/"+name);}
     private static byte[] fetch(String url,long limit,UpdateConnection cancelled)throws Exception{
         HttpURLConnection c=cancelled.connect(url);try(InputStream in=c.getInputStream();ByteArrayOutputStream out=new ByteArrayOutputStream()){
             byte[] b=new byte[8192];int n;cancelled.check();while((n=in.read(b))!=-1){if(cancelled.isCancelled())throw new InterruptedIOException();if(out.size()+n>limit)throw new IOException("Response too large");out.write(b,0,n);}cancelled.check();return out.toByteArray();
