@@ -114,7 +114,7 @@ public final class TunnelManager {
             if (viaSu) {
                 // Android hides network card addresses from normal apps; the same app user started through su sees them.
                 StringBuilder sb = new StringBuilder("env -i PATH=" + prefix + "/bin HOME=" + home + " PREFIX=" + prefix
-                        + " TERMUX__PREFIX=" + prefix + " TERMUX__HOME=" + home + " TMPDIR=" + prefix + "/tmp LD_LIBRARY_PATH=" + prefix + "/lib");
+                        + " TERMUX__PREFIX=" + prefix + " TERMUX_APP__PACKAGE_NAME=" + com.termux.shared.termux.TermuxConstants.TERMUX_PACKAGE_NAME + " TERMUX__HOME=" + home + " TMPDIR=" + prefix + "/tmp LD_LIBRARY_PATH=" + prefix + "/lib");
                 for (String a : inner) sb.append(' ').append(com.agentdroid.exec.ShellQuote.quote(a));
                 cmd.add("su"); cmd.add(String.valueOf(android.os.Process.myUid())); cmd.add("-c"); cmd.add(sb.toString());
             } else {
@@ -131,6 +131,7 @@ public final class TunnelManager {
             pb.environment().put("HOME", home);
             pb.environment().put("PREFIX", prefix);
             pb.environment().put("TERMUX__PREFIX", prefix);
+            pb.environment().put("TERMUX_APP__PACKAGE_NAME", com.termux.shared.termux.TermuxConstants.TERMUX_PACKAGE_NAME);
             pb.environment().put("TERMUX__HOME", home);
             pb.environment().put("TMPDIR", prefix + "/tmp");
             pb.environment().put("LD_LIBRARY_PATH", prefix + "/lib");

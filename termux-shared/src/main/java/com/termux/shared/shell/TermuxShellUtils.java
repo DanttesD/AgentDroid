@@ -95,6 +95,8 @@ public class TermuxShellUtils {
         environment.add("TERMUX__HOME=" + TermuxConstants.TERMUX_HOME_DIR_PATH);
         environment.add("PREFIX=" + TermuxConstants.TERMUX_PREFIX_DIR_PATH);
         environment.add("TERMUX__PREFIX=" + TermuxConstants.TERMUX_PREFIX_DIR_PATH);
+        // proot-distro and other tools read the app package from here (default would be com.termux)
+        environment.add("TERMUX_APP__PACKAGE_NAME=" + TermuxConstants.TERMUX_PACKAGE_NAME);
 
         environment.add("TERMUX__SE_PROCESS_CONTEXT=" + SELinuxUtils.getContext());
 
