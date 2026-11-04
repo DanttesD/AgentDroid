@@ -26,7 +26,7 @@ public final class ActionGuard implements Guard {
             + "ru.alfabank.mobile.android\ncom.google.android.apps.walletnfcrel\ncom.paypal.android.p2pmobile";
     private static final Set<String> ACTIONS = new HashSet<>(Arrays.asList(
             "tap", "swipe", "type_text", "key", "open_app", "click", "long_click", "set_text", "scroll", "global_action",
-            "intent", "toggle", "settings", "app_install", "app_uninstall"));
+            "intent", "toggle", "settings", "app_install", "app_uninstall", "find_and_tap", "submit_message"));
 
     private static volatile boolean paused;
 

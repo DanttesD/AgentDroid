@@ -161,3 +161,9 @@ CI run #3 (51 min, got much further: apt, bash, libbz2 etc. built) failed on `co
 - Python-тесты (`python3 -m unittest discover -s scripts/tests`): 688 тестов, раньше 64 падения. Пути /data/data/com.termux в тестах X11/окружений заменены на com.agentdroid — эти тесты теперь проходят.
 - Оставшиеся падения зависят от окружения песочницы, а не от кода: нужны arm64-хост (test_workspace_backup/selection, архитектура), собранные компоненты `.tools/x11-components` и `.tools/x11-runtime` (style, scale, virgl-client, openh264, extras), jniLibs из gradle, кросс-компилятор (garcon), точный тайминг групп процессов (environment_install).
 - Java-тесты обновления (WorkspaceUpdatesTest, WorkspaceUpdateInstallTest) переписаны под com.agentdroid и теги apk-*; не запускались (нет Android SDK). Остальные Java-тесты с "com.termux" используют его как произвольное имя пакета.
+
+## droidclaw ideas, step 1–2 (screen shortcuts)
+- MCP instructions (McpHost.environmentText) now carry seven screen-work rules (shortcuts first, programmatic over taps, coordinates only from the tree, Back is destructive, silent successes, wait 5–15 s for chatbots, stop on repetition).
+- New tools in `agent/.../ScreenFlows.java`: `find_and_tap`, `read_screen`, `submit_message`, `wait_for_content`. `find_and_tap` and `submit_message` go through ActionGuard (pause, blocked apps, log) and ask for confirmation when the label looks risky (send/pay/delete…).
+- Tests: `ScreenFlowsTest` (7 cases) run on x86 with plain javac+JUnit; the 27 tests of the agent module pass. The Android side (McpHost wiring) is not compiled here (no SDK).
+- Next: step 3 (stuck/repetition/drift detection and screenshot fallback in the native loop), then the voice overlay, then notification triggers.
