@@ -177,3 +177,9 @@ CI run #3 (51 min, got much further: apt, bash, libbz2 etc. built) failed on `co
 - `AssistantOverlayService`: draggable ✦ bubble → panel (text + 🎤 speech via SpeechRecognizer ru-RU) → agent runs with a rotating colour glow around the screen and a "stop" pill; confirmations appear inside the overlay (`ApprovalCenter.setOverlay`).
 - `AssistantActivity` (chat menu → «Голосовой помощник»): overlay permission, microphone, accessibility shortcut, on/off.
 - Risks to check on the phone: microphone while another app is in front (needs visible overlay), recognition service present, keyboard in the overlay panel, glow cost.
+
+## Notification rules (step 6, Android side not compiled here)
+- Pure logic in `agent/.../Triggers.java` (rules, matching by package and keywords, prompt that fences the notification as data, cooldown, JSON); 39 agent tests pass.
+- App side: `AgentNotificationListener` (needs notification access) → `TriggerRunner` (confirm mode = notification with a «Выполнить» button via `TriggerActionReceiver`; auto mode runs at once; one run at a time; skipped while the emergency stop is on) → result notification. Sensitive actions inside a run still ask (overlay or notification).
+- UI: chat menu → «Правила по уведомлениям» (`TriggersActivity`).
+- Not done: local time schedules (AlarmManager), per-rule app picker, running rules while the screen is locked.

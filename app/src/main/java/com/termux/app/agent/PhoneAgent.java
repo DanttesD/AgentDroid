@@ -52,4 +52,14 @@ public final class PhoneAgent {
         loop.setGuard(new ActionGuard(app, backend));
         return loop;
     }
+
+    /** Agent on the backend the user selected (pin or first available), or null when no way to run commands exists. */
+    public static AgentLoop createDefault(Context context, Approver approver) {
+        Context app = context.getApplicationContext();
+        com.agentdroid.exec.BackendSelector sel = AgentBackends.create(app);
+        String pin = new AgentConfig(app).backendPin();
+        if (!pin.isEmpty()) { try { sel.pin(pin); } catch (Exception ignored) { } }
+        if (sel.select() == null) return null;
+        return create(app, new SelectedBackend(sel), approver);
+    }
 }

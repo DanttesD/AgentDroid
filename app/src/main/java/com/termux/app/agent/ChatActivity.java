@@ -203,6 +203,7 @@ public class ChatActivity extends Activity {
         items.add(getString(R.string.agent_menu_accounts));
         items.add(getString(R.string.agent_menu_desktop));
         items.add(getString(R.string.agent_menu_assistant));
+        items.add(getString(R.string.agent_menu_triggers));
         final int webStart = items.size();
         for (WebAccounts.Account a : accs) items.add(a.name + (a.url.isEmpty() ? "" : "  (" + hostOf(a.url) + ")"));
         items.add(getString(R.string.agent_menu_web_add));
@@ -219,6 +220,7 @@ public class ChatActivity extends Activity {
                 startActivity(new Intent(this, TermuxActivity.class));
             }
             else if (which == 6) startActivity(new Intent(this, AssistantActivity.class));
+            else if (which == 7) startActivity(new Intent(this, TriggersActivity.class));
             else if (which == addIndex) { WebAccounts.Account n = webAccounts.add(); pickService(n); }
             else if (which > addIndex) setWebMode(false);
             else openWebAccount(accs.get(which - webStart));
