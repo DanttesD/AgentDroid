@@ -38,6 +38,7 @@ public final class AgentLoop {
         List<ToolSpec> specs = new ArrayList<>();
         for (Tool t : tools.values()) specs.add(t.spec());
         String last = "";
+        StuckDetector stuck = new StuckDetector();
         for (int step = 0; step < maxSteps; step++) {
             if (cancelled) { listener.onError("cancelled"); return last; }
             Reply r = provider.chat(system, history, specs, listener);
@@ -66,8 +67,14 @@ public final class AgentLoop {
                 if (result.length() > MAX_RESULT_CHARS) {
                     result = result.substring(0, MAX_RESULT_CHARS) + "\n...[truncated " + (result.length() - MAX_RESULT_CHARS) + " chars]";
                 }
+                String hint = tool == null ? null : stuck.record(call.name, Json.stringify(call.args), result, error);
+                if (hint != null) result = result + "\n[hint] " + hint;
                 listener.onToolResult(call, result, error);
                 history.add(Message.toolResult(call.id, call.name, result, error));
+            }
+            if (stuck.shouldGiveUp()) {
+                listener.onError("the agent is stuck (repeating without progress); stopped");
+                return last;
             }
         }
         listener.onError("step limit reached (" + maxSteps + ")");

@@ -167,3 +167,7 @@ CI run #3 (51 min, got much further: apt, bash, libbz2 etc. built) failed on `co
 - New tools in `agent/.../ScreenFlows.java`: `find_and_tap`, `read_screen`, `submit_message`, `wait_for_content`. `find_and_tap` and `submit_message` go through ActionGuard (pause, blocked apps, log) and ask for confirmation when the label looks risky (send/pay/delete…).
 - Tests: `ScreenFlowsTest` (7 cases) run on x86 with plain javac+JUnit; the 27 tests of the agent module pass. The Android side (McpHost wiring) is not compiled here (no SDK).
 - Next: step 3 (stuck/repetition/drift detection and screenshot fallback in the native loop), then the voice overlay, then notification triggers.
+
+## droidclaw ideas, step 3 (stuck detection)
+- `agent/.../StuckDetector.java` is used by AgentLoop: same call 3×, same result 4×, or 5 observation-only calls → a `[hint]` is appended to the tool result; after 3 hints the loop stops with an error. Covers the native chat and anything built on AgentLoop. 33 agent tests pass (x86).
+- Not done: screenshot fallback for the native loop (the native chat has no screen tools yet; MCP clients already have `screenshot`).
