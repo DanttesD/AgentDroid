@@ -24,4 +24,5 @@
     <string name="assistant_yes">yes</string>
     <string name="assistant_no">no</string>
     <string name="assistant_info">A floating button appears over any app. Tap it, say or type a task, and the agent works with the screen. Every send, call or payment still asks for your confirmation.</string>
+    <string name="agent_bad_url">The server address must start with http:// or https:// (the model name goes in the Model field). Fix it in the chat settings.</string>
 </resources>

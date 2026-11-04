@@ -33,6 +33,8 @@ public final class AgentConfig {
     public void setApiKey(String k) { secrets.put("key_" + provider(), k); }
     public void setBackendPin(String id) { prefs.edit().putString("backend", id == null ? "" : id).apply(); }
 
+    public boolean baseUrlValid() { return baseUrl().matches("(?i)https?://.+"); }
+
     public static String defaultModel(String p) {
         switch (p) {
             case "openai": return "gpt-4o";

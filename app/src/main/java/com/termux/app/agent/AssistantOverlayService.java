@@ -457,6 +457,7 @@ public final class AssistantOverlayService extends Service {
         if (msg.isEmpty() || busy) return;
         AgentConfig cfg = new AgentConfig(this);
         if (cfg.apiKey().isEmpty() && !cfg.provider().equals("custom")) { say(getString(R.string.assistant_no_key)); return; }
+        if (!cfg.baseUrlValid()) { say(getString(R.string.agent_bad_url)); return; }
         if (!AgentAccessibilityService.isRunning()) say(getString(R.string.assistant_no_a11y));
         input.setText("");
         stopListening();

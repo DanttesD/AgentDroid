@@ -420,7 +420,12 @@ public class ChatActivity extends Activity {
         new AlertDialog.Builder(this).setTitle(R.string.agent_provider_title).setView(box)
                 .setPositiveButton(R.string.agent_save, (d, w) -> {
                     config.setProvider(AgentConfig.PROVIDERS[sp.getSelectedItemPosition()]);
-                    config.setBaseUrl(url.getText().toString().trim());
+                    String u = url.getText().toString().trim();
+                    if (!u.matches("(?i)https?://.+")) {
+                        android.widget.Toast.makeText(this, R.string.agent_bad_url, android.widget.Toast.LENGTH_LONG).show();
+                        return;
+                    }
+                    config.setBaseUrl(u);
                     config.setModel(model.getText().toString().trim());
                     String k = key.getText().toString().trim();
                     if (!k.isEmpty()) config.setApiKey(k);

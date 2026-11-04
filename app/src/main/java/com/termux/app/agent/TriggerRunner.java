@@ -61,6 +61,7 @@ public final class TriggerRunner {
     public static void run(final Context app, final Triggers.Rule rule, final Triggers.Event e) {
         AgentConfig cfg = new AgentConfig(app);
         if (cfg.apiKey().isEmpty() && !cfg.provider().equals("custom")) return;
+        if (!cfg.baseUrlValid()) return;
         if (!BUSY.compareAndSet(false, true)) return;
         new Thread(() -> {
             final StringBuilder answer = new StringBuilder();
