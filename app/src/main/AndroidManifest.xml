@@ -30,6 +30,7 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.READ_LOGS" />
     <uses-permission android:name="android.permission.DUMP" />
     <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS" />
@@ -84,6 +85,8 @@
             android:configChanges="orientation|screenSize|keyboardHidden" />
         <activity android:name=".app.agent.AccountsActivity" android:label="AgentDroid Accounts" android:exported="false" />
         <service android:name=".app.agent.McpService" android:exported="false" />
+        <service android:name=".app.agent.AssistantOverlayService" android:exported="false" />
+        <activity android:name=".app.agent.AssistantActivity" android:label="AgentDroid Assistant" android:exported="false" />
         <service android:name=".app.agent.AgentAccessibilityService" android:exported="false"
             android:label="AgentDroid"
             android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">

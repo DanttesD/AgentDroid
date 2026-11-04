@@ -149,6 +149,23 @@ public class AgentTest {
         assertTrue(requests.get(1).contains("the user denied this action"));
     }
 
+    @Test public void guardRefusalIsReportedAndLogged() throws Exception {
+        String base = serve("/chat/completions",
+            sse("{\"choices\":[{\"delta\":{\"tool_calls\":[{\"index\":0,\"id\":\"c1\",\"function\":{\"name\":\"shell\",\"arguments\":\"{\\\"command\\\":\\\"ls\\\"}\"}}]}}]}"),
+            sse("{\"choices\":[{\"delta\":{\"content\":\"stopped\"}}]}"));
+        FakeBackend fb = new FakeBackend();
+        final List<String> log = new ArrayList<>();
+        AgentLoop loop = new AgentLoop(new OpenAiProvider("deepseek", base, "k", "m"), Tools.standard(fb, null), (c, d) -> { log.add("asked"); return true; }, null, 5);
+        loop.setGuard(new Guard() {
+            public void before(String tool, Map<String, Object> args, String d) { throw new SecurityException("emergency stop"); }
+            public void after(String tool, Map<String, Object> args, String r, boolean e) { log.add("after:" + e); }
+        });
+        assertEquals("stopped", loop.send("go", new StreamListener()));
+        assertTrue(fb.commands.isEmpty());
+        assertTrue(requests.get(1).contains("refused: emergency stop"));
+        assertEquals(Arrays.asList("after:true"), log);
+    }
+
     @Test public void stepLimitStops() throws Exception {
         String call = sse("{\"choices\":[{\"delta\":{\"tool_calls\":[{\"index\":0,\"id\":\"c\",\"function\":{\"name\":\"list_dir\",\"arguments\":\"{\\\"path\\\":\\\"/\\\"}\"}}]}}]}");
         String base = serve("/chat/completions", call);

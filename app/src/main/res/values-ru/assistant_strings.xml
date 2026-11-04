@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="agent_menu_assistant">Голосовой помощник</string>
+    <string name="assistant_title">Помощник AgentDroid</string>
+    <string name="assistant_hint">Скажите или напишите задачу…</string>
+    <string name="assistant_working">Работаю… (нажмите, чтобы остановить)</string>
+    <string name="assistant_new">Новая беседа</string>
+    <string name="assistant_no_key">Сначала укажите ключ API в настройках чата AgentDroid.</string>
+    <string name="assistant_no_backend">Нет доступного способа выполнять команды (root/ADB).</string>
+    <string name="assistant_no_a11y">Служба специальных возможностей выключена, экран читать не смогу.</string>
+    <string name="assistant_no_speech">На телефоне нет службы распознавания речи.</string>
+    <string name="assistant_mic_perm">Разрешите микрофон в настройках помощника.</string>
+    <string name="assistant_stopped">Остановлено.</string>
+    <string name="assistant_allow">Разрешить</string>
+    <string name="assistant_deny">Отклонить</string>
+    <string name="assistant_notif">Помощник AgentDroid включён</string>
+    <string name="assistant_notif_stop">Выключить</string>
+    <string name="assistant_overlay_btn">Разрешить показ поверх других окон</string>
+    <string name="assistant_mic_btn">Разрешить микрофон</string>
+    <string name="assistant_a11y_btn">Открыть настройки специальных возможностей</string>
+    <string name="assistant_start">Включить помощника</string>
+    <string name="assistant_off">Выключить помощника</string>
+    <string name="assistant_status">Поверх других окон: %1$s\nМикрофон: %2$s\nСлужба экрана: %3$s\nПомощник: %4$s</string>
+    <string name="assistant_yes">да</string>
+    <string name="assistant_no">нет</string>
+    <string name="assistant_info">Поверх любого приложения появляется плавающая кнопка. Нажмите её, скажите или напишите задачу, и агент будет работать с экраном. Отправка, звонки и платежи по-прежнему требуют вашего подтверждения.</string>
+</resources>

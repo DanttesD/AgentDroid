@@ -202,6 +202,7 @@ public class ChatActivity extends Activity {
         items.add(getString(R.string.agent_menu_mcp));
         items.add(getString(R.string.agent_menu_accounts));
         items.add(getString(R.string.agent_menu_desktop));
+        items.add(getString(R.string.agent_menu_assistant));
         final int webStart = items.size();
         for (WebAccounts.Account a : accs) items.add(a.name + (a.url.isEmpty() ? "" : "  (" + hostOf(a.url) + ")"));
         items.add(getString(R.string.agent_menu_web_add));
@@ -217,6 +218,7 @@ public class ChatActivity extends Activity {
                 android.widget.Toast.makeText(this, R.string.agent_desktop_hint, android.widget.Toast.LENGTH_LONG).show();
                 startActivity(new Intent(this, TermuxActivity.class));
             }
+            else if (which == 6) startActivity(new Intent(this, AssistantActivity.class));
             else if (which == addIndex) { WebAccounts.Account n = webAccounts.add(); pickService(n); }
             else if (which > addIndex) setWebMode(false);
             else openWebAccount(accs.get(which - webStart));
@@ -447,11 +449,7 @@ public class ChatActivity extends Activity {
         if (l != null) return l;
         ExecBackend backend = selector.select();
         if (backend == null) return null;
-        final Approver approver = (call, description) -> askUser(description);
-        String system = "You are AgentDroid, an agent running on an Android phone. You act through tools: shell, read_file, "
-                + "write_file, list_dir. Commands run through: " + backend.displayName() + ". Be concise, check results, "
-                + "and explain what you did. Reply in the language the user writes in (Russian by default).";
-        l = new AgentLoop(config.build(), Tools.standard(backend, AgentBackends.TERMUX_HOME), approver, system, 25);
+        l = PhoneAgent.create(this, backend, PhoneAgent.approver(this));
         loop = l;
         return l;
     }

@@ -171,3 +171,9 @@ CI run #3 (51 min, got much further: apt, bash, libbz2 etc. built) failed on `co
 ## droidclaw ideas, step 3 (stuck detection)
 - `agent/.../StuckDetector.java` is used by AgentLoop: same call 3×, same result 4×, or 5 observation-only calls → a `[hint]` is appended to the tool result; after 3 hints the loop stops with an error. Covers the native chat and anything built on AgentLoop. 33 agent tests pass (x86).
 - Not done: screenshot fallback for the native loop (the native chat has no screen tools yet; MCP clients already have `screenshot`).
+
+## Voice assistant overlay (step 5, written without an Android SDK: compile-check pending in CI)
+- `PhoneAgent` builds the full phone toolset + guard for the MCP server, the native chat and the overlay. AgentLoop got `setGuard` and now forces confirmation for `sensitive` tool calls ("!" prefix), as the MCP server does. 34 agent tests pass.
+- `AssistantOverlayService`: draggable ✦ bubble → panel (text + 🎤 speech via SpeechRecognizer ru-RU) → agent runs with a rotating colour glow around the screen and a "stop" pill; confirmations appear inside the overlay (`ApprovalCenter.setOverlay`).
+- `AssistantActivity` (chat menu → «Голосовой помощник»): overlay permission, microphone, accessibility shortcut, on/off.
+- Risks to check on the phone: microphone while another app is in front (needs visible overlay), recognition service present, keyboard in the overlay panel, glow cost.

@@ -5,7 +5,6 @@ import android.content.SharedPreferences;
 
 import com.agentdroid.agent.McpServer;
 import com.agentdroid.agent.PhoneHooks;
-import com.agentdroid.agent.Tools;
 
 import java.io.IOException;
 import java.security.SecureRandom;
@@ -53,12 +52,7 @@ public final class McpHost {
         if (!pin.isEmpty()) { try { sel.pin(pin); } catch (Exception ignored) { } }
         SelectedBackend backend = new SelectedBackend(sel);
         final PhoneHooks hooks = new AppHooks(app);
-        java.util.List<com.agentdroid.agent.Tool> all = new java.util.ArrayList<>(Tools.standard(backend, AgentBackends.TERMUX_HOME));
-        all.addAll(com.agentdroid.agent.DevTools.create(backend, AgentBackends.TERMUX_HOME));
-        all.addAll(com.agentdroid.agent.UiTools.create(backend, hooks::setClipboard));
-        all.addAll(com.agentdroid.agent.A11yTools.create());
-        all.addAll(com.agentdroid.agent.ScreenFlows.create());
-        all.addAll(com.agentdroid.agent.AndroidTools.create(backend, hooks));
+        java.util.List<com.agentdroid.agent.Tool> all = PhoneAgent.tools(app, backend, hooks);
         server = new McpServer(all, (call, description) -> {
             boolean force = description.startsWith("!");
             return ApprovalCenter.ask(app, force ? description.substring(1) : description, force);

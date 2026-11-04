@@ -18,6 +18,7 @@ public final class AgentLoop {
     private final int maxSteps;
     private final List<Message> history = new ArrayList<>();
     private volatile boolean cancelled;
+    private volatile Guard guard;
 
     public AgentLoop(ModelProvider provider, List<Tool> toolList, Approver approver, String system, int maxSteps) {
         this.provider = provider;
@@ -30,6 +31,9 @@ public final class AgentLoop {
     public List<Message> history() { return new ArrayList<>(history); }
 
     public void cancel() { cancelled = true; }
+
+    /** Emergency stop / blocked apps / action log, same hook as the MCP server uses. */
+    public void setGuard(Guard g) { this.guard = g; }
 
     /** Runs one user turn to completion. Returns the final assistant text. */
     public String send(String userText, StreamListener listener) throws IOException {
@@ -54,15 +58,27 @@ public final class AgentLoop {
                     result = "cancelled by user"; error = true;
                 } else if (tool == null) {
                     result = "unknown tool: " + call.name; error = true;
-                } else if (tool.needsApproval(call.args) && !approver.approve(call, tool.describe(call.args))) {
-                    result = "the user denied this action"; error = true;
                 } else {
-                    try {
-                        result = tool.execute(call.args);
-                    } catch (Exception e) {
-                        if (e instanceof InterruptedException) Thread.currentThread().interrupt();
-                        result = "error: " + e.getMessage(); error = true;
+                    String refused = null;
+                    Guard g = guard;
+                    if (g != null) {
+                        try { g.before(call.name, call.args, tool.describe(call.args)); }
+                        catch (SecurityException e) { refused = "refused: " + e.getMessage(); }
                     }
+                    if (refused != null) {
+                        result = refused; error = true;
+                    } else if ((tool.needsApproval(call.args) || tool.sensitive(call.args))
+                            && !approver.approve(call, (tool.sensitive(call.args) ? "!" : "") + tool.describe(call.args))) {
+                        result = "the user denied this action"; error = true;
+                    } else {
+                        try {
+                            result = tool.execute(call.args);
+                        } catch (Exception e) {
+                            if (e instanceof InterruptedException) Thread.currentThread().interrupt();
+                            result = "error: " + e.getMessage(); error = true;
+                        }
+                    }
+                    if (g != null) { try { g.after(call.name, call.args, result, error); } catch (RuntimeException ignored) { } }
                 }
                 if (result.length() > MAX_RESULT_CHARS) {
                     result = result.substring(0, MAX_RESULT_CHARS) + "\n...[truncated " + (result.length() - MAX_RESULT_CHARS) + " chars]";

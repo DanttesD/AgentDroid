@@ -28,6 +28,13 @@ public final class ApprovalCenter {
     private static final String PREFS = "agentdroid_approvals";
     public static final long HOUR_MS = TimeUnit.HOURS.toMillis(1);
 
+    /** Asks inside the overlay assistant when no AgentDroid screen is open (the user is in another app). */
+    public interface Presenter { boolean ask(String description, boolean force); }
+
+    private static volatile Presenter overlay;
+
+    public static void setOverlay(Presenter p) { overlay = p; }
+
     private ApprovalCenter() {}
 
     private static android.content.SharedPreferences prefs(Context c) {
@@ -64,6 +71,8 @@ public final class ApprovalCenter {
                 cancelNotification(appContext);
                 return showDialog(a, description, force);
             }
+            Presenter p = overlay;
+            if (p != null) { cancelNotification(appContext); return p.ask(description, force); }
             if (!notified) { notify(appContext, description); notified = true; }
             try { Thread.sleep(500); } catch (InterruptedException e) { Thread.currentThread().interrupt(); return false; }
         }
