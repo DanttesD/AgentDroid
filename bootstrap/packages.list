@@ -16,3 +16,4 @@ which
 cloudflared
 pulseaudio
 util-linux
+pigz
