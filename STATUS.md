@@ -151,3 +151,8 @@ CI run #3 (51 min, got much further: apt, bash, libbz2 etc. built) failed on `co
 - На телефоне уже: приложение в белом списке Doze, standby-bucket 5 (active), phantom-processes без лимита (2147483647) — убийца дочерних процессов Android 12+ не мешает.
 - Добавлено: McpService держит PARTIAL_WAKE_LOCK, пока работает туннель; в экране коннектора кнопка «Не засыпать при выключенном экране» (whitelist Doze, RUN_ANY_IN_BACKGROUND, bucket active через root/ADB).
 - Не проверено на практике: многочасовой простой с выключенным экраном (проверить: туннель и сессия терминала живы утром).
+
+## clang (2026-11-04)
+- clang/lld/llvm — подпакеты libllvm; сборка LLVM ≈ 2,5–3 ч и не возобновляется (каталог сборки не кэшируется), поэтому не в обычном списке.
+- В workflow «Build bootstrap» добавлен вход `heavy_packages`: запуск с `clang` собирает его одним шагом (лимит 280 мин, continue-on-error); готовые deb остаются в кэше и публикуются в apt при следующих запусках.
+- Пока clang нет, компилировать можно внутри proot Ubuntu/Debian (`apt install clang`).

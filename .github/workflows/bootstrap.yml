@@ -5,6 +5,10 @@ name: Build bootstrap (com.agentdroid)
 on:
   workflow_dispatch:
     inputs:
+      heavy_packages:
+        description: "Very heavy packages to compile in this run (space separated, e.g. clang). Needs ~3 h; the result stays in the build cache and in the apt repository"
+        required: false
+        default: ""
       extra_packages:
         description: "Extra packages baked into the bootstrap (space separated); empty = bootstrap/fork.env"
         required: false
@@ -167,6 +171,22 @@ jobs:
           sudo chmod -R a+rwX /data "$HOME/.termux-build" . 2>/dev/null || true
           timeout 100m ./scripts/run-docker.sh -m ./build-package.sh -a aarch64 $pkgs 2>&1 | tee ../packages-optional-build.log
 
+      - name: Build heavy packages (clang etc.)
+        if: ${{ github.event.inputs.heavy_packages != '' }}
+        working-directory: termux-packages
+        continue-on-error: true
+        env:
+          HEAVY: ${{ github.event.inputs.heavy_packages }}
+        run: |
+          set -o pipefail
+          printf '%s\n' $HEAVY > ../heavy.list
+          pkgs=$(../bootstrap/resolve-package-names.sh . < ../heavy.list | tr '\n' ' ')
+          [ -n "$pkgs" ] || exit 0
+          echo "building heavy: $pkgs"
+          sudo chmod -R a+rwX /data "$HOME/.termux-build" . 2>/dev/null || true
+          # one LLVM build does not resume (its build directory is not cached), so give it nearly all remaining job time
+          timeout 280m ./scripts/run-docker.sh -m ./build-package.sh -a aarch64 $pkgs 2>&1 | tee ../packages-heavy-build.log
+
       - name: Make build files readable for caching
         if: always()
         run: sudo chmod -R a+rX /data termux-packages/output 2>/dev/null || true
@@ -201,6 +221,7 @@ jobs:
             build.log
             packages-build.log
             packages-optional-build.log
+            packages-heavy-build.log
           if-no-files-found: warn
 
       - name: Hand the debs to the publish job
