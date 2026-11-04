@@ -98,7 +98,7 @@ class NativeTests(unittest.TestCase):
   self.assertEqual(['evince'],m.packages('alpine','pdf'))
  def test_native_catalog_preparation_refreshes_indexes_without_installing_appstream(self):
   for target in ['alpine','termux']:
-   with patch.dict(os.environ,{'JOBS_X11_NATIVE_TARGET':target,'PREFIX':'/data/data/com.termux/files/usr'}),patch.object(m.Path,'home',return_value=Path('/data/data/com.termux/files/home')),patch.object(m.sys,'argv',['helper','catalog-install','catalog-tools']),patch.object(m,'run') as run,patch.object(m,'catalog') as catalog,contextlib.redirect_stdout(io.StringIO()):
+   with patch.dict(os.environ,{'JOBS_X11_NATIVE_TARGET':target,'PREFIX':'/data/data/com.agentdroid/files/usr'}),patch.object(m.Path,'home',return_value=Path('/data/data/com.agentdroid/files/home')),patch.object(m.sys,'argv',['helper','catalog-install','catalog-tools']),patch.object(m,'run') as run,patch.object(m,'catalog') as catalog,contextlib.redirect_stdout(io.StringIO()):
     m.main();catalog.assert_called_once();self.assertEqual(1,run.call_count);args=run.call_args[0][0];self.assertIn('update',args);self.assertNotIn('install',args);self.assertNotIn('add',args);self.assertNotIn('appstream',args)
 
  def test_dpkg_selection_is_not_actual_installation_state(self):

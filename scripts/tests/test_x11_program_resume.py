@@ -11,8 +11,8 @@ class ResumeTests(unittest.TestCase):
     def run(args):
      calls.append(args)
      if 'install' in args or 'add' in args or args[:2]==['xbps-install','-y'] or args[:2]==['pacman','-Su']:have.update(m.packages(target,'editor')+(['libc++'] if target=='termux' else []))
-    env={'JOBS_X11_NATIVE_TARGET':target,'JOBS_X11_PROGRAM_RESUME':'1','PREFIX':'/data/data/com.termux/files/usr'}
-    with patch.dict(os.environ,env),patch.object(m.Path,'home',return_value=Path('/data/data/com.termux/files/home') if target=='termux' else Path('/root')),patch.object(m.sys,'argv',['helper','install','editor']),patch.object(m,'installed',side_effect=lambda _:have),patch.object(m,'run',side_effect=run),patch.object(m,'load') as load,contextlib.redirect_stdout(io.StringIO()) as log:
+    env={'JOBS_X11_NATIVE_TARGET':target,'JOBS_X11_PROGRAM_RESUME':'1','PREFIX':'/data/data/com.agentdroid/files/usr'}
+    with patch.dict(os.environ,env),patch.object(m.Path,'home',return_value=Path('/data/data/com.agentdroid/files/home') if target=='termux' else Path('/root')),patch.object(m.sys,'argv',['helper','install','editor']),patch.object(m,'installed',side_effect=lambda _:have),patch.object(m,'run',side_effect=run),patch.object(m,'load') as load,contextlib.redirect_stdout(io.StringIO()) as log:
      load.return_value.state.return_value='off';m.main()
     text=str(calls)
     for denied in ['makecache','update','refresh','--cacheonly','--force','--no-gpg-checks','--allow-unauthenticated']:self.assertNotIn("'"+denied+"'",text)

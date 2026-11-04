@@ -42,11 +42,11 @@ class ScopedTests(unittest.TestCase):
    def run(args):
     calls.append(args)
     if 'install' in args:have.update(args[args.index('--no-remove')+1:])
-   with patch.dict(os.environ,{'JOBS_X11_NATIVE_TARGET':'termux','PREFIX':'/data/data/com.termux/files/usr'}),patch.object(m.Path,'home',return_value=Path('/data/data/com.termux/files/home')),patch.object(m.sys,'argv',['helper','install',identifier]),patch.object(m,'installed',side_effect=lambda _:have),patch.object(m,'run',side_effect=run),patch.object(m,'load') as loader,contextlib.redirect_stdout(io.StringIO()):
+   with patch.dict(os.environ,{'JOBS_X11_NATIVE_TARGET':'termux','PREFIX':'/data/data/com.agentdroid/files/usr'}),patch.object(m.Path,'home',return_value=Path('/data/data/com.agentdroid/files/home')),patch.object(m.sys,'argv',['helper','install',identifier]),patch.object(m,'installed',side_effect=lambda _:have),patch.object(m,'run',side_effect=run),patch.object(m,'load') as loader,contextlib.redirect_stdout(io.StringIO()):
     loader.return_value.state.return_value='off';m.main();transaction=next(a for a in calls if 'install' in a);self.assertIn('libc++',transaction);self.assertEqual(identifier=='images','poppler' in transaction);self.assertEqual(identifier=='pkg:gnupg','libgcrypt' in transaction)
  def test_no_firefox_install_means_no_firefox_dns_profile_changes(self):
   for target in m.GROUPS:
-   with patch.dict(os.environ,{'JOBS_X11_NATIVE_TARGET':target,'PREFIX':'/data/data/com.termux/files/usr'}),patch.object(m.Path,'home',return_value=Path('/data/data/com.termux/files/home')),patch.object(m.sys,'argv',['helper','firefox-dns-on']),patch.object(m,'installed',return_value=set()),patch.object(m,'load') as loader:
+   with patch.dict(os.environ,{'JOBS_X11_NATIVE_TARGET':target,'PREFIX':'/data/data/com.agentdroid/files/usr'}),patch.object(m.Path,'home',return_value=Path('/data/data/com.agentdroid/files/home')),patch.object(m.sys,'argv',['helper','firefox-dns-on']),patch.object(m,'installed',return_value=set()),patch.object(m,'load') as loader:
     with self.assertRaisesRegex(ValueError,'Firefox is not installed'):m.main()
     loader.assert_not_called()
  def test_failed_automatic_input_does_not_block_manual_desktop_or_install_packages(self):

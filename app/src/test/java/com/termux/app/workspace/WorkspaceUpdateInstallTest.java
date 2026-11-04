@@ -32,10 +32,10 @@ public class WorkspaceUpdateInstallTest {
         try(ZipOutputStream zip=new ZipOutputStream(new FileOutputStream(file))){zip.putNextEntry(new ZipEntry("lib/arm64-v8a/libtermux.so"));zip.write(7);zip.closeEntry();}
         long code=com.termux.BuildConfig.VERSION_CODE+1;
         String hash=WorkspaceUpdates.hex(MessageDigest.getInstance("SHA-256").digest(Files.readAllBytes(file.toPath())));
-        JSONObject manifest=new JSONObject().put("schema",1).put("versionCode",code).put("versionName","9.9.9").put("packageId","com.termux").put("minSdk",24)
-            .put("apk",new JSONObject().put("abi","arm64-v8a").put("url",WorkspaceUpdates.DOWNLOAD+"v9.9.9/Termux-Jobs-v9.9.9-arm64.apk").put("sha256",hash).put("size",file.length()))
+        JSONObject manifest=new JSONObject().put("schema",1).put("versionCode",code).put("versionName","9.9.9").put("packageId","com.agentdroid").put("minSdk",24)
+            .put("apk",new JSONObject().put("abi","arm64-v8a").put("url",WorkspaceUpdates.DOWNLOAD+"apk-2026.11.04-7/agentdroid-debug.apk").put("sha256",hash).put("size",file.length()))
             .put("changes",new JSONObject().put("en",new org.json.JSONArray().put("fixture")));
-        release=new WorkspaceUpdates.Release(manifest,"v9.9.9",false);
+        release=new WorkspaceUpdates.Release(manifest,"apk-2026.11.04-7",false);
         PackageInfo installed=pm.getInternalMutablePackageInfo(a.getPackageName());installed.setLongVersionCode(code-1);installed.signatures=pkg(code-1).signatures;
         pm.setPackageArchiveInfo(file.getPath(),pkg(code));
     }

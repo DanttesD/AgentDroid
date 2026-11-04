@@ -156,3 +156,8 @@ CI run #3 (51 min, got much further: apt, bash, libbz2 etc. built) failed on `co
 - clang/lld/llvm — подпакеты libllvm; сборка LLVM ≈ 2,5–3 ч и не возобновляется (каталог сборки не кэшируется), поэтому не в обычном списке.
 - В workflow «Build bootstrap» добавлен вход `heavy_packages`: запуск с `clang` собирает его одним шагом (лимит 280 мин, continue-on-error); готовые deb остаются в кэше и публикуются в apt при следующих запусках.
 - Пока clang нет, компилировать можно внутри proot Ubuntu/Debian (`apt install clang`).
+
+## Тесты (2026-11-04)
+- Python-тесты (`python3 -m unittest discover -s scripts/tests`): 688 тестов, раньше 64 падения. Пути /data/data/com.termux в тестах X11/окружений заменены на com.agentdroid — эти тесты теперь проходят.
+- Оставшиеся падения зависят от окружения песочницы, а не от кода: нужны arm64-хост (test_workspace_backup/selection, архитектура), собранные компоненты `.tools/x11-components` и `.tools/x11-runtime` (style, scale, virgl-client, openh264, extras), jniLibs из gradle, кросс-компилятор (garcon), точный тайминг групп процессов (environment_install).
+- Java-тесты обновления (WorkspaceUpdatesTest, WorkspaceUpdateInstallTest) переписаны под com.agentdroid и теги apk-*; не запускались (нет Android SDK). Остальные Java-тесты с "com.termux" используют его как произвольное имя пакета.

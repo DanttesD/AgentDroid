@@ -16,7 +16,7 @@ class EnvironmentInstallTests(unittest.TestCase):
     def setUp(self):
         parent=ROOT/'.verification/environment-install-fixtures';parent.mkdir(parents=True,exist_ok=True)
         self.tmp=tempfile.TemporaryDirectory(dir=parent);self.root=Path(self.tmp.name)
-        (self.root/'bin').mkdir();(self.root/'bin/bash').symlink_to('/data/data/com.termux/files/usr/bin/bash' if sys.executable.startswith('/data/') else '/bin/bash')
+        (self.root/'bin').mkdir();(self.root/'bin/bash').symlink_to('/data/data/com.agentdroid/files/usr/bin/bash' if sys.executable.startswith('/data/') else '/bin/bash')
         self.script=self.root/'runtime.sh';self.cancel=self.root/('cancel-'+str(uuid.uuid4()))
         self.env=dict(os.environ,PREFIX=str(self.root),PYTHONDONTWRITEBYTECODE='1')
         self.processes=[]

@@ -76,6 +76,6 @@ class ArchTests(unittest.TestCase):
    capture=p/'calls'
    for name,text in {'dpkg-query':'echo "install ok installed"','virgl_test_server_android':'echo "--socket-path --angle-gl --angle-vulkan --multi-clients"','apt-get':'exit 81','proot-distro':'printf "%s\\n" "$*" >> "$CAPTURE"'}.items():
     f=bin/name;f.write_text('#!/bin/sh\n'+text+'\n');f.chmod(0o700)
-   f=p/'setup';f.write_text((ASSETS/'x11-virgl-setup.sh').read_text().replace('[[ $PREFIX == /data/data/com.termux/files/usr ]]','[[ $PREFIX == "$TEST_PREFIX" ]]'))
+   f=p/'setup';f.write_text((ASSETS/'x11-virgl-setup.sh').read_text().replace('[[ $PREFIX == /data/data/com.agentdroid/files/usr ]]','[[ $PREFIX == "$TEST_PREFIX" ]]'))
    r=subprocess.run(['bash',str(f),'install','archlinux',str(p)],env=dict(os.environ,PREFIX=str(prefix),TEST_PREFIX=str(prefix),CAPTURE=str(capture),PATH=str(bin)+':/usr/bin:/bin'),text=True,capture_output=True,timeout=4)
    self.assertEqual(0,r.returncode,r.stderr);self.assertIn('login archlinux --',capture.read_text());self.assertNotIn('ubuntu',capture.read_text());self.assertTrue(all(line.endswith('check archlinux none') for line in capture.read_text().splitlines()))

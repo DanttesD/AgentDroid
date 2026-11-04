@@ -74,7 +74,7 @@ class RendererEnvironmentTests(unittest.TestCase):
                 self.assertNotIn('JOBS_GPU_GLX=', r.stdout)
 
     def test_turnip_all_eight_targets_clear_virgl_and_select_their_pinned_icd(self):
-        components = {'termux': ('termux-mesa26.2.5', 'data/data/com.termux/files/usr/lib'),
+        components = {'termux': ('termux-mesa26.2.5', 'data/data/com.agentdroid/files/usr/lib'),
                       'ubuntu': ('ubuntu-26.04-mesa26.2.5', 'usr/lib/aarch64-linux-gnu'),
                       'debian': ('debian-13-mesa26.2.5', 'usr/lib/aarch64-linux-gnu'),
                       'alpine': ('alpine-3.24-mesa26.2.5', 'usr/lib'),

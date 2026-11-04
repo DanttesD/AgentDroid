@@ -50,12 +50,12 @@ class Live(unittest.TestCase):
   conf.lib.xfconf_channel_reset_property.assert_not_called()
  def test_native_xfconf_string_lifetime_and_scale_roundtrip(self):
   import subprocess,signal,textwrap
-  prefix=Path('/data/data/com.termux/files/usr');python=prefix/'bin/python3';bus=prefix/'bin/dbus-run-session'
+  prefix=Path('/data/data/com.agentdroid/files/usr');python=prefix/'bin/python3';bus=prefix/'bin/dbus-run-session'
   if not all(x.exists() for x in (python,bus,prefix/'lib/libxfconf-0.so')):self.skipTest('native Termux xfconf unavailable')
   with tempfile.TemporaryDirectory(dir=ROOT/'.verification') as d:
    base=Path(d)
    for n in ('home','tmp','run','cache','state','data'):(base/n).mkdir()
-   daemon=base/'private-daemon';daemon.write_text('#!/bin/sh\nexec /data/data/com.termux/files/usr/bin/dbus-daemon --address=unix:tmpdir="$SCALE_FIXTURE_TMP" "$@"\n');daemon.chmod(0o700)
+   daemon=base/'private-daemon';daemon.write_text('#!/bin/sh\nexec /data/data/com.agentdroid/files/usr/bin/dbus-daemon --address=unix:tmpdir="$SCALE_FIXTURE_TMP" "$@"\n');daemon.chmod(0o700)
    script=base/'check.py';script.write_text(textwrap.dedent("""
     import importlib.util,os
     from pathlib import Path

@@ -14,32 +14,32 @@ import static org.junit.Assert.*;
 @RunWith(RobolectricTestRunner.class) @Config(sdk=28)
 public class WorkspaceUpdatesTest {
     private JSONObject manifest()throws Exception{
-        return new JSONObject("{\"schema\":1,\"versionCode\":1056,\"versionName\":\"1.0.19\",\"packageId\":\"com.termux\",\"minSdk\":24,\"apk\":{\"abi\":\"arm64-v8a\",\"url\":\"https://github.com/HezeAI/termux-jobs/releases/download/v1.0.19/Termux-Jobs-v1.0.19-arm64.apk\",\"sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"size\":36000000},\"changes\":{\"ru\":[\"Обновления\"],\"en\":[\"Updates\"]}}");
+        return new JSONObject("{\"schema\":1,\"versionCode\":1056,\"versionName\":\"2.1.7\",\"packageId\":\"com.agentdroid\",\"minSdk\":24,\"apk\":{\"abi\":\"arm64-v8a\",\"url\":\"https://github.com/DanttesD/AgentDroid/releases/download/apk-2026.11.04-7/agentdroid-debug.apk\",\"sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"size\":36000000},\"changes\":{\"ru\":[\"Обновления\"],\"en\":[\"Updates\"]}}");
     }
     @Test public void releaseUsesVersionCodeAndLocalizedNotes()throws Exception{
-        WorkspaceUpdates.Release ru=new WorkspaceUpdates.Release(manifest(),"v1.0.19",true),en=new WorkspaceUpdates.Release(manifest(),"v1.0.19",false);
+        WorkspaceUpdates.Release ru=new WorkspaceUpdates.Release(manifest(),"apk-2026.11.04-7",true),en=new WorkspaceUpdates.Release(manifest(),"apk-2026.11.04-7",false);
         assertEquals(1056,ru.code);assertTrue(ru.notes.contains("Обновления"));assertTrue(en.notes.contains("Updates"));
     }
-    private void rejected(JSONObject m)throws Exception{try{new WorkspaceUpdates.Release(m,"v1.0.19",false);fail("Accepted unsafe manifest");}catch(java.io.IOException expected){}}
+    private void rejected(JSONObject m)throws Exception{try{new WorkspaceUpdates.Release(m,"apk-2026.11.04-7",false);fail("Accepted unsafe manifest");}catch(java.io.IOException expected){}}
     @Test public void rejectWrongPackageTagAbiHashAndOversizedDownload()throws Exception{
-        rejected(manifest().put("packageId","other.app"));rejected(manifest().put("versionName","1.0.20"));
+        rejected(manifest().put("packageId","other.app"));rejected(manifest().put("versionName","not-a-version"));try{new WorkspaceUpdates.Release(manifest(),"v1.0.19",false);fail("Accepted a foreign tag");}catch(java.io.IOException expected){}
         JSONObject m=manifest();m.getJSONObject("apk").put("abi","x86");rejected(m);
         m=manifest();m.getJSONObject("apk").put("sha256","bad");rejected(m);
         m=manifest();m.getJSONObject("apk").put("size",Long.MAX_VALUE);rejected(m);
         m=manifest();m.getJSONObject("apk").put("url","https://example.com/update.apk");rejected(m);
     }
     @Test public void assetsAreBoundToRepositoryTagAndExactName(){
-        String base=WorkspaceUpdates.DOWNLOAD+"v1.0.19/";assertTrue(WorkspaceUpdates.validAsset(base+"update.json","v1.0.19","update.json"));
-        assertFalse(WorkspaceUpdates.validAsset(base+"update.json?x=1","v1.0.19","update.json"));assertFalse(WorkspaceUpdates.validAsset(base+"update.json","../v1.0.19","update.json"));assertFalse(WorkspaceUpdates.validAsset(base.replace("https:","http:")+"update.json","v1.0.19","update.json"));
+        String base=WorkspaceUpdates.DOWNLOAD+"apk-2026.11.04-7/";assertTrue(WorkspaceUpdates.validAsset(base+"update.json","apk-2026.11.04-7","update.json"));
+        assertFalse(WorkspaceUpdates.validAsset(base+"update.json?x=1","apk-2026.11.04-7","update.json"));assertFalse(WorkspaceUpdates.validAsset(base+"update.json","../apk-2026.11.04-7","update.json"));assertFalse(WorkspaceUpdates.validAsset(base.replace("https:","http:")+"update.json","apk-2026.11.04-7","update.json"));
     }
     @Test public void signerSetMustMatchExactly(){
         Signature a=new Signature("aabb"),b=new Signature("ccdd");assertTrue(WorkspaceUpdates.sameSignatures(new Signature[]{a},new Signature[]{a}));
         assertFalse(WorkspaceUpdates.sameSignatures(new Signature[]{a},new Signature[]{b}));assertFalse(WorkspaceUpdates.sameSignatures(null,new Signature[]{a}));assertFalse(WorkspaceUpdates.sameSignatures(new Signature[0],new Signature[0]));assertFalse(WorkspaceUpdates.sameSignatures(new Signature[]{a},new Signature[]{a,b}));
     }
-    private PackageInfo pkg(int code){PackageInfo p=new PackageInfo();p.packageName="com.termux";p.versionName="1.0.19";p.setLongVersionCode(code);p.signatures=new Signature[]{new Signature("aabb")};p.applicationInfo=new ApplicationInfo();p.applicationInfo.minSdkVersion=24;return p;}
-    private void blocked(PackageInfo installed,PackageInfo apk)throws Exception{try{WorkspaceUpdates.validatePackage("com.termux",installed,apk,new WorkspaceUpdates.Release(manifest(),"v1.0.19",false),28);fail("Accepted unsafe APK");}catch(java.io.IOException expected){}}
+    private PackageInfo pkg(int code){PackageInfo p=new PackageInfo();p.packageName="com.agentdroid";p.versionName="2.1.7";p.setLongVersionCode(code);p.signatures=new Signature[]{new Signature("aabb")};p.applicationInfo=new ApplicationInfo();p.applicationInfo.minSdkVersion=24;return p;}
+    private void blocked(PackageInfo installed,PackageInfo apk)throws Exception{try{WorkspaceUpdates.validatePackage("com.agentdroid",installed,apk,new WorkspaceUpdates.Release(manifest(),"apk-2026.11.04-7",false),28);fail("Accepted unsafe APK");}catch(java.io.IOException expected){}}
     @Test public void apkMustMatchManifestInstalledPackageSignerAndUpgradeVersion()throws Exception{
-        PackageInfo installed=pkg(1055),apk=pkg(1056);WorkspaceUpdates.validatePackage("com.termux",installed,apk,new WorkspaceUpdates.Release(manifest(),"v1.0.19",false),28);
+        PackageInfo installed=pkg(1055),apk=pkg(1056);WorkspaceUpdates.validatePackage("com.agentdroid",installed,apk,new WorkspaceUpdates.Release(manifest(),"apk-2026.11.04-7",false),28);
         blocked(pkg(1056),apk);blocked(pkg(1057),apk);blocked(installed,null);
         apk=pkg(1056);apk.packageName="other.app";blocked(installed,apk);
         apk=pkg(1056);apk.signatures=new Signature[]{new Signature("ccdd")};blocked(installed,apk);

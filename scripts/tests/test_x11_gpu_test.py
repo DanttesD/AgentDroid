@@ -53,7 +53,7 @@ class GpuTest(unittest.TestCase):
   pkgs={'python','libx11','mesa','libc++'}
   class Helper:
    def prepare(_,home,target):setup.prepare(self.home,target)
-  with patch.dict(os.environ,{'JOBS_X11_NATIVE_TARGET':'termux','PREFIX':'/data/data/com.termux/files/usr'}),patch.object(native.sys,'argv',['helper','install','gpu-test']),patch.object(native.Path,'home',return_value=Path('/data/data/com.termux/files/home')),patch.object(native,'installed',return_value=pkgs),patch.object(native,'load',return_value=Helper()),patch.object(native,'run',side_effect=AssertionError('network transaction')),patch.object(native,'main_check') as check:
+  with patch.dict(os.environ,{'JOBS_X11_NATIVE_TARGET':'termux','PREFIX':'/data/data/com.agentdroid/files/usr'}),patch.object(native.sys,'argv',['helper','install','gpu-test']),patch.object(native.Path,'home',return_value=Path('/data/data/com.agentdroid/files/home')),patch.object(native,'installed',return_value=pkgs),patch.object(native,'load',return_value=Helper()),patch.object(native,'run',side_effect=AssertionError('network transaction')),patch.object(native,'main_check') as check:
    native.main();check.assert_called_once_with('termux')
   self.assertTrue(setup.ready(self.home))
  def test_missing_runtime_dependency_requires_normal_transaction(self):
