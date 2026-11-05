@@ -224,3 +224,9 @@ CI run #3 (51 min, got much further: apt, bash, libbz2 etc. built) failed on `co
 - ADB console, Accounts and MCP screens restyled (cards, rounded buttons); MCP grouped into four cards.
 - Web chat mode hides the status chips and shows "Веб-аккаунт в браузере" in the header pill.
 - Still open: chat ⋮ menu duplicates tabs, workspace screens (home/commands/terminal top bar) keep the old layout, no storage card, no approval card.
+
+## Браузер: совместимость (шаг 8)
+- UA без "; wv", "Version/4.0" и Build-id; автозапуск медиа, зум, mixed content.
+- Разрешения сайта на микрофон/камеру (WebRTC) с запросом Android-разрешений; CAMERA в манифесте.
+- Полноэкранное видео, загрузки через DownloadManager.
+- Балл 55 на trust-ip определяется IP хостинга прокси (AS59642), а не браузером.

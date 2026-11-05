@@ -19,6 +19,8 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.webkit.PermissionRequest;
+import android.view.View;
 import android.widget.FrameLayout;
 
 /**
@@ -76,7 +78,14 @@ public final class BrowserHelper {
         st.setJavaScriptCanOpenWindowsAutomatically(true);
         st.setAllowContentAccess(true);
         // Sites (notably Google sign-in) refuse the "; wv" embedded-WebView marker.
-        st.setUserAgentString(st.getUserAgentString().replace("; wv", ""));
+        st.setUserAgentString(cleanUserAgent(st.getUserAgentString()));
+        st.setMediaPlaybackRequiresUserGesture(false);
+        st.setSupportZoom(true);
+        st.setBuiltInZoomControls(true);
+        st.setDisplayZoomControls(false);
+        st.setUseWideViewPort(true);
+        st.setMixedContentMode(WebSettings.MIXED_CONTENT_COMPATIBILITY_MODE);
+        w.setDownloadListener((url, ua, cd, mime, len) -> download(url, ua, cd, mime));
         CookieManager.getInstance().setAcceptCookie(true);
         CookieManager.getInstance().setAcceptThirdPartyCookies(w, true);
         w.setWebViewClient(new WebViewClient() {
@@ -85,6 +94,14 @@ public final class BrowserHelper {
             }
         });
         w.setWebChromeClient(new WebChromeClient() {
+            @Override public void onPermissionRequest(final PermissionRequest request) {
+                activity.runOnUiThread(() -> handlePermission(request));
+            }
+
+            @Override public void onShowCustomView(View view, CustomViewCallback cb) { showFullscreen(view, cb); }
+
+            @Override public void onHideCustomView() { hideFullscreen(); }
+
             @Override public boolean onCreateWindow(WebView view, boolean isDialog, boolean isUserGesture, Message resultMsg) {
                 closePopup();
                 popup = create(profile);
@@ -113,9 +130,92 @@ public final class BrowserHelper {
         return w;
     }
 
-    public boolean hasPopup() { return popup != null; }
+    // ---- site permissions (camera and microphone for voice and video features) ----
+    public static final int REQ_MEDIA = 4712;
+    private PermissionRequest pendingMedia;
+    private String[] pendingAndroid;
+
+    private void handlePermission(PermissionRequest request) {
+        List<String> needed = new ArrayList<>();
+        List<String> grant = new ArrayList<>();
+        for (String r : request.getResources()) {
+            if (PermissionRequest.RESOURCE_AUDIO_CAPTURE.equals(r)) { needed.add(android.Manifest.permission.RECORD_AUDIO); grant.add(r); }
+            else if (PermissionRequest.RESOURCE_VIDEO_CAPTURE.equals(r)) { needed.add(android.Manifest.permission.CAMERA); grant.add(r); }
+        }
+        if (grant.isEmpty()) { request.deny(); return; }
+        List<String> missing = new ArrayList<>();
+        for (String perm : needed) {
+            if (Build.VERSION.SDK_INT >= 23 && activity.checkSelfPermission(perm) != android.content.pm.PackageManager.PERMISSION_GRANTED) missing.add(perm);
+        }
+        if (missing.isEmpty()) { request.grant(grant.toArray(new String[0])); return; }
+        if (pendingMedia != null) pendingMedia.deny();
+        pendingMedia = request;
+        pendingAndroid = grant.toArray(new String[0]);
+        activity.requestPermissions(missing.toArray(new String[0]), REQ_MEDIA);
+    }
+
+    /** Forward from the host activity's onRequestPermissionsResult. */
+    public boolean onRequestPermissionsResult(int requestCode, String[] perms, int[] results) {
+        if (requestCode != REQ_MEDIA) return false;
+        if (pendingMedia != null) {
+            boolean ok = results.length > 0;
+            for (int r : results) if (r != android.content.pm.PackageManager.PERMISSION_GRANTED) ok = false;
+            if (ok) pendingMedia.grant(pendingAndroid); else pendingMedia.deny();
+            pendingMedia = null;
+        }
+        return true;
+    }
+
+    // ---- full-screen video ----
+    private View customView;
+    private WebChromeClient.CustomViewCallback customCallback;
+
+    private void showFullscreen(View view, WebChromeClient.CustomViewCallback cb) {
+        if (customView != null) { cb.onCustomViewHidden(); return; }
+        customView = view;
+        customCallback = cb;
+        view.setBackgroundColor(0xFF000000);
+        popupHost.addView(view, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+    }
+
+    public boolean hideFullscreen() {
+        if (customView == null) return false;
+        popupHost.removeView(customView);
+        customView = null;
+        if (customCallback != null) customCallback.onCustomViewHidden();
+        customCallback = null;
+        return true;
+    }
+
+    // ---- downloads ----
+    private void download(String url, String ua, String cd, String mime) {
+        try {
+            android.app.DownloadManager.Request r = new android.app.DownloadManager.Request(Uri.parse(url));
+            String name = android.webkit.URLUtil.guessFileName(url, cd, mime);
+            r.setMimeType(mime);
+            r.addRequestHeader("User-Agent", ua);
+            String cookie = CookieManager.getInstance().getCookie(url);
+            if (cookie != null) r.addRequestHeader("Cookie", cookie);
+            r.setNotificationVisibility(android.app.DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+            r.setDestinationInExternalPublicDir(android.os.Environment.DIRECTORY_DOWNLOADS, name);
+            ((android.app.DownloadManager) activity.getSystemService(Activity.DOWNLOAD_SERVICE)).enqueue(r);
+            android.widget.Toast.makeText(activity, name, android.widget.Toast.LENGTH_SHORT).show();
+        } catch (RuntimeException e) {
+            try { activity.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url))); } catch (RuntimeException ignored) { }
+        }
+    }
+
+    /** The WebView user agent as a plain mobile Chrome one: no "; wv" marker, no "Version/x.y" token, no build id. */
+    static String cleanUserAgent(String ua) {
+        String s = ua.replace("; wv", "").replace(" Version/4.0", "");
+        return s.replaceAll("; Build/[^;)]*", "");
+    }
+
+    public boolean hasPopup() {
+        if (customView != null) return true; return popup != null; }
 
     public void closePopup() {
+        if (hideFullscreen()) return;
         if (popup != null) {
             popupHost.removeView(popup);
             popup.destroy();
