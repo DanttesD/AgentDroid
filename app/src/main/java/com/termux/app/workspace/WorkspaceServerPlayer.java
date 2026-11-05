@@ -22,9 +22,9 @@ final class WorkspaceServerPlayer implements AutoCloseable {
         if(!validUrl(url))throw new IllegalArgumentException("INVALID_MEDIA_URL");this.stopped=stopped;
         boolean ru=WorkspaceLanguage.code(activity).equals("ru");
         dialog=new Dialog(activity,android.R.style.Theme_Material_NoActionBar);LinearLayout root=new LinearLayout(activity);root.setOrientation(LinearLayout.VERTICAL);root.setBackgroundColor(Color.BLACK);
-        TextView title=new TextView(activity);title.setText(name);title.setTextColor(WorkspaceDialogs.TEXT);title.setTextSize(15);title.setPadding(16,12,16,12);root.addView(title);
+        TextView title=new TextView(activity);title.setText(name);title.setTextColor(Pal.TEXT);title.setTextSize(15);title.setPadding(16,12,16,12);root.addView(title);
         view=new PlayerView(activity);root.addView(view,new LinearLayout.LayoutParams(-1,0,1));
-        TextView error=new TextView(activity);error.setTextSize(12);error.setTextIsSelectable(true);error.setPadding(12,8,12,8);error.setTextColor(WorkspaceDialogs.DANGER);error.setVisibility(View.GONE);root.addView(error);
+        TextView error=new TextView(activity);error.setTextSize(12);error.setTextIsSelectable(true);error.setPadding(12,8,12,8);error.setTextColor(Pal.DANGER);error.setVisibility(View.GONE);root.addView(error);
         LinearLayout actions=new LinearLayout(activity);root.addView(actions);
         Button exit=new Button(activity);exit.setText(ru?"Закрыть":"Close");actions.addView(exit,new LinearLayout.LayoutParams(0,-2,1));exit.setOnClickListener(v->close());
         Button other=new Button(activity);other.setText(ru?"Внешний плеер":"External player");actions.addView(other,new LinearLayout.LayoutParams(0,-2,1));other.setOnClickListener(v->{handedOff=true;close();external.run();});

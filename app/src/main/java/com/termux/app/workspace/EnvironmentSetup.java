@@ -96,25 +96,25 @@ final class EnvironmentSetup implements AutoCloseable {
                 FrameLayout outer=new FrameLayout(activity);outer.setPadding(gap*2,gap/2,gap*2,gap/2);
                 LinearLayout card=new LinearLayout(activity);card.setOrientation(LinearLayout.VERTICAL);card.setPadding(gap*2,gap,gap,gap);card.setBackground(WorkspaceDialogs.background(activity,false));
                 LinearLayout row=new LinearLayout(activity);row.setGravity(Gravity.CENTER_VERTICAL);
-                TextView label=new TextView(activity);label.setText(choice.label);label.setTextSize(15);label.setTextColor(WorkspaceDialogs.TEXT);label.setMaxLines(2);
+                TextView label=new TextView(activity);label.setText(choice.label);label.setTextSize(15);label.setTextColor(Pal.TEXT);label.setMaxLines(2);
                 LinearLayout labels=new LinearLayout(activity);labels.setOrientation(LinearLayout.VERTICAL);labels.addView(label);
-                if(choice.alias.equals("ubuntu-ai")){TextView subtitle=new TextView(activity);subtitle.setText(t("Используется для AI-агентов","Used for AI agents"));subtitle.setTextSize(12);subtitle.setTextColor(WorkspaceDialogs.MUTED);labels.addView(subtitle);}
+                if(choice.alias.equals("ubuntu-ai")){TextView subtitle=new TextView(activity);subtitle.setText(t("Используется для AI-агентов","Used for AI agents"));subtitle.setTextSize(12);subtitle.setTextColor(Pal.MUTED);labels.addView(subtitle);}
                 row.addView(labels,new LinearLayout.LayoutParams(0,-2,1));
                 TextView more=WorkspaceDialogs.action(activity,t("Подробнее","Details"),0);more.setTextSize(12);more.setGravity(Gravity.CENTER);more.setMinHeight(WorkspaceDialogs.dp(activity,44));more.setPadding(gap/2,gap,gap/2,gap);more.setTag("environment-install-details-"+choice.alias);
                 row.addView(more,new LinearLayout.LayoutParams(-2,-2));more.setOnClickListener(v->showInstallLog(choice));
                 TextView badge=WorkspaceDialogs.action(activity,"",0);badge.setTextSize(12);badge.setGravity(Gravity.CENTER);badge.setMinHeight(WorkspaceDialogs.dp(activity,44));badge.setPadding(gap,gap,gap,gap);badge.setTag("environment-install-"+choice.alias);
                 LinearLayout.LayoutParams badgeParams=new LinearLayout.LayoutParams(-2,-2);badgeParams.leftMargin=gap;row.addView(badge,badgeParams);badge.setOnClickListener(v->offerInstall(choice));
-                WorkspaceIconButton trash=new WorkspaceIconButton(activity);trash.setIcon(activity.getDrawable(com.termux.R.drawable.workspace_delete).mutate(),WorkspaceDialogs.dp(activity,20));trash.setTextColor(0xffff8888);trash.setFocusable(false);trash.setFocusableInTouchMode(false);trash.setContentDescription(t("Удалить ","Delete ")+choice.label);
+                WorkspaceIconButton trash=new WorkspaceIconButton(activity);trash.setIcon(activity.getDrawable(com.termux.R.drawable.workspace_delete).mutate(),WorkspaceDialogs.dp(activity,20));trash.setTextColor(Pal.DANGER);trash.setFocusable(false);trash.setFocusableInTouchMode(false);trash.setContentDescription(t("Удалить ","Delete ")+choice.label);
                 row.addView(trash,new LinearLayout.LayoutParams(gap*6,gap*6));
                 trash.setOnClickListener(v->{if(removal!=null)removal.accept(choice,()->{installations.remove(choice.alias);choices.clear();choices.addAll(inventory.get());notifyDataSetChanged();});});
                 card.addView(row);LinearLayout detail=new LinearLayout(activity);detail.setOrientation(LinearLayout.VERTICAL);detail.setTag("environment-progress-"+choice.alias);
                 ProgressBar bar=new ProgressBar(activity,null,android.R.attr.progressBarStyleHorizontal);bar.setMax(100);detail.addView(bar,new LinearLayout.LayoutParams(-1,WorkspaceDialogs.dp(activity,10)));
-                TextView remaining=new TextView(activity);remaining.setTextColor(WorkspaceDialogs.MUTED);remaining.setTextSize(12);detail.addView(remaining);
-                TextView line=new TextView(activity);line.setTextSize(11);line.setTextColor(WorkspaceDialogs.MUTED);line.setSingleLine(true);line.setEllipsize(android.text.TextUtils.TruncateAt.MARQUEE);line.setMarqueeRepeatLimit(-1);detail.addView(line);card.addView(detail);
+                TextView remaining=new TextView(activity);remaining.setTextColor(Pal.MUTED);remaining.setTextSize(12);detail.addView(remaining);
+                TextView line=new TextView(activity);line.setTextSize(11);line.setTextColor(Pal.MUTED);line.setSingleLine(true);line.setEllipsize(android.text.TextUtils.TruncateAt.MARQUEE);line.setMarqueeRepeatLimit(-1);detail.addView(line);card.addView(detail);
                 Runnable update=()->{
                     InstallJob job=installations.get(choice.alias);boolean active=job!=null&&job.active,ready=installed(choice);
                     more.setVisibility(!active&&!ready&&(job!=null&&!job.log.isEmpty()||EnvironmentInstallLog.exists(activity.getFilesDir(),choice.alias))?View.VISIBLE:View.GONE);
-                    badge.setText(active?(job.stopping?t("Остановка…","Stopping…"):t("Стоп","Stop")):ready?t("Установлено","Installed"):resumable(choice.alias)?t("Продолжить","Resume"):t("Установить","Install"));badge.setEnabled(!ready&&(!active||!job.stopping));badge.setTextColor(ready?WorkspaceDialogs.MUTED:WorkspaceDialogs.ACCENT);badge.setAlpha(ready?.6f:1f);
+                    badge.setText(active?(job.stopping?t("Остановка…","Stopping…"):t("Стоп","Stop")):ready?t("Установлено","Installed"):resumable(choice.alias)?t("Продолжить","Resume"):t("Установить","Install"));badge.setEnabled(!ready&&(!active||!job.stopping));badge.setTextColor(ready?Pal.MUTED:Pal.ACCENT);badge.setAlpha(ready?.6f:1f);
                     trash.setVisibility((ready||choice.installed)&&!active&&!choice.alias.isEmpty()&&removal!=null?View.VISIBLE:View.GONE);
                     detail.setVisibility(job!=null&&!job.success?View.VISIBLE:View.GONE);bar.setVisibility(active?View.VISIBLE:View.GONE);line.setSelected(active);
                     if(job!=null){int percent=job.progress.percent;bar.setIndeterminate(percent<0);if(percent>=0)bar.setProgress(percent);
@@ -157,7 +157,7 @@ final class EnvironmentSetup implements AutoCloseable {
         if(closed||running)return;running=true;
         LinearLayout box=new LinearLayout(activity);box.setOrientation(LinearLayout.VERTICAL);int pad=Math.round(16*activity.getResources().getDisplayMetrics().density);box.setPadding(pad,pad,pad,pad);
         ProgressBar spinner=new ProgressBar(activity,null,android.R.attr.progressBarStyleHorizontal);spinner.setIndeterminate(true);box.addView(spinner);
-        TextView text=new TextView(activity);text.setTextColor(0xffd5e4e0);text.setTextSize(13);text.setText(t("Проверка компонентов…","Checking components…"));box.addView(text);
+        TextView text=new TextView(activity);text.setTextColor(Pal.TEXT2);text.setTextSize(13);text.setText(t("Проверка компонентов…","Checking components…"));box.addView(text);
         AlertDialog wait=WorkspaceDialogs.builder(activity).setTitle((install?t("Установка · ","Installing · "):t("Проверка среды запуска · ","Launch environment check · "))+(alias.equals("agent-migration-tools")?t("Компоненты миграции","Migration components"):WorkspaceEnvironments.label(alias))).setView(box).setPositiveButton(t("Назад","Back"),null).create();progress=wait;wait.setCancelable(false);wait.setCanceledOnTouchOutside(false);wait.show();wait.getButton(-1).setEnabled(false);
         worker.execute(()->{Result result;try{result=execute(alias,install,line->main.post(()->{if(!closed&&progress==wait&&wait.isShowing())text.setText(line);}));}catch(Exception failure){result=new Result("ERROR:SETUP_FAILED",1);}Result answer=result;
             boolean environmentInstall=install&&!alias.equals("agent-migration-tools");if(environmentInstall)storeInstallLog(alias,answer);

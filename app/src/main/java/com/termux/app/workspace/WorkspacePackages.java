@@ -25,7 +25,7 @@ final class WorkspacePackages implements AutoCloseable {
     private String tr(String ru,String en){return WorkspaceLanguage.code(activity).equals("ru")?ru:en;}
     private int dp(int n){return WorkspaceDialogs.dp(activity,n);}
     private LinearLayout column(){LinearLayout v=new LinearLayout(activity);v.setOrientation(LinearLayout.VERTICAL);return v;}
-    private TextView text(String value,int size){TextView t=new TextView(activity);t.setText(value);t.setTextColor(WorkspaceDialogs.TEXT);t.setTextSize(size);return t;}
+    private TextView text(String value,int size){TextView t=new TextView(activity);t.setText(value);t.setTextColor(Pal.TEXT);t.setTextSize(size);return t;}
     private TextView action(String label,Runnable run){TextView t=WorkspaceDialogs.action(activity,label,0);t.setOnClickListener(v->run.run());return t;}
     static TextView compactAction(android.content.Context context,String label,Runnable run){
         TextView view=WorkspaceDialogs.action(context,label,0);view.setGravity(Gravity.CENTER);view.setSingleLine(true);
@@ -39,7 +39,7 @@ final class WorkspacePackages implements AutoCloseable {
         body.addView(text(WorkspaceText.tr("Сессия: ")+files.profile.name,12));
         body.addView(text(WorkspaceText.tr("Установленные пакеты сохраняются в выбранном окружении и доступны всем его сессиям. Закрытие сессии без сохранения не удаляет пакеты."),12));
         tabs=new LinearLayout(activity);tabs.setGravity(Gravity.CENTER_VERTICAL);body.addView(tabs);renderTabs();
-        search=new EditText(activity);search.setSingleLine(true);search.setTextColor(WorkspaceDialogs.TEXT);search.setHintTextColor(WorkspaceDialogs.MUTED);search.setHint(WorkspaceText.tr("Поиск пакетов"));body.addView(search);
+        search=new EditText(activity);search.setSingleLine(true);search.setTextColor(Pal.TEXT);search.setHintTextColor(Pal.MUTED);search.setHint(WorkspaceText.tr("Поиск пакетов"));body.addView(search);
         search.addTextChangedListener(new TextWatcher(){public void beforeTextChanged(CharSequence s,int st,int c,int a){}public void onTextChanged(CharSequence s,int st,int before,int count){limit=100;render();}public void afterTextChanged(Editable e){}});
         catalogHint=text(WorkspaceLanguage.code(activity).equals("ru")?"Пакеты выбранного окружения. Для свежих данных обновите каталог.":"Packages in the selected environment. Refresh the catalogue for current metadata.",12);body.addView(catalogHint);
         LinearLayout controls=new LinearLayout(activity);controls.addView(compactAction(activity,WorkspaceText.tr("Перечитать список"),this::load),compactParams());refreshButton=compactAction(activity,WorkspaceText.tr("Обновить каталог"),()->confirm("refresh",null));controls.addView(refreshButton,compactParams());body.addView(controls);
@@ -136,15 +136,15 @@ final class WorkspacePackages implements AutoCloseable {
         body.addView(text(command,14));
         if(selectedVersion!=null){
             body.addView(text(selectedVersion.label(),13));
-            TextView warning=text(tr("Выбрана точная версия. Она может быть старее установленной; зависимости могут измениться. Менеджер покажет план в терминале и запросит подтверждение. Если версия исчезла из репозитория, установка завершится ошибкой.","An exact version is selected. It may be older than the installed one and dependencies may change. The manager will show its plan in the terminal and ask for confirmation. Installation will fail if the version is no longer in the repository."),13);warning.setTextColor(WorkspaceDialogs.DANGER);body.addView(warning);
+            TextView warning=text(tr("Выбрана точная версия. Она может быть старее установленной; зависимости могут измениться. Менеджер покажет план в терминале и запросит подтверждение. Если версия исчезла из репозитория, установка завершится ошибкой.","An exact version is selected. It may be older than the installed one and dependencies may change. The manager will show its plan in the terminal and ask for confirmation. Installation will fail if the version is no longer in the repository."),13);warning.setTextColor(Pal.DANGER);body.addView(warning);
             if(backend==EnvironmentPackages.Kind.APK)body.addView(text(tr("Alpine сохранит ограничение на эту версию в world. Последующие обновления пакета могут потребовать снять это ограничение.","Alpine records this exact-version constraint in world. Future package upgrades may require removing the constraint."),13));
         }
         if(backend==EnvironmentPackages.Kind.PACMAN&&!action.equals("remove"))body.addView(text(WorkspaceLanguage.code(activity).equals("ru")?"Pacman выполнит полное обновление окружения вместе с выбранным действием. Частичные обновления Arch не поддерживает; проверьте план перед подтверждением.":"Pacman performs a full environment upgrade with this action. Arch does not support partial upgrades; review the plan before confirming.",13));
-        if(action.equals("version")&&entry.downgrade){TextView warning=text(WorkspaceText.tr("Выбрана более старая версия. Понижение может потребовать изменения зависимостей; проверьте план APT перед подтверждением."),13);warning.setTextColor(WorkspaceDialogs.DANGER);body.addView(warning);}
+        if(action.equals("version")&&entry.downgrade){TextView warning=text(WorkspaceText.tr("Выбрана более старая версия. Понижение может потребовать изменения зависимостей; проверьте план APT перед подтверждением."),13);warning.setTextColor(Pal.DANGER);body.addView(warning);}
         body.addView(text(tr("В выбранной сессии должна быть свободная оболочка без незавершённого ввода. Если работает агент или выполняется команда, выберите новую сессию того же окружения. Пользователь сам проверяет, свободна ли оболочка.","The selected session must have an idle shell with no unfinished input. If an agent or command is running, choose a new session in the same environment. Check that the shell is idle yourself."),13));
         RadioGroup choices=new RadioGroup(activity);
-        RadioButton selected=new RadioButton(activity);selected.setId(android.view.View.generateViewId());selected.setText(WorkspaceText.tr("В выбранной сессии"));selected.setTextColor(WorkspaceDialogs.TEXT);choices.addView(selected);
-        RadioButton separate=new RadioButton(activity);separate.setId(android.view.View.generateViewId());separate.setText(WorkspaceText.tr("В новой сессии того же окружения"));separate.setTextColor(WorkspaceDialogs.TEXT);choices.addView(separate);
+        RadioButton selected=new RadioButton(activity);selected.setId(android.view.View.generateViewId());selected.setText(WorkspaceText.tr("В выбранной сессии"));selected.setTextColor(Pal.TEXT);choices.addView(selected);
+        RadioButton separate=new RadioButton(activity);separate.setId(android.view.View.generateViewId());separate.setText(WorkspaceText.tr("В новой сессии того же окружения"));separate.setTextColor(Pal.TEXT);choices.addView(separate);
         choices.check(selected.getId());body.addView(choices);
         ScrollView scroll=new ScrollView(activity);scroll.addView(body);
         WorkspaceDialogs.builder(activity).setTitle(WorkspaceText.tr("Пакеты · ")+ProjectFiles.environmentLabel(files.profile)).setView(scroll)

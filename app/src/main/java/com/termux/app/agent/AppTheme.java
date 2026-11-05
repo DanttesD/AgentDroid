@@ -52,6 +52,11 @@ public final class AppTheme {
 
     public static ThemeColors colors(Context c) { return ThemeColors.of(hue(c), isDark(c), amoled(c)); }
 
+    /** Changes whenever the visible palette changes (settings, system dark mode, wallpaper hue). */
+    public static String signature(Context c) {
+        return mode(c) + "/" + isDark(c) + "/" + amoled(c) + "/" + Math.round(hue(c));
+    }
+
     /** Window background and system bars in the palette; call at the start of onCreate. */
     public static ThemeColors apply(Activity a) {
         ThemeColors t = colors(a);

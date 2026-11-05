@@ -25,9 +25,9 @@ final class WorkspaceBackupUi {
     private void backupCreated(JSONObject result){message(t("Бэкап создан и проверен","Backup created and verified")+"\n"+result.optString("path"));}
     private void message(String text){if(!activity.isDestroyed())backupBuilder(activity).setTitle(label(activity)).setMessage(text).setPositiveButton("OK",null).show();}
     private LinearLayout column(){LinearLayout v=new LinearLayout(activity);v.setOrientation(LinearLayout.VERTICAL);int d=WorkspaceDialogs.dp(activity,16);v.setPadding(d,d,d,d);return v;}
-    private void info(LinearLayout form,String value){TextView v=new TextView(activity);v.setText(value);v.setTextColor(WorkspaceDialogs.TEXT);v.setTextSize(14);v.setPadding(0,8,0,12);form.addView(v);}
-    private CheckBox check(LinearLayout form,String value,boolean selected){CheckBox b=new CheckBox(activity);b.setText(value);b.setTextColor(WorkspaceDialogs.TEXT);b.setChecked(selected);form.addView(b);return b;}
-    private EditText field(LinearLayout form,String value,String hint){EditText e=new EditText(activity);e.setSingleLine();e.setText(value);e.setHint(hint);e.setTextColor(WorkspaceDialogs.TEXT);e.setSelectAllOnFocus(true);form.addView(e);return e;}
+    private void info(LinearLayout form,String value){TextView v=new TextView(activity);v.setText(value);v.setTextColor(Pal.TEXT);v.setTextSize(14);v.setPadding(0,8,0,12);form.addView(v);}
+    private CheckBox check(LinearLayout form,String value,boolean selected){CheckBox b=new CheckBox(activity);b.setText(value);b.setTextColor(Pal.TEXT);b.setChecked(selected);form.addView(b);return b;}
+    private EditText field(LinearLayout form,String value,String hint){EditText e=new EditText(activity);e.setSingleLine();e.setText(value);e.setHint(hint);e.setTextColor(Pal.TEXT);e.setSelectAllOnFocus(true);form.addView(e);return e;}
     private void action(LinearLayout form,String title,Runnable click){TextView b=WorkspaceDialogs.action(activity,title,0);b.setOnClickListener(v->click.run());LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(-1,-2);p.bottomMargin=WorkspaceDialogs.dp(activity,8);form.addView(b,p);}
     private ScrollView scroll(LinearLayout form){ScrollView s=new ScrollView(activity);s.setFillViewport(false);s.addView(form);return s;}
     private String compressionName(){return compressionEngine+" · "+compressionThreads+t(compressionThreads==1?" поток":" потока",compressionThreads==1?" thread":" threads");}

@@ -51,7 +51,7 @@ final class DesktopExtraKeys {
         dialog.show();anchor.addOnAttachStateChangeListener(attachment);anchor.getViewTreeObserver().addOnPreDrawListener(layout);position();changed.run();
     }
     private TextView button(KeyGrid row,String label){
-        TextView button=new KeyButton(activity);button.setText(label);button.setTextSize(12);button.setSingleLine(true);button.setIncludeFontPadding(false);button.setTextColor(WorkspaceDialogs.TEXT);button.setGravity(Gravity.CENTER);button.setFocusable(false);button.setContentDescription(label);
+        TextView button=new KeyButton(activity);button.setText(label);button.setTextSize(12);button.setSingleLine(true);button.setIncludeFontPadding(false);button.setTextColor(Pal.TEXT);button.setGravity(Gravity.CENTER);button.setFocusable(false);button.setContentDescription(label);
         button.setBackground(WorkspaceDialogs.background(activity,false));row.addView(button);return button;
     }
     private void key(KeyGrid row,String label,int code,boolean modifier,X11ExtraKeys.Sink sink){
@@ -98,7 +98,7 @@ final class DesktopExtraKeys {
             setBackground(WorkspaceDialogs.background(activity,false));
         }
         @Override protected void onDraw(Canvas canvas){
-            super.onDraw(canvas);paint.setColor(WorkspaceDialogs.TEXT);paint.setStrokeWidth(dp(1));paint.setStrokeCap(Paint.Cap.ROUND);
+            super.onDraw(canvas);paint.setColor(Pal.TEXT);paint.setStrokeWidth(dp(1));paint.setStrokeCap(Paint.Cap.ROUND);
             float x=getWidth()/2f,y=getHeight()/2f,r=dp(7),a=dp(3);
             if(resize){
                 canvas.drawLine(x-r,y+r,x+r,y-r,paint);

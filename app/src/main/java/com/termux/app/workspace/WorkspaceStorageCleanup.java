@@ -31,7 +31,7 @@ final class WorkspaceStorageCleanup {
         try{int end=stat.lastIndexOf(')');String[] fields=stat.substring(end+1).trim().split("\\s+");int pgrp=Integer.parseInt(fields[2]),foreground=Integer.parseInt(fields[5]);return end>0&&pgrp>0&&pgrp==foreground;}catch(Exception invalid){return false;}
     }
     private LinearLayout column(){LinearLayout v=new LinearLayout(activity);v.setOrientation(LinearLayout.VERTICAL);int p=WorkspaceDialogs.dp(activity,16);v.setPadding(p,0,p,p);return v;}
-    private TextView info(LinearLayout body,String value){TextView v=new TextView(activity);v.setText(value);v.setTextColor(WorkspaceDialogs.TEXT);v.setTextSize(13);body.addView(v);return v;}
+    private TextView info(LinearLayout body,String value){TextView v=new TextView(activity);v.setText(value);v.setTextColor(Pal.TEXT);v.setTextSize(13);body.addView(v);return v;}
     private void action(LinearLayout body,String value,Runnable click){TextView v=WorkspaceDialogs.action(activity,value,0);v.setOnClickListener(w->click.run());body.addView(v);}
     private ScrollView scroll(LinearLayout body){ScrollView s=new ScrollView(activity);s.addView(body);return s;}
     private String size(long bytes){return android.text.format.Formatter.formatFileSize(activity,Math.max(0,bytes));}
@@ -106,7 +106,7 @@ final class WorkspaceStorageCleanup {
         if(groups!=null)for(int i=0;i<groups.length();i++){
             JSONObject group=groups.optJSONObject(i);if(group==null)continue;
             boolean environment=group.optString("kind").equals("environment");
-            CheckBox box=new CheckBox(activity);box.setTextColor(WorkspaceDialogs.TEXT);
+            CheckBox box=new CheckBox(activity);box.setTextColor(Pal.TEXT);
             box.setText(kind(group)+"\n"+size(group.optLong("bytes"))+(environment?t(" · включая HOME, программы и настройки"," · including HOME, programs and settings"):" · "+group.optInt("count")+t(" файлов"," files"))+"\n"+group.optString("path")+(!group.optBoolean("selectable",true)?"\n"+t("Нужен proot-distro с блокировкой используемых сред","Requires proot-distro with active-environment locking"):""));
             box.setEnabled(group.optBoolean("selectable",true));body.addView(box);values.add(group);checks.add(box);box.setOnCheckedChangeListener((v,checked)->update.run());
         }
@@ -185,7 +185,7 @@ final class WorkspaceStorageCleanup {
             JSONObject e=entries.optJSONObject(i);if(e==null)continue;
             String text=e.optString("name")+" · "+size(e.optLong("bytes"))+" · "+e.optLong("count")+t(" файлов"," files")+(e.optLong("unreadable")>0?t(" · часть недоступна"," · partially unreadable"):"");
             if(!removable){info(body,text);continue;}
-            CheckBox check=new CheckBox(activity);check.setTextColor(WorkspaceDialogs.TEXT);check.setText(text);check.setEnabled(e.optJSONArray("identity")!=null&&e.optLong("unreadable")==0);body.addView(check);values.add(e);checks.add(check);
+            CheckBox check=new CheckBox(activity);check.setTextColor(Pal.TEXT);check.setText(text);check.setEnabled(e.optJSONArray("identity")!=null&&e.optLong("unreadable")==0);body.addView(check);values.add(e);checks.add(check);
         }
         if(entries==null||entries.length()==0)info(body,t("Пусто","Empty"));
         AlertDialog.Builder builder=WorkspaceDialogs.builder(activity).blockOutsideDismiss().setTitle(title).setView(scroll(body)).setNegativeButton(t("Отмена","Cancel"),null);
@@ -241,7 +241,7 @@ final class WorkspaceStorageCleanup {
             for(int i=0;i<all.length();i++){
                 JSONObject e=all.optJSONObject(i);String id=key.equals("recentCommands")?Integer.toString(i):e==null?"":e.optString("id");
                 if(key.equals("sessions")&&(e==null||!e.optBoolean("saved")||WorkspaceStore.BASE_TERMINAL_ID.equals(id)))continue;
-                CheckBox check=new CheckBox(activity);check.setTextColor(WorkspaceDialogs.TEXT);String preview=e==null?all.optString(i):e.optString("name");if(e!=null){String content=e.optString("command",e.optString("text"));if(!content.isEmpty())preview+=(preview.isEmpty()?"":"\n")+(content.length()>512?content.substring(0,512)+"…":content);}check.setText(preview);body.addView(check);checks.add(check);ids.add(id);
+                CheckBox check=new CheckBox(activity);check.setTextColor(Pal.TEXT);String preview=e==null?all.optString(i):e.optString("name");if(e!=null){String content=e.optString("command",e.optString("text"));if(!content.isEmpty())preview+=(preview.isEmpty()?"":"\n")+(content.length()>512?content.substring(0,512)+"…":content);}check.setText(preview);body.addView(check);checks.add(check);ids.add(id);
             }
             AlertDialog dialog=WorkspaceDialogs.builder(activity).blockOutsideDismiss().setTitle(title).setView(scroll(body)).setNegativeButton(t("Отмена","Cancel"),null).setPositiveButton(t("Продолжить","Continue"),null).create();dialog.setCancelable(false);dialog.show();Button button=dialog.getButton(AlertDialog.BUTTON_POSITIVE);button.setEnabled(false);
             for(CheckBox c:checks)c.setOnCheckedChangeListener((v,b)->{boolean any=false;for(CheckBox item:checks)any|=item.isChecked();button.setEnabled(any);});

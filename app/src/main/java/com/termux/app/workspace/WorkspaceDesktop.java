@@ -137,7 +137,7 @@ final class WorkspaceDesktop {
             TextView row=AgentStatusUi.row(body,items.get(i),rowKeys.get(i),()->{dialog[0].dismiss();menuAction(p,which);});
             if(i==0&&styleSupported(p)){
                 LinearLayout styleRow=new LinearLayout(activity);styleRow.setGravity(Gravity.CENTER_VERTICAL);
-                TextView label=new TextView(activity);label.setText("Стиль Termux-job's");if(!WorkspaceLanguage.code(activity).equals("ru"))label.setText("Termux-job's style");label.setTextColor(WorkspaceDialogs.TEXT);label.setTextSize(13);styleRow.addView(label,new LinearLayout.LayoutParams(0,-2,1));
+                TextView label=new TextView(activity);label.setText("Стиль Termux-job's");if(!WorkspaceLanguage.code(activity).equals("ru"))label.setText("Termux-job's style");label.setTextColor(Pal.TEXT);label.setTextSize(13);styleRow.addView(label,new LinearLayout.LayoutParams(0,-2,1));
                 CheckBox check=new CheckBox(activity);styleCheck=check;check.setTag("desktop-termux-style");check.setContentDescription(label.getText());check.setChecked(styleEnabled(p));check.setEnabled(!styleBusy());styleRow.addView(check);body.addView(styleRow);
                 check.setOnCheckedChangeListener((button,value)->{if(styleBusy()){check.setChecked(styleEnabled(p));return;}activity.getSharedPreferences("workspace-x11",0).edit().putBoolean(styleKey(p),value).apply();});label.setOnClickListener(v->{if(check.isEnabled())check.performClick();});
                 AgentStatusUi.info(body,tr("Kali-стиль: тёмные окна, синие акценты, крупные значки и фон с драконом. Применяется при следующем запуске. Для смены сначала остановите рабочий стол.","Kali-inspired style: dark windows, blue accents, large icons and dragon wallpaper. Applied on next launch. Stop the desktop before changing this setting."));
@@ -149,7 +149,7 @@ final class WorkspaceDesktop {
         addX11Renderer(body,p,dialog);addX11Screen(body,p,dialog);
         AgentStatusUi.info(body,tr("Поверните телефон горизонтально: рабочий стол займёт весь экран. Поворот обратно или «Назад» вернёт его в окно приложения. Кнопка интерактивного ввода | доступна справа сверху.","Rotate the phone to landscape for a full-screen desktop. Rotate back or press Back to return it to the app window. The Interactive input | button remains at the top right."));
         LinearLayout keyboardRow=new LinearLayout(activity);keyboardRow.setGravity(Gravity.CENTER_VERTICAL);
-        TextView keyboardLabel=new TextView(activity);keyboardLabel.setText(tr("Автоматическая клавиатура","Automatic keyboard"));keyboardLabel.setTextColor(WorkspaceDialogs.TEXT);keyboardLabel.setTextSize(13);
+        TextView keyboardLabel=new TextView(activity);keyboardLabel.setText(tr("Автоматическая клавиатура","Automatic keyboard"));keyboardLabel.setTextColor(Pal.TEXT);keyboardLabel.setTextSize(13);
         keyboardRow.addView(keyboardLabel,new LinearLayout.LayoutParams(0,-2,1));
         CheckBox automatic=new CheckBox(activity);automatic.setTag("desktop-automatic-keyboard");automatic.setContentDescription(keyboardLabel.getText());automatic.setChecked(automaticKeyboard(p));keyboardRow.addView(automatic);body.addView(keyboardRow);
         automatic.setOnCheckedChangeListener((button,checked)->{activity.getSharedPreferences("workspace-x11",0).edit().putBoolean("automatic-keyboard:"+target(p),checked).apply();keyboardState.automatic=checked;});
@@ -157,7 +157,7 @@ final class WorkspaceDesktop {
         TextView keyboardHelp=AgentStatusUi.info(body,tr("Показывать клавиатуру автоматически при выборе поля ввода, где это поддерживается. Если выключено — только вручную через «Интерактивный ввод» | в верхней панели. Ручной вызов доступен всегда.","Show the keyboard automatically when a supported text field is selected. When disabled, open it manually using Interactive input | in the top toolbar. Manual input is always available."));
         keyboardHelp.setTag("desktop-automatic-keyboard-help");
         android.text.SpannableString help=new android.text.SpannableString(keyboardHelp.getText());int inputIcon=help.toString().indexOf('|');
-        android.graphics.drawable.Drawable inputGlyph=activity.getDrawable(R.drawable.workspace_interactive_input).mutate();inputGlyph.setTint(WorkspaceDialogs.MUTED);int glyphSize=WorkspaceDialogs.dp(activity,16);inputGlyph.setBounds(0,0,glyphSize,glyphSize);
+        android.graphics.drawable.Drawable inputGlyph=activity.getDrawable(R.drawable.workspace_interactive_input).mutate();inputGlyph.setTint(Pal.MUTED);int glyphSize=WorkspaceDialogs.dp(activity,16);inputGlyph.setBounds(0,0,glyphSize,glyphSize);
         if(inputIcon>=0)help.setSpan(new android.text.style.ImageSpan(inputGlyph,android.text.style.ImageSpan.ALIGN_BASELINE),inputIcon,inputIcon+1,android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);keyboardHelp.setText(help);
         dialog[0]=WorkspaceDialogs.builder(activity).setTitle("X11 · "+WorkspaceEnvironments.label(target(p))).setView(AgentStatusUi.scroll(body)).setNegativeButton(tr("Назад","Back"),null).create();
         dialog[0].show();

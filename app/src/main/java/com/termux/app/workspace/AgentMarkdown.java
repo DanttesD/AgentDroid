@@ -22,7 +22,7 @@ final class AgentMarkdown {
     static Markwon create(Context c){return Markwon.builder(c).usePlugin(StrikethroughPlugin.create()).usePlugin(LinkifyPlugin.create()).usePlugin(new AbstractMarkwonPlugin(){
         @Override public void beforeRender(Node node){node.accept(new AbstractVisitor(){@Override public void visit(Text text){if(text.getParent() instanceof Paragraph&&text.getParent().getParent() instanceof ListItem&&text.getParent().getFirstChild()==text){String value=text.getLiteral();if(value.startsWith("[x] ")||value.startsWith("[X] "))text.setLiteral("☑ "+value.substring(4));else if(value.startsWith("[ ] "))text.setLiteral("☐ "+value.substring(4));}}});}
         @Override public void configureParser(Parser.Builder builder){builder.extensions(Collections.singletonList(TablesExtension.create()));}
-        @Override public void configureTheme(MarkwonTheme.Builder b){b.linkColor(0xff79dfcd).blockQuoteColor(0xff79dfcd).blockQuoteWidth(3).codeTextColor(0xffbdddd2).codeBackgroundColor(0xff14252b).codeBlockBackgroundColor(0xff0b131a).headingBreakHeight(0).headingTextSizeMultipliers(new float[]{1.5f,1.35f,1.2f,1.1f,1.05f,1f});}
+        @Override public void configureTheme(MarkwonTheme.Builder b){b.linkColor(Pal.ACCENT).blockQuoteColor(Pal.ACCENT).blockQuoteWidth(3).codeTextColor(0xffbdddd2).codeBackgroundColor(0xff14252b).codeBlockBackgroundColor(Pal.PANEL).headingBreakHeight(0).headingTextSizeMultipliers(new float[]{1.5f,1.35f,1.2f,1.1f,1.05f,1f});}
         @Override public void configureConfiguration(MarkwonConfiguration.Builder b){b.linkResolver((view,url)->openLink(view,url));}
     }).build();}
     static void openLink(View view,String url){

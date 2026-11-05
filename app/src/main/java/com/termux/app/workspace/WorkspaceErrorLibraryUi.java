@@ -31,7 +31,7 @@ final class WorkspaceErrorLibraryUi {
     private String t(String a,String b){return ru?a:b;}
     private int dp(int n){return WorkspaceDialogs.dp(activity,n);}
     private LinearLayout column(){LinearLayout v=new LinearLayout(activity);v.setOrientation(LinearLayout.VERTICAL);return v;}
-    private TextView text(String value,int size){TextView v=new TextView(activity);v.setText(value);v.setTextSize(size);v.setTextColor(WorkspaceDialogs.TEXT);v.setPadding(dp(10),dp(8),dp(10),dp(8));return v;}
+    private TextView text(String value,int size){TextView v=new TextView(activity);v.setText(value);v.setTextSize(size);v.setTextColor(Pal.TEXT);v.setPadding(dp(10),dp(8),dp(10),dp(8));return v;}
     private void add(LinearLayout parent,View child){LinearLayout.LayoutParams params=new LinearLayout.LayoutParams(-1,-2);params.bottomMargin=dp(6);parent.addView(child,params);}
     private TextView action(String label,Runnable click){TextView b=WorkspaceDialogs.action(activity,label,0);b.setOnClickListener(v->click.run());return b;}
     private String categoryLabel(String key){String[] labels=ru?new String[]{"Все","Пакеты","Файлы","Запуск","Сеть / SSH","Сборки","Git","Окружение","Python","Node.js"}:new String[]{"All","Packages","Files","Launch","Network / SSH","Builds","Git","Environment","Python","Node.js"};return labels[Arrays.asList(WorkspaceErrorLibrary.CATEGORIES).indexOf(key)];}
@@ -40,7 +40,7 @@ final class WorkspaceErrorLibraryUi {
         try{library=WorkspaceErrorLibrary.load(activity);}catch(Exception e){WorkspaceDialogs.builder(activity).setTitle(label(activity)).setMessage(t("Не удалось прочитать встроенную базу. Данные окружений не изменены.","Could not read the bundled library. Environment data is unchanged.")).setPositiveButton("OK",null).show();return;}
         LinearLayout body=column();body.setPadding(dp(10),0,dp(10),dp(8));body.setFocusableInTouchMode(true);
         TextView info=text(t("Офлайн-справочник, не сканер терминала. Решения зависят от версии и среды. Выберите систему и способ запуска.","Offline reference, not a terminal scanner. Solutions depend on version and environment. Select the OS and launch method."),12);add(body,info);
-        search=new EditText(activity);search.setSingleLine(true);search.setTextColor(WorkspaceDialogs.TEXT);search.setTextSize(14);search.setHint(t("Текст ошибки или описание проблемы","Error text or problem description"));search.setContentDescription(search.getHint());search.setMinimumHeight(dp(48));add(body,search);
+        search=new EditText(activity);search.setSingleLine(true);search.setTextColor(Pal.TEXT);search.setTextSize(14);search.setHint(t("Текст ошибки или описание проблемы","Error text or problem description"));search.setContentDescription(search.getHint());search.setMinimumHeight(dp(48));add(body,search);
         add(body,picker(t("Система","System"),new String[]{t("Все системы","All systems"),"Termux","Ubuntu","Debian","Arch Linux","Alpine Linux","Fedora","openSUSE",t("Другие Linux","Other Linux")},index->{env=WorkspaceErrorLibrary.ENV[index];update();}));
         add(body,picker(t("Способ запуска","Launch method"),ru?new String[]{"Любой способ запуска","Внутри proot","Обычный Linux / VM","Удалённо по SSH"}:new String[]{"Any launch method","Inside proot","Regular Linux / VM","Remote over SSH"},index->{context=WorkspaceErrorLibrary.CONTEXTS[index];update();}));
         HorizontalScrollView strip=new HorizontalScrollView(activity);strip.setHorizontalScrollBarEnabled(false);LinearLayout row=new LinearLayout(activity);
@@ -50,7 +50,7 @@ final class WorkspaceErrorLibraryUi {
         FrameLayout frame=new FrameLayout(activity);frame.addView(body,new FrameLayout.LayoutParams(-1,(int)(activity.getResources().getDisplayMetrics().heightPixels*.7)));
         LinearLayout titleRow=new LinearLayout(activity);titleRow.setGravity(Gravity.CENTER_VERTICAL);titleRow.setPadding(dp(10),dp(8),dp(10),0);
         TextView title=text(label(activity),18);title.setTypeface(null,Typeface.BOLD);titleRow.addView(title,new LinearLayout.LayoutParams(0,-2,1));
-        TextView credit=text(t("Собрано с помощью AI!","Compiled with AI!"),11);credit.setTextColor(WorkspaceDialogs.MUTED);credit.setMaxWidth(dp(135));credit.setGravity(Gravity.END|Gravity.CENTER_VERTICAL);titleRow.addView(credit,new LinearLayout.LayoutParams(-2,-2));
+        TextView credit=text(t("Собрано с помощью AI!","Compiled with AI!"),11);credit.setTextColor(Pal.MUTED);credit.setMaxWidth(dp(135));credit.setGravity(Gravity.END|Gravity.CENTER_VERTICAL);titleRow.addView(credit,new LinearLayout.LayoutParams(-2,-2));
         dialog=WorkspaceDialogs.builder(activity).setCustomTitle(titleRow).setView(frame).setNegativeButton(t("Закрыть","Close"),null).create();
         search.addTextChangedListener(new TextWatcher(){public void beforeTextChanged(CharSequence s,int st,int c,int a){}public void onTextChanged(CharSequence s,int st,int before,int c){update();}public void afterTextChanged(Editable e){}});
         dialog.setOnShowListener(v->{if(dialog.getWindow()!=null){dialog.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM);dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE|WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);}body.requestFocus();});
@@ -63,7 +63,7 @@ final class WorkspaceErrorLibraryUi {
         if(matches.isEmpty())add(results,text(t("Совпадений нет. Попробуйте часть сообщения, другой фильтр или все системы. Отсутствие карточки не означает отсутствие ошибки.","No matches. Try part of the message, another filter or all systems. A missing entry does not mean there is no problem."),14));
         for(WorkspaceErrorLibrary.Entry entry:matches){LinearLayout card=column();card.setBackground(WorkspaceDialogs.background(activity,false));TextView title=text(entry.text("title",ru),15);title.setTypeface(null,Typeface.BOLD);add(card,title);add(card,text(entry.text("symptom",ru),12));if(entry.data.has("projectStatus"))add(card,text(projectStatus(entry),11));add(card,text(categoryLabel(entry.category)+" · "+String.join(", ",entry.environments),11));card.setOnClickListener(v->detail(entry));card.setContentDescription(entry.text("title",ru));add(results,card);}
     }
-    private void section(LinearLayout body,String title,String value){TextView heading=text(title,14);heading.setTextColor(WorkspaceDialogs.ACCENT);add(body,heading);TextView content=text(value,14);content.setTextIsSelectable(true);add(body,content);}
+    private void section(LinearLayout body,String title,String value){TextView heading=text(title,14);heading.setTextColor(Pal.ACCENT);add(body,heading);TextView content=text(value,14);content.setTextIsSelectable(true);add(body,content);}
     private String projectStatus(WorkspaceErrorLibrary.Entry entry){
         switch(entry.data.optString("projectStatus")){
             case "open":return t("Открытая проблема: готового решения нет","Open issue: no confirmed fix");

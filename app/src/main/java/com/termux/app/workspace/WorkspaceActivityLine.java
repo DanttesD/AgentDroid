@@ -41,7 +41,7 @@ public final class WorkspaceActivityLine extends View {
         Route(){paint.setStyle(Paint.Style.STROKE);paint.setStrokeWidth(2);paint.setStrokeCap(Paint.Cap.ROUND);}
         void geometry(int x,int y,int width,int height,float lineY,float cx,float cy,float radius){Rect bounds=getBounds();if(bounds.left==x&&bounds.top==y&&bounds.width()==width&&bounds.height()==height&&lastLineY==lineY&&lastCx==cx&&lastCy==cy&&lastRadius==radius)return;lastLineY=lineY;lastCx=cx;lastCy=cy;lastRadius=radius;setBounds(x,y,x+width,y+height);measure.setPath(routePath(width,lineY,cx,cy,radius),false);paint.setStrokeWidth(Math.max(1.5f,radius/15));}
         @Override public void draw(Canvas c){float length=measure.getLength();if(length<=0)return;float head=(frameTimeNanos%1800000000L)/1800000000f*length,tail=Math.min(length*.3f,350);c.save();c.translate(getBounds().left,getBounds().top);
-            for(int i=0;i<32;i++){float begin=head-tail+tail*i/32,end=head-tail+tail*(i+1)/32;while(begin<0){begin+=length;end+=length;}part.reset();measure.getSegment(begin,Math.min(end,length),part,true);if(end>length)measure.getSegment(0,end-length,part,true);paint.setColor(0xff79dfcd);paint.setAlpha((i+1)*255/32);paint.setStrokeCap(i==0||i==31?Paint.Cap.ROUND:Paint.Cap.BUTT);c.drawPath(part,paint);}c.restore();}
+            for(int i=0;i<32;i++){float begin=head-tail+tail*i/32,end=head-tail+tail*(i+1)/32;while(begin<0){begin+=length;end+=length;}part.reset();measure.getSegment(begin,Math.min(end,length),part,true);if(end>length)measure.getSegment(0,end-length,part,true);paint.setColor(Pal.ACCENT);paint.setAlpha((i+1)*255/32);paint.setStrokeCap(i==0||i==31?Paint.Cap.ROUND:Paint.Cap.BUTT);c.drawPath(part,paint);}c.restore();}
         @Override public void setAlpha(int value){}@Override public void setColorFilter(ColorFilter filter){paint.setColorFilter(filter);}@Override public int getOpacity(){return PixelFormat.TRANSLUCENT;}
     }
     /** Display-frame driven, with an average 60 Hz ceiling on faster panels. */
@@ -66,7 +66,7 @@ public final class WorkspaceActivityLine extends View {
     public WorkspaceActivityLine(Context c,AttributeSet a){super(c,a);setImportantForAccessibility(IMPORTANT_FOR_ACCESSIBILITY_NO);}
     public void working(boolean value){if(working==value)return;working=value;if(!value){cancelFrame();clearRoute();}setVisibility(value?VISIBLE:INVISIBLE);invalidate();}
     boolean working(){return working;}
-    @Override protected void onSizeChanged(int w,int h,int oldw,int oldh){super.onSizeChanged(w,h,oldw,oldh);gradient=new LinearGradient(0,0,Math.max(1,w*.45f),0,new int[]{0x0079dfcd,0xff79dfcd,0x0079dfcd},null,Shader.TileMode.CLAMP);}
+    @Override protected void onSizeChanged(int w,int h,int oldw,int oldh){super.onSizeChanged(w,h,oldw,oldh);gradient=new LinearGradient(0,0,Math.max(1,w*.45f),0,new int[]{(Pal.ACCENT & 0xFFFFFF),Pal.ACCENT,(Pal.ACCENT & 0xFFFFFF)},null,Shader.TileMode.CLAMP);}
     @Override protected void onDraw(Canvas canvas){
         super.onDraw(canvas);if(!working||gradient==null)return;
         if(drawRoute()){scheduleFrame();return;}

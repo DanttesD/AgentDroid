@@ -128,7 +128,7 @@ final class DesktopFullscreen {
         controlsRow.setBackground(WorkspaceDialogs.background(activity,enabled||keys));
     }
     private WorkspaceIconButton addControl(LinearLayout row,int icon,String description,Runnable action){
-        WorkspaceIconButton button=new WorkspaceIconButton(activity);button.setTextColor(WorkspaceDialogs.ACCENT);
+        WorkspaceIconButton button=new WorkspaceIconButton(activity);button.setTextColor(Pal.ACCENT);
         button.setIcon(androidx.appcompat.content.res.AppCompatResources.getDrawable(activity,icon).mutate(),dp(22));button.setContentDescription(description);
         button.setOnClickListener(v->action.run());row.addView(button,new LinearLayout.LayoutParams(dp(40),dp(40)));return button;
     }

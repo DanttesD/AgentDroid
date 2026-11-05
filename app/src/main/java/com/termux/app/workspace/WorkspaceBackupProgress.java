@@ -33,11 +33,11 @@ final class WorkspaceBackupProgress {
     WorkspaceBackupProgress(Activity a,LongSupplier time){
         activity=a;clock=time;started=time.getAsLong();view=new LinearLayout(a);view.setOrientation(LinearLayout.VERTICAL);
         int pad=WorkspaceDialogs.dp(a,20);view.setPadding(pad,pad,pad,pad);
-        stage=line(15,WorkspaceDialogs.TEXT);bar=new ProgressBar(a,null,android.R.attr.progressBarStyleHorizontal);bar.setMax(100);bar.setIndeterminate(true);
-        ColorStateList tint=ColorStateList.valueOf(WorkspaceDialogs.ACCENT);bar.setProgressTintList(tint);bar.setIndeterminateTintList(tint);
+        stage=line(15,Pal.TEXT);bar=new ProgressBar(a,null,android.R.attr.progressBarStyleHorizontal);bar.setMax(100);bar.setIndeterminate(true);
+        ColorStateList tint=ColorStateList.valueOf(Pal.ACCENT);bar.setProgressTintList(tint);bar.setIndeterminateTintList(tint);
         LinearLayout.LayoutParams params=new LinearLayout.LayoutParams(-1,WorkspaceDialogs.dp(a,6));params.topMargin=WorkspaceDialogs.dp(a,14);params.bottomMargin=WorkspaceDialogs.dp(a,14);view.addView(bar,params);
-        current=line(12,WorkspaceDialogs.MUTED);current.setSingleLine(true);current.setEllipsize(TextUtils.TruncateAt.MIDDLE);
-        amount=line(13,WorkspaceDialogs.TEXT);elapsed=line(13,WorkspaceDialogs.MUTED);
+        current=line(12,Pal.MUTED);current.setSingleLine(true);current.setEllipsize(TextUtils.TruncateAt.MIDDLE);
+        amount=line(13,Pal.TEXT);elapsed=line(13,Pal.MUTED);
         stage.setText(WorkspaceBackupUi.text(a,"Подготовка…","Preparing…"));current.setText(" ");updateElapsed();
     }
     private TextView line(int size,int color){TextView v=new TextView(activity);v.setTextSize(size);v.setTextColor(color);view.addView(v,new LinearLayout.LayoutParams(-1,-2));return v;}

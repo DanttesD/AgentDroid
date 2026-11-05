@@ -23,6 +23,6 @@ final class WorkspaceIconButton extends TextView {
         if(icon==null){super.onDraw(canvas);return;}
         int size=Math.min(iconSize,Math.min(getWidth(),getHeight()));int x=(getWidth()-size)/2,y=(getHeight()-size)/2;
         icon.setBounds(x,y,x+size,y+size);icon.draw(canvas);
-        if(badge){badgePaint.setColor(WorkspaceDialogs.ACCENT);float d=getResources().getDisplayMetrics().density;canvas.drawCircle(getWidth()-10*d,10*d,3*d,badgePaint);}
+        if(badge){badgePaint.setColor(Pal.ACCENT);float d=getResources().getDisplayMetrics().density;canvas.drawCircle(getWidth()-10*d,10*d,3*d,badgePaint);}
     }
 }

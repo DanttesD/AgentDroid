@@ -34,7 +34,7 @@ final class DesktopInstallUi {
         context=c;LinearLayout body=AgentStatusUi.body(c);
         bar=new ProgressBar(c,null,android.R.attr.progressBarStyleHorizontal);bar.setMax(100);bar.setIndeterminate(true);bar.setTag("desktop-install-progress");body.addView(bar,new LinearLayout.LayoutParams(-1,WorkspaceDialogs.dp(c,12)));
         status=AgentStatusUi.info(body,"");status.setTag("desktop-install-status");remaining=AgentStatusUi.info(body,"");remaining.setTag("desktop-install-remaining");
-        details=new TextView(c);details.setTextSize(12);details.setTextColor(WorkspaceDialogs.MUTED);details.setTextIsSelectable(true);
+        details=new TextView(c);details.setTextSize(12);details.setTextColor(Pal.MUTED);details.setTextIsSelectable(true);
         scroll=new LogScroll(c);scroll.setTag("desktop-install-log");details.setTag("desktop-install-detail");scroll.addView(details);
         body.addView(scroll,new LinearLayout.LayoutParams(-1,WorkspaceDialogs.dp(c,180)));
         dialog=WorkspaceDialogs.builder(c).setTitle(title).setView(body).setNegativeButton(tr("Отмена","Cancel"),null).create();

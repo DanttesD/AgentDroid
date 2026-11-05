@@ -203,3 +203,7 @@ CI run #3 (51 min, got much further: apt, bash, libbz2 etc. built) failed on `co
 ## Design step 3
 - Assistant, Rules screens and the overlay take theme colours. The "where commands run" choice (Auto/Root/ADB/…) moved to the Environment tab; chat re-reads it on resume.
 - Left: remove duplicated items from the chat ⋮ menu, Termux/workspace screens, per-account sign-in method in the Agents tab.
+
+## Design step 4: workspace screens on the theme palette (not compiled here)
+- `workspace/Pal` holds the colours of all workspace screens (terminal shell, servers, files, dialogs, agent chat, markdown); all hardcoded teal literals replaced by `Pal.*`, filled from the app theme in `TermuxActivity.onCreate`. `TermuxActivity` recreates itself when the theme signature changes.
+- Not touched on purpose: terminal colour scheme, red stop button, syntax highlighting colours.

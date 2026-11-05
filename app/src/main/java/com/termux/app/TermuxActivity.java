@@ -200,6 +200,8 @@ public final class TermuxActivity extends Activity implements ServiceConnection 
         com.termux.app.workspace.WorkspaceLanguage.configurationChanged(this,newConfig);
     }
 
+    private String themeSig = "";
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
 
@@ -219,6 +221,8 @@ public final class TermuxActivity extends Activity implements ServiceConnection 
         setActivityTheme();
 
         com.termux.app.workspace.WorkspaceLanguage.initialize(this);
+        com.termux.app.workspace.Pal.init(this);
+        themeSig = com.termux.app.agent.AppTheme.signature(this);
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_termux);
@@ -304,6 +308,8 @@ public final class TermuxActivity extends Activity implements ServiceConnection 
     @Override
     public void onResume() {
         super.onResume();
+
+        if (!themeSig.equals(com.termux.app.agent.AppTheme.signature(this))) { recreate(); return; }
 
         Logger.logVerbose(LOG_TAG, "onResume");
 

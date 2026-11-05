@@ -30,11 +30,11 @@ final class CodexActionsView extends LinearLayout {
     CodexActionsView(AgentChatView owner,Consumer<JSONObject> open) {
         super(owner.getContext());this.owner=owner;this.open=open;
         setOrientation(VERTICAL);setPadding(owner.dp(4),owner.dp(3),owner.dp(4),owner.dp(4));
-        GradientDrawable background=new GradientDrawable();background.setColor(0xff0b1319);
-        background.setCornerRadius(owner.dp(12));background.setStroke(owner.dp(1),0xff28433d);setBackground(background);
+        GradientDrawable background=new GradientDrawable();background.setColor(Pal.PANEL);
+        background.setCornerRadius(owner.dp(12));background.setStroke(owner.dp(1),Pal.TINT_BORDER);setBackground(background);
         heading=owner.label("",13);heading.setMinHeight(owner.dp(36));heading.setPadding(owner.dp(10),owner.dp(5),owner.dp(10),owner.dp(5));heading.setGravity(Gravity.CENTER_VERTICAL);
         heading.setTypeface(Typeface.DEFAULT,Typeface.BOLD);heading.setOnClickListener(v->{expanded=!expanded;refreshHeading();});addView(heading,new LayoutParams(-1,-2));
-        summary=owner.label("",12);summary.setTextColor(0xff91a6af);summary.setMaxLines(2);summary.setPadding(owner.dp(10),0,owner.dp(10),owner.dp(4));summary.setOnClickListener(v->heading.performClick());addView(summary,new LayoutParams(-1,-2));
+        summary=owner.label("",12);summary.setTextColor(Pal.MUTED);summary.setMaxLines(2);summary.setPadding(owner.dp(10),0,owner.dp(10),owner.dp(4));summary.setOnClickListener(v->heading.performClick());addView(summary,new LayoutParams(-1,-2));
         steps=new LinearLayout(getContext());steps.setOrientation(VERTICAL);steps.setVisibility(GONE);addView(steps,new LayoutParams(-1,-2));
         LinearLayout.LayoutParams layout=new LinearLayout.LayoutParams(-1,-2);layout.setMargins(0,owner.dp(4),0,owner.dp(6));setLayoutParams(layout);
     }
@@ -53,7 +53,7 @@ final class CodexActionsView extends LinearLayout {
             String state=state(row),command=caption(row);
             String caption=(CodexActionTimeline.failed(row)?"! ":CodexActionTimeline.running(row)?"● ":CodexActionTimeline.status(row).equals("completed")?"✓ ":"○ ")+command+"\n    "+state;
             if(!item.getText().toString().equals(caption))item.setText(caption);
-            item.setTextColor(CodexActionTimeline.failed(row)?0xffffb08f:0xffd5e4e0);
+            item.setTextColor(CodexActionTimeline.failed(row)?0xffffb08f:Pal.TEXT2);
             item.setContentDescription(command+". "+state+". "+owner.tr("Открыть действие и подробности","Open action and details"));
             if(item.getParent()==null)steps.addView(item,i);else if(steps.indexOfChild(item)!=i){steps.removeView(item);steps.addView(item,i);}
         }
@@ -97,7 +97,7 @@ final class CodexActionsView extends LinearLayout {
         String caption=(!skillName.isEmpty()?owner.tr("Навык: ","Skill: ")+skillName:active>0?owner.tr("В работе","Running"):owner.tr("Хронология","Timeline"))+" · "+count+actionWord()+(expanded?" ▴":" ▾");
         if(!heading.getText().toString().equals(caption))heading.setText(caption);
         LinearLayout.LayoutParams layout=(LinearLayout.LayoutParams)getLayoutParams();int width=!skillName.isEmpty()&&!expanded?LayoutParams.WRAP_CONTENT:LayoutParams.MATCH_PARENT;if(layout.width!=width){layout.width=width;setLayoutParams(layout);}
-        heading.setTextColor(errors>0?0xffffb08f:0xff79dfcd);steps.setVisibility(expanded?VISIBLE:GONE);
+        heading.setTextColor(errors>0?0xffffb08f:Pal.ACCENT);steps.setVisibility(expanded?VISIBLE:GONE);
         heading.setContentDescription(caption+". "+owner.tr(expanded?"Свернуть":"Развернуть",expanded?"Collapse":"Expand"));
     }
 }

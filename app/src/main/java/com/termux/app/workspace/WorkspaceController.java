@@ -43,8 +43,6 @@ import java.util.concurrent.Executors;
 
 /** Native workspace shell around the original TerminalView and foreground service. */
 public final class WorkspaceController {
-    private static final int ACCENT = 0xff79dfcd, TEXT = 0xffedf5f6, MUTED = 0xff91a6af;
-    private static final int PANEL = 0xff0b1319, BORDER = 0xff213039;
     private enum Screen { HOME, SESSIONS, COMMANDS, TERMINAL, SERVERS }
     private final TermuxActivity activity;
     private final WorkspaceStore store;
@@ -186,14 +184,14 @@ public final class WorkspaceController {
             | android.view.inputmethod.EditorInfo.IME_FLAG_NO_EXTRACT_UI);
         inputRow.addView(terminalInput, new LinearLayout.LayoutParams(0, -2, 1));
         TextView commands = button("★", false, this::chooseInputCommand);
-        commands.setTextColor(ACCENT); commands.setTextSize(22);
+        commands.setTextColor(Pal.ACCENT); commands.setTextSize(22);
         commands.setContentDescription(WorkspaceText.tr("Вставить сохранённую команду"));
         LinearLayout.LayoutParams commandsParams = new LinearLayout.LayoutParams(dp(48), dp(48));
         commandsParams.setMarginEnd(dp(8)); inputRow.addView(commands, 0, commandsParams);
         TextView send = button("▷", true, this::sendInput); send.setContentDescription(WorkspaceText.tr("Отправить в активный терминал"));
         LinearLayout.LayoutParams sendParams = new LinearLayout.LayoutParams(dp(48), dp(48)); sendParams.setMarginStart(dp(8)); inputRow.addView(send, sendParams);
-        activity.getWindow().setStatusBarColor(Color.BLACK);
-        activity.getWindow().setNavigationBarColor(Color.BLACK);
+        activity.getWindow().setStatusBarColor(Pal.BG);
+        activity.getWindow().setNavigationBarColor(Pal.BG);
         tabs.setOnTouchListener((v, event) -> {
             if (event.getAction() == MotionEvent.ACTION_DOWN) swipeStart = event.getX();
             if (event.getAction() == MotionEvent.ACTION_UP && Math.abs(event.getX() - swipeStart) > dp(64)) {
@@ -246,14 +244,14 @@ public final class WorkspaceController {
         d.setStroke(dp(1), stroke); return d;
     }
     private TextView button(String label, boolean active, Runnable click) {
-        TextView b = new WorkspaceIconButton(activity);b.setText(label);b.setTextSize(13);b.setTextColor(active?Color.BLACK:TEXT);
+        TextView b = new WorkspaceIconButton(activity);b.setText(label);b.setTextSize(13);b.setTextColor(active? Pal.ONACCENT :Pal.TEXT);
         b.setGravity(Gravity.CENTER); b.setPadding(dp(13), dp(8), dp(13), dp(8)); b.setMinHeight(dp(48));
-        b.setBackground(new RippleDrawable(ColorStateList.valueOf(0x4479dfcd),
-            shape(active ? ACCENT : PANEL, active ? ACCENT : BORDER, 12), null));
+        b.setBackground(new RippleDrawable(ColorStateList.valueOf(Pal.RIPPLE),
+            shape(active ? Pal.ACCENT : Pal.PANEL, active ? Pal.ACCENT : Pal.BORDER, 12), null));
         int icon = iconFor(label.split("\n", 2)[0]);
         if (icon != 0) {
             android.graphics.drawable.Drawable drawable = activity.getDrawable(icon).mutate();
-            drawable.setTint(active ? Color.BLACK : TEXT); drawable.setBounds(0, 0, dp(22), dp(22));
+            drawable.setTint(active ? Pal.ONACCENT : Pal.TEXT); drawable.setBounds(0, 0, dp(22), dp(22));
             if (label.contains("\n")) {
                 b.setText(label.substring(label.indexOf('\n') + 1));
                 b.setCompoundDrawables(null, drawable, null, null); b.setCompoundDrawablePadding(dp(4));
@@ -291,9 +289,9 @@ public final class WorkspaceController {
     }
     private void section(LinearLayout parent, String title, String action, Runnable click) {
         LinearLayout r = row(); r.setPadding(0, dp(22), 0, dp(10)); r.setMinimumHeight(dp(80));
-        TextView t = text(title, 17, TEXT); t.setTypeface(null, Typeface.BOLD);
+        TextView t = text(title, 17, Pal.TEXT); t.setTypeface(null, Typeface.BOLD);
         r.addView(t, new LinearLayout.LayoutParams(0, -2, 1));
-        if (action != null) { TextView a = button(action, false, click); a.setTextColor(ACCENT); r.addView(a); }
+        if (action != null) { TextView a = button(action, false, click); a.setTextColor(Pal.ACCENT); r.addView(a); }
         parent.addView(r);
     }
     private void show(Screen target, boolean animate) {
@@ -331,11 +329,11 @@ public final class WorkspaceController {
         boolean active=desktopUi!=null&&desktopUi.hasSurface()?desktopUi.keyboardEnabled():interactiveInput;
         if(desktopKeysButton!=null&&desktopUi!=null&&desktopUi.showing()){
             boolean keys=desktopUi.extraKeysVisible();
-            if(desktopKeysButton.isSelected()!=keys){desktopKeysButton.setSelected(keys);desktopKeysButton.setTextColor(keys?Color.BLACK:TEXT);desktopKeysButton.setBackground(new RippleDrawable(ColorStateList.valueOf(0x4479dfcd),shape(keys?ACCENT:PANEL,keys?ACCENT:BORDER,12),null));}
+            if(desktopKeysButton.isSelected()!=keys){desktopKeysButton.setSelected(keys);desktopKeysButton.setTextColor(keys? Pal.ONACCENT :Pal.TEXT);desktopKeysButton.setBackground(new RippleDrawable(ColorStateList.valueOf(Pal.RIPPLE),shape(keys?Pal.ACCENT:Pal.PANEL,keys?Pal.ACCENT:Pal.BORDER,12),null));}
         }
         if(desktopInputButton.isSelected()==active)return;
-        desktopInputButton.setSelected(active);desktopInputButton.setTextColor(active?Color.BLACK:TEXT);
-        desktopInputButton.setBackground(new RippleDrawable(ColorStateList.valueOf(0x4479dfcd),shape(active?ACCENT:PANEL,active?ACCENT:BORDER,12),null));
+        desktopInputButton.setSelected(active);desktopInputButton.setTextColor(active? Pal.ONACCENT :Pal.TEXT);
+        desktopInputButton.setBackground(new RippleDrawable(ColorStateList.valueOf(Pal.RIPPLE),shape(active?Pal.ACCENT:Pal.PANEL,active?Pal.ACCENT:Pal.BORDER,12),null));
     }
     private void renderHeader() {
         desktopInputButton=null;desktopKeysButton=null;
@@ -343,7 +341,7 @@ public final class WorkspaceController {
         if (navigation.getParent() != null) ((ViewGroup) navigation.getParent()).removeView(navigation);
         header.removeAllViews(); header.setPadding(dp(8), dp(4), dp(8), dp(4));
         LinearLayout top = row();
-        TextView name = text("AgentDroid", 17, TEXT); name.setTypeface(null, Typeface.BOLD_ITALIC);
+        TextView name = text("AgentDroid", 17, Pal.TEXT); name.setTypeface(null, Typeface.BOLD_ITALIC);
         name.setSingleLine(); name.setEllipsize(TextUtils.TruncateAt.END);
         LinearLayout brand = row();
         brand.addView(name, new LinearLayout.LayoutParams(0, -2, 1));
@@ -370,7 +368,7 @@ public final class WorkspaceController {
         if (screen == Screen.COMMANDS || screen == Screen.SESSIONS) {
             LinearLayout tools = row(); tools.setPadding(dp(8), dp(26), dp(8), dp(6));
             if (screen == Screen.SESSIONS) {
-                TextView title = text(WorkspaceText.tr("Сессии"), 17, TEXT); title.setTypeface(null, Typeface.BOLD);
+                TextView title = text(WorkspaceText.tr("Сессии"), 17, Pal.TEXT); title.setTypeface(null, Typeface.BOLD);
                 tools.addView(title, new LinearLayout.LayoutParams(0, -2, 1));
             }
             if (screen == Screen.COMMANDS) {
@@ -379,7 +377,7 @@ public final class WorkspaceController {
                 search.setImeOptions(android.view.inputmethod.EditorInfo.IME_ACTION_SEARCH
                     | android.view.inputmethod.EditorInfo.IME_FLAG_NO_EXTRACT_UI);
                 android.graphics.drawable.Drawable icon = activity.getDrawable(R.drawable.workspace_search).mutate();
-                icon.setTint(MUTED); icon.setBounds(0, 0, dp(18), dp(18));
+                icon.setTint(Pal.MUTED); icon.setBounds(0, 0, dp(18), dp(18));
                 search.setCompoundDrawables(icon, null, null, null); search.setCompoundDrawablePadding(dp(6));
                 LinearLayout.LayoutParams searchParams = new LinearLayout.LayoutParams(0, -2, 1);
                 search.setMinHeight(dp(48)); tools.addView(search, searchParams);
@@ -424,9 +422,9 @@ public final class WorkspaceController {
             android.graphics.drawable.Drawable icon = activity.getDrawable(resource).mutate();
             ((WorkspaceIconButton)nav).setIcon(icon,dp(28));
             nav.setContentDescription(labels[i]);
-            tintButton(nav, target == screen ? ACCENT : MUTED);
-            nav.setBackground(new RippleDrawable(ColorStateList.valueOf(0x4479dfcd),
-                shape(target == screen ? 0xff102522 : PANEL, target == screen ? ACCENT : BORDER, 12), null));
+            tintButton(nav, target == screen ? Pal.ACCENT : Pal.MUTED);
+            nav.setBackground(new RippleDrawable(ColorStateList.valueOf(Pal.RIPPLE),
+                shape(target == screen ? Pal.CARD2 : Pal.PANEL, target == screen ? Pal.ACCENT : Pal.BORDER, 12), null));
             LinearLayout.LayoutParams tileParams = new LinearLayout.LayoutParams(0, dp(56), 1);
             if (i < targets.length - 1) tileParams.setMarginEnd(dp(8));
             navigation.addView(nav, tileParams);
@@ -486,8 +484,8 @@ public final class WorkspaceController {
             panel.addView(settings,new FrameLayout.LayoutParams(dp(40),dp(40),Gravity.END|Gravity.CENTER_VERTICAL));
             if(cancellable){
                 TextView cancel=button("",false,()->confirmCancelStartup(profile));cancel.setTag("cancel-startup");cancel.setContentDescription(WorkspaceText.tr("Отменить команды запуска"));
-                android.graphics.drawable.Drawable icon=activity.getDrawable(R.drawable.workspace_cancel_startup).mutate();icon.setTint(MUTED);((WorkspaceIconButton)cancel).setIcon(icon,dp(22));
-                cancel.setBackground(new RippleDrawable(ColorStateList.valueOf(0x4479dfcd),shape(Color.TRANSPARENT,Color.TRANSPARENT,12),null));
+                android.graphics.drawable.Drawable icon=activity.getDrawable(R.drawable.workspace_cancel_startup).mutate();icon.setTint(Pal.MUTED);((WorkspaceIconButton)cancel).setIcon(icon,dp(22));
+                cancel.setBackground(new RippleDrawable(ColorStateList.valueOf(Pal.RIPPLE),shape(Color.TRANSPARENT,Color.TRANSPARENT,12),null));
                 FrameLayout.LayoutParams cancelParams=new FrameLayout.LayoutParams(dp(48),dp(48),Gravity.END|Gravity.CENTER_VERTICAL);cancelParams.setMarginEnd(dp(40));panel.addView(cancel,cancelParams);
             }
             tabs.addView(panel,new LinearLayout.LayoutParams(0,dp(48),1));
@@ -503,7 +501,7 @@ public final class WorkspaceController {
         FrameLayout statusRow=activity.findViewById(R.id.workspace_terminal_tools);
         statusRow.setVisibility(screen==Screen.TERMINAL?View.VISIBLE:View.GONE);
         View oldServer=statusRow.findViewWithTag("server-entry");if(oldServer!=null)statusRow.removeView(oldServer);
-        TextView server=AgentStatusUi.chip(activity,serverLabel,serverLabel,()->show(Screen.SERVERS,true));server.setTextColor(TEXT);server.setPadding(dp(4),dp(4),dp(4),dp(4));server.setTag("server-entry");
+        TextView server=AgentStatusUi.chip(activity,serverLabel,serverLabel,()->show(Screen.SERVERS,true));server.setTextColor(Pal.TEXT);server.setPadding(dp(4),dp(4),dp(4),dp(4));server.setTag("server-entry");
         if(transferBorder!=null)transferBorder.active(false);transferBorder=new WorkspaceTransferBorder(activity.getResources().getDisplayMetrics().density);server.setBackground(new android.graphics.drawable.LayerDrawable(new android.graphics.drawable.Drawable[]{server.getBackground(),transferBorder}));updateTransferBorder();
         FrameLayout.LayoutParams serverParams=new FrameLayout.LayoutParams(dp(106),-2,Gravity.END|Gravity.CENTER_VERTICAL);statusRow.addView(server,serverParams);
         if(agentStop==null){agentStop=new AgentStopButton(activity);agentStop.setTag("agent-stop");agentStop.setOnClickListener(v->{if(agentChatUi!=null)agentChatUi.stopCurrent();updateActivityLine();});FrameLayout.LayoutParams stopParams=new FrameLayout.LayoutParams(dp(44),dp(44),Gravity.END|Gravity.CENTER_VERTICAL);stopParams.setMarginEnd(dp(112));statusRow.addView(agentStop,stopParams);}
@@ -519,22 +517,22 @@ public final class WorkspaceController {
     }
     static int sessionIcon(WorkspaceStore.Session p){return p!=null&&(p.environment.equals("codex")||p.claudeAgent||p.geminiAgent||!p.aiAgent.isEmpty())?R.drawable.workspace_ai_agent:R.drawable.workspace_terminal;}
     private TextView sessionStackItem(String label,boolean active,int icon,Runnable click){
-        TextView item=new TextView(activity);item.setText(label);item.setTextSize(14);item.setTextColor(active?Color.BLACK:TEXT);item.setGravity(Gravity.START|Gravity.CENTER_VERTICAL);item.setPadding(dp(13),dp(8),dp(13),dp(8));item.setMinHeight(dp(48));item.setMaxLines(3);item.setEllipsize(TextUtils.TruncateAt.END);item.setSelected(active);
-        item.setBackground(new RippleDrawable(ColorStateList.valueOf(0x4479dfcd),shape(active?ACCENT:PANEL,active?ACCENT:BORDER,12),null));
-        android.graphics.drawable.Drawable image=activity.getDrawable(icon).mutate();image.setTint(active?Color.BLACK:TEXT);image.setBounds(0,0,dp(22),dp(22));item.setCompoundDrawables(image,null,null,null);item.setCompoundDrawablePadding(dp(8));item.setOnClickListener(v->click.run());
+        TextView item=new TextView(activity);item.setText(label);item.setTextSize(14);item.setTextColor(active? Pal.ONACCENT :Pal.TEXT);item.setGravity(Gravity.START|Gravity.CENTER_VERTICAL);item.setPadding(dp(13),dp(8),dp(13),dp(8));item.setMinHeight(dp(48));item.setMaxLines(3);item.setEllipsize(TextUtils.TruncateAt.END);item.setSelected(active);
+        item.setBackground(new RippleDrawable(ColorStateList.valueOf(Pal.RIPPLE),shape(active?Pal.ACCENT:Pal.PANEL,active?Pal.ACCENT:Pal.BORDER,12),null));
+        android.graphics.drawable.Drawable image=activity.getDrawable(icon).mutate();image.setTint(active? Pal.ONACCENT :Pal.TEXT);image.setBounds(0,0,dp(22),dp(22));item.setCompoundDrawables(image,null,null,null);item.setCompoundDrawablePadding(dp(8));item.setOnClickListener(v->click.run());
         LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(-1,-2);lp.bottomMargin=dp(6);item.setLayoutParams(lp);return item;
     }
     private TextView sessionSettingsButton(String title,boolean active,Runnable click){
         TextView settings=button("",false,click);settings.setMinHeight(0);settings.setMinWidth(0);settings.setPadding(dp(8),dp(8),dp(8),dp(8));
-        android.graphics.drawable.Drawable icon=activity.getDrawable(R.drawable.workspace_settings).mutate();icon.setTint(active?Color.BLACK:TEXT);((WorkspaceIconButton)settings).setIcon(icon,dp(20));
-        settings.setBackground(new RippleDrawable(ColorStateList.valueOf(0x4479dfcd),shape(Color.TRANSPARENT,Color.TRANSPARENT,12),null));settings.setContentDescription(tr("Меню сессии: ","Session menu: ")+title);return settings;
+        android.graphics.drawable.Drawable icon=activity.getDrawable(R.drawable.workspace_settings).mutate();icon.setTint(active? Pal.ONACCENT :Pal.TEXT);((WorkspaceIconButton)settings).setIcon(icon,dp(20));
+        settings.setBackground(new RippleDrawable(ColorStateList.valueOf(Pal.RIPPLE),shape(Color.TRANSPARENT,Color.TRANSPARENT,12),null));settings.setContentDescription(tr("Меню сессии: ","Session menu: ")+title);return settings;
     }
     private android.widget.PopupWindow showSessionStack(View anchor) {
-        LinearLayout body=column();body.setPadding(dp(8),dp(8),dp(8),dp(8));body.setBackground(shape(PANEL,BORDER,14));
-        TextView heading=text(WorkspaceText.tr("Открытые сессии"),14,TEXT);heading.setPadding(dp(6),dp(4),dp(6),dp(10));
+        LinearLayout body=column();body.setPadding(dp(8),dp(8),dp(8),dp(8));body.setBackground(shape(Pal.PANEL,Pal.BORDER,14));
+        TextView heading=text(WorkspaceText.tr("Открытые сессии"),14,Pal.TEXT);heading.setPadding(dp(6),dp(4),dp(6),dp(10));
         ScrollView scroll=new ScrollView(activity);LinearLayout list=column();scroll.addView(list);
         android.widget.PopupWindow popup=new android.widget.PopupWindow(body,Math.min(dp(340),activity.getResources().getDisplayMetrics().widthPixels-dp(24)),-2,true);
-        popup.setBackgroundDrawable(shape(PANEL,BORDER,14));popup.setOutsideTouchable(true);popup.setElevation(dp(8));
+        popup.setBackgroundDrawable(shape(Pal.PANEL,Pal.BORDER,14));popup.setOutsideTouchable(true);popup.setElevation(dp(8));
         TextView create=sessionStackItem(WorkspaceText.tr("Создать новую сессию"),false,R.drawable.workspace_plus,()->{popup.dismiss();editSession(null);});
         create.setContentDescription(WorkspaceText.tr("Создать новую сессию"));create.setTag("session-stack-create");list.addView(create);
         list.addView(heading);
@@ -550,9 +548,9 @@ public final class WorkspaceController {
             frame.addView(settings,new FrameLayout.LayoutParams(dp(40),dp(40),Gravity.END|Gravity.CENTER_VERTICAL));list.addView(frame);
         }
 
-        if(live().isEmpty())list.addView(text(WorkspaceText.tr("Нет открытых сессий. Создайте новую сессию."),13,MUTED));
+        if(live().isEmpty())list.addView(text(WorkspaceText.tr("Нет открытых сессий. Создайте новую сессию."),13,Pal.MUTED));
         body.addView(scroll,new LinearLayout.LayoutParams(-1,Math.min(dp(360),Math.max(dp(140),dp(86)+(live().size())*dp(76)))));
-        body.addView(text(tr("Шестерёнка — меню сессии","Gear — session menu"),12,MUTED));
+        body.addView(text(tr("Шестерёнка — меню сессии","Gear — session menu"),12,Pal.MUTED));
         View cancel=tabs.findViewWithTag("cancel-startup");if(cancel!=null){cancel.setVisibility(View.INVISIBLE);popup.setOnDismissListener(()->cancel.setVisibility(View.VISIBLE));}
         popup.showAsDropDown(anchor,0,dp(4));return popup;
     }
@@ -604,11 +602,11 @@ public final class WorkspaceController {
         LinearLayout.LayoutParams searchParams = new LinearLayout.LayoutParams(-1, -2);
         search.setMinHeight(dp(48)); searchParams.setMargins(0, 0, 0, dp(12)); body.addView(search, searchParams);
         ScrollView journal = new WorkspacePanelScrollView(activity);
-        journal.setBackground(shape(PANEL, BORDER, 16)); journal.setClipToOutline(true);
+        journal.setBackground(shape(Pal.PANEL, Pal.BORDER, 16)); journal.setClipToOutline(true);
         journal.setContentDescription(WorkspaceText.tr("Журнал последних 50 команд"));
         LinearLayout entries = column(); entries.setPadding(dp(12), dp(12), dp(12), dp(12));
         journal.addView(entries); body.addView(journal, new LinearLayout.LayoutParams(-1, 0, 1));
-        TextView count = text("", 11, MUTED); count.setPadding(0, dp(8), 0, 0); body.addView(count);
+        TextView count = text("", 11, Pal.MUTED); count.setPadding(0, dp(8), 0, 0); body.addView(count);
         renderJournal(entries, count);
         search.addTextChangedListener(new TextWatcher() {
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
@@ -619,7 +617,7 @@ public final class WorkspaceController {
         });
         section(body, WorkspaceText.tr("Пресеты запуска"), "+", () -> editSession(null, false));
         ScrollView saved = new WorkspacePanelScrollView(activity);
-        saved.setBackground(shape(PANEL, BORDER, 16)); saved.setClipToOutline(true);
+        saved.setBackground(shape(Pal.PANEL, Pal.BORDER, 16)); saved.setClipToOutline(true);
         saved.setContentDescription(WorkspaceText.tr("Список пресетов запуска"));
         LinearLayout profiles = column(); profiles.setPadding(dp(12), dp(12), dp(12), dp(12));
         saved.addView(profiles); body.addView(saved, new LinearLayout.LayoutParams(-1, 0, 1));
@@ -630,25 +628,25 @@ public final class WorkspaceController {
     private void renderJournal(LinearLayout entries, TextView count) {
         entries.removeAllViews(); int shown = 0;
         if (store.recentCommands.isEmpty()) {
-            entries.addView(text(WorkspaceText.tr("Команд пока нет"), 16, TEXT));
-            TextView hint = text(WorkspaceText.tr("Здесь появятся команды, отправленные из поля ввода терминала."), 13, MUTED);
+            entries.addView(text(WorkspaceText.tr("Команд пока нет"), 16, Pal.TEXT));
+            TextView hint = text(WorkspaceText.tr("Здесь появятся команды, отправленные из поля ввода терминала."), 13, Pal.MUTED);
             hint.setPadding(0, dp(8), 0, 0); entries.addView(hint);
         }
         for (WorkspaceStore.RecentCommand recent : store.recentCommands) {
             if (!recent.command.toLowerCase(java.util.Locale.ROOT).contains(journalQuery.toLowerCase(java.util.Locale.ROOT))) continue;
             shown++;
-            LinearLayout card = card(entries); card.setBackground(shape(Color.BLACK, BORDER, 12));
-            LinearLayout labels = column(); TextView entry = text(recent.command, 13, TEXT);
+            LinearLayout card = card(entries); card.setBackground(shape(Pal.BG, Pal.BORDER, 12));
+            LinearLayout labels = column(); TextView entry = text(recent.command, 13, Pal.TEXT);
             entry.setTypeface(Typeface.MONOSPACE); labels.addView(entry);
             String time = recent.sentAt > 0 ? new java.text.SimpleDateFormat("HH:mm", java.util.Locale.getDefault())
                 .format(new java.util.Date(recent.sentAt)) : WorkspaceText.tr("Ранее");
-            TextView timestamp = text(time, 11, MUTED); timestamp.setPadding(0, dp(6), 0, 0); labels.addView(timestamp);
+            TextView timestamp = text(time, 11, Pal.MUTED); timestamp.setPadding(0, dp(6), 0, 0); labels.addView(timestamp);
             Runnable insert = () -> recentMenu(recent);
             entry.setOnClickListener(v -> insert.run());
             labels.setOnClickListener(v -> insert.run()); card.setOnClickListener(v -> insert.run());
             card.addView(labels, new LinearLayout.LayoutParams(0, -2, 1));
         }
-        if (shown == 0 && !store.recentCommands.isEmpty()) entries.addView(text(WorkspaceText.tr("Ничего не найдено"), 14, MUTED));
+        if (shown == 0 && !store.recentCommands.isEmpty()) entries.addView(text(WorkspaceText.tr("Ничего не найдено"), 14, Pal.MUTED));
         count.setText(store.recentCommands.size() + " / " + WorkspaceStore.MAX_RECENT_COMMANDS
             + (journalQuery.isEmpty() ? "" : WorkspaceText.tr(" · найдено: ") + shown));
     }
@@ -656,7 +654,7 @@ public final class WorkspaceController {
         hideDialogKeyboard();
         LinearLayout body = previewBody(recent.command, true);
         TextView time = text(recent.sentAt > 0 ? new java.text.SimpleDateFormat("dd.MM · HH:mm", java.util.Locale.getDefault())
-            .format(new java.util.Date(recent.sentAt)) : WorkspaceText.tr("Ранее"), 12, MUTED);
+            .format(new java.util.Date(recent.sentAt)) : WorkspaceText.tr("Ранее"), 12, Pal.MUTED);
         time.setPadding(0, 0, 0, dp(10)); body.addView(time, 0);
         AlertDialog dialog = WorkspaceDialogs.builder(activity).setTitle(WorkspaceText.tr("Недавняя команда"))
             .setView(formScroll(body)).setPositiveButton(WorkspaceText.tr("Закрыть"), null).create();
@@ -678,8 +676,8 @@ public final class WorkspaceController {
     private LinearLayout previewBody(String value, boolean code) {
         LinearLayout body = column(); ScrollView pane = new ScrollView(activity); pane.setFillViewport(true);
         pane.setContentDescription(code ? WorkspaceText.tr("Полный текст команды") : WorkspaceText.tr("Полный текст заметки"));
-        pane.setBackground(shape(0xff0b1319, BORDER, 12)); pane.setClipToOutline(true);
-        TextView full = text(value, 14, TEXT); full.setPadding(dp(14), dp(14), dp(14), dp(14));
+        pane.setBackground(shape(Pal.PANEL, Pal.BORDER, 12)); pane.setClipToOutline(true);
+        TextView full = text(value, 14, Pal.TEXT); full.setPadding(dp(14), dp(14), dp(14), dp(14));
         full.setTextIsSelectable(true); if (code) full.setTypeface(Typeface.MONOSPACE);
         pane.addView(full); pane.setOnTouchListener((v, event) -> {
             v.getParent().requestDisallowInterceptTouchEvent(event.getActionMasked() != MotionEvent.ACTION_UP
@@ -695,7 +693,7 @@ public final class WorkspaceController {
         params.topMargin = dp(10); body.addView(action, params);
     }
     private void previewMetadata(LinearLayout body, String category, boolean favorite) {
-        TextView label = text(category + (favorite ? "   ★" : ""), 12, favorite ? ACCENT : MUTED);
+        TextView label = text(category + (favorite ? "   ★" : ""), 12, favorite ? Pal.ACCENT : Pal.MUTED);
         label.setPadding(0, 0, 0, dp(12)); body.addView(label, 0);
     }
     private void openCommand(WorkspaceStore.Command command) {
@@ -809,19 +807,19 @@ public final class WorkspaceController {
         AlertDialog dialog=WorkspaceDialogs.builder(activity).setTitle(WorkspaceText.tr("Категории")).setView(body).setNegativeButton(WorkspaceText.tr("Отмена"),null).create();
         boolean[] alias={aliasesSelected};TextView commands=button(WorkspaceText.tr("Категории команд"),false,()->{}),aliases=button(tr("Категории Alias","Alias categories"),false,()->{});
         LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(0,-2,1);lp.setMarginEnd(dp(8));choices.addView(commands,lp);choices.addView(aliases,new LinearLayout.LayoutParams(0,-2,1));
-        Runnable render=()->{entries.removeAllViews();for(TextView tab:new TextView[]{commands,aliases}){boolean active=(tab==aliases)==alias[0];tab.setSelected(active);tab.setBackground(new RippleDrawable(ColorStateList.valueOf(0x4479dfcd),shape(active?0xff102522:PANEL,active?ACCENT:BORDER,12),null));}
+        Runnable render=()->{entries.removeAllViews();for(TextView tab:new TextView[]{commands,aliases}){boolean active=(tab==aliases)==alias[0];tab.setSelected(active);tab.setBackground(new RippleDrawable(ColorStateList.valueOf(Pal.RIPPLE),shape(active?Pal.CARD2:Pal.PANEL,active?Pal.ACCENT:Pal.BORDER,12),null));}
             entries.addView(button(WorkspaceText.tr("Избранное"),alias[0]?aliasFavorites:favorites,()->{aliasesSelected=alias[0];if(alias[0]){aliasFavorites=true;aliasCategory="";}else{favorites=true;commandCategory="";}dialog.dismiss();renderContent();}));
             List<String> categories=alias[0]?aliasCategories():commandCategories();List<String> labels=new ArrayList<>();labels.add(WorkspaceText.tr("Все категории"));labels.addAll(categories);
             for(int i=0;i<labels.size();i++){final String value=i==0?"":labels.get(i);entries.addView(button(labels.get(i),value.equals(alias[0]?aliasCategory:commandCategory)&&!(alias[0]?aliasFavorites:favorites),()->{aliasesSelected=alias[0];if(alias[0]){aliasCategory=value;aliasFavorites=false;}else{commandCategory=value;favorites=false;}dialog.dismiss();renderContent();}));}};
         commands.setOnClickListener(v->{alias[0]=false;render.run();});aliases.setOnClickListener(v->{alias[0]=true;render.run();});render.run();dialog.show();
     }
     private void aliasCard(LinearLayout parent,WorkspaceStore.Alias a){
-        LinearLayout card=card(parent);card.setBackground(shape(Color.BLACK,BORDER,12));cardLabels(card,a.name,a.command,WorkspaceAliases.label(a.environment)+" · "+a.category+(a.favorite?"  ★":""),false);
+        LinearLayout card=card(parent);card.setBackground(shape(Pal.BG,Pal.BORDER,12));cardLabels(card,a.name,a.command,WorkspaceAliases.label(a.environment)+" · "+a.category+(a.favorite?"  ★":""),false);
         ((TextView)card.getChildAt(0)).setText("≋");card.setContentDescription("Alias "+a.name);card.setOnClickListener(v->openAlias(a,null));
     }
     private void openAlias(WorkspaceStore.Alias a,Runnable back){
         hideDialogKeyboard();LinearLayout body=previewBody(a.command,true);previewMetadata(body,WorkspaceAliases.label(a.environment)+" · "+a.category,a.favorite);
-        body.addView(text(tr("Будет автоматически доступен в новых терминальных сессиях выбранного окружения.","Automatically available in new terminal sessions of the selected environment."),12,MUTED));
+        body.addView(text(tr("Будет автоматически доступен в новых терминальных сессиях выбранного окружения.","Automatically available in new terminal sessions of the selected environment."),12,Pal.MUTED));
         AlertDialog dialog=WorkspaceDialogs.builder(activity).setTitle(a.name).setView(formScroll(body)).setPositiveButton(WorkspaceText.tr(back==null?"Закрыть":"Назад"),(d,w)->{if(back!=null)back.run();}).create();
         dialog.setOnCancelListener(d->{if(back!=null)back.run();});
         previewAction(body,WorkspaceText.tr("Вставить в сессию"),R.drawable.workspace_commands,()->{dialog.dismiss();insertAlias(a);});
@@ -842,13 +840,13 @@ public final class WorkspaceController {
         List<WorkspaceEnvironments.Choice> choices=WorkspaceAliases.installed(WorkspaceEnvironments.choices());
         LinearLayout form=column();EditText name=labeled(form,tr("Имя","Name"),draft.name,false);name.setContentDescription(tr("Имя alias","Alias name"));
         EditText command=labeled(form,WorkspaceText.tr("Команда"),draft.command,true);
-        form.addView(text(tr("Окружение","Environment"),12,MUTED));TextView environment=button(WorkspaceAliases.label(draft.environment)+" ▾",false,()->{});form.addView(environment);
-        TextView termuxHint=text(tr("Перезапустите вкладку для добавления Alias","Restart the tab to load the alias"),12,MUTED);form.addView(termuxHint);termuxHint.setVisibility(draft.environment.equals("termux")?View.VISIBLE:View.GONE);
+        form.addView(text(tr("Окружение","Environment"),12,Pal.MUTED));TextView environment=button(WorkspaceAliases.label(draft.environment)+" ▾",false,()->{});form.addView(environment);
+        TextView termuxHint=text(tr("Перезапустите вкладку для добавления Alias","Restart the tab to load the alias"),12,Pal.MUTED);form.addView(termuxHint);termuxHint.setVisibility(draft.environment.equals("termux")?View.VISIBLE:View.GONE);
         environment.setOnClickListener(v->{String[] labels=new String[choices.size()];int selected=-1;for(int i=0;i<labels.length;i++){WorkspaceEnvironments.Choice c=choices.get(i);labels[i]=c.label;if((c.alias.isEmpty()?"termux":c.alias).equals(draft.environment))selected=i;}
             WorkspaceDialogs.builder(activity).setTitle(tr("Окружение","Environment")).setSingleChoiceItems(labels,selected,(d,w)->{WorkspaceEnvironments.Choice c=choices.get(w);draft.environment=c.alias.isEmpty()?"termux":c.alias;environment.setText(c.label+" ▾");termuxHint.setVisibility(draft.environment.equals("termux")?View.VISIBLE:View.GONE);d.dismiss();}).setNegativeButton(WorkspaceText.tr("Отмена"),null).show();});
         EditText category=categoryField(form,draft.category,aliasCategories());
-        CheckBox favorite=new CheckBox(activity);favorite.setText(WorkspaceText.tr("Добавить в избранное"));favorite.setTextColor(TEXT);favorite.setChecked(draft.favorite);form.addView(favorite);
-        form.addView(text(tr("Будет автоматически доступен в новых терминальных сессиях выбранного окружения.","Automatically available in new terminal sessions of the selected environment."),12,MUTED));
+        CheckBox favorite=new CheckBox(activity);favorite.setText(WorkspaceText.tr("Добавить в избранное"));favorite.setTextColor(Pal.TEXT);favorite.setChecked(draft.favorite);form.addView(favorite);
+        form.addView(text(tr("Будет автоматически доступен в новых терминальных сессиях выбранного окружения.","Automatically available in new terminal sessions of the selected environment."),12,Pal.MUTED));
         AlertDialog dialog=WorkspaceDialogs.builder(activity).setTitle(existing==null?tr("Новый alias","New alias"):tr("Редактировать alias","Edit alias")).setView(formScroll(form)).setPositiveButton(WorkspaceText.tr("Сохранить"),null).setNegativeButton(WorkspaceText.tr("Отмена"),null).create();
         dialog.setOnShowListener(d->dialog.getButton(-1).setOnClickListener(v->{draft.favorite=favorite.isChecked();draft.name=name.getText().toString().trim();draft.command=command.getText().toString();draft.category=category.getText().toString().trim();if(draft.category.isEmpty())draft.category=WorkspaceText.tr("Общее");
             if(!WorkspaceAliases.validName(draft.name)){name.setError(tr("Имя: латинская буква или _, затем буквы, цифры, _ или -. До 64 символов.","Start with a letter or _, then letters, digits, _ or -. Up to 64 characters."));return;}
@@ -877,7 +875,7 @@ public final class WorkspaceController {
     }
     private LinearLayout libraryPanel(LinearLayout body, String description) {
         ScrollView panel = new WorkspacePanelScrollView(activity);
-        panel.setBackground(shape(PANEL, BORDER, 16)); panel.setClipToOutline(true); panel.setContentDescription(description);
+        panel.setBackground(shape(Pal.PANEL, Pal.BORDER, 16)); panel.setClipToOutline(true); panel.setContentDescription(description);
         LinearLayout entries = column(); entries.setPadding(dp(12), dp(12), dp(12), dp(12));
         panel.addView(entries); body.addView(panel, new LinearLayout.LayoutParams(-1, 0, 1)); return entries;
     }
@@ -896,7 +894,7 @@ public final class WorkspaceController {
             }).setNegativeButton(WorkspaceText.tr("Отмена"), null).show();
     }
     private void noteCard(LinearLayout parent, WorkspaceStore.Note note) {
-        LinearLayout card = card(parent); card.setBackground(shape(Color.BLACK, BORDER, 12));
+        LinearLayout card = card(parent); card.setBackground(shape(Pal.BG, Pal.BORDER, 12));
         cardLabels(card, note.name, note.text, note.category + (note.favorite ? "  ★" : ""), false);
         ((TextView) card.getChildAt(0)).setText("≡");
         card.setContentDescription(WorkspaceText.tr("Заметка ") + note.name); card.setOnClickListener(v -> openNote(note));
@@ -919,7 +917,7 @@ public final class WorkspaceController {
         LinearLayout form = column(); EditText name = labeled(form, WorkspaceText.tr("Название"), draft.name, false);
         EditText text = labeled(form, WorkspaceText.tr("Текст заметки"), draft.text, true);
         EditText category = categoryField(form,draft.category,noteCategories());
-        CheckBox favorite = new CheckBox(activity); favorite.setText(WorkspaceText.tr("Добавить в избранное")); favorite.setTextColor(TEXT);
+        CheckBox favorite = new CheckBox(activity); favorite.setText(WorkspaceText.tr("Добавить в избранное")); favorite.setTextColor(Pal.TEXT);
         favorite.setChecked(draft.favorite); form.addView(favorite);
         AlertDialog dialog = WorkspaceDialogs.builder(activity).setTitle(existing == null ? WorkspaceText.tr("Новая заметка") : WorkspaceText.tr("Редактировать заметку"))
             .setView(formScroll(form)).setPositiveButton(WorkspaceText.tr("Сохранить"), null).setNegativeButton(WorkspaceText.tr("Отмена"), null).create();
@@ -962,23 +960,23 @@ public final class WorkspaceController {
         body.addView(button(WorkspaceText.tr("+  Новая сессия"), true, () -> editSession(null)));
     }
     private void empty(LinearLayout parent, String title, String subtitle) {
-        LinearLayout card = column(); card.setPadding(dp(18), dp(24), dp(18), dp(24)); card.setBackground(shape(PANEL, BORDER, 16));
-        card.addView(text(title, 16, TEXT)); TextView sub = text(subtitle, 13, MUTED); sub.setPadding(0, dp(8), 0, 0); card.addView(sub); parent.addView(card);
+        LinearLayout card = column(); card.setPadding(dp(18), dp(24), dp(18), dp(24)); card.setBackground(shape(Pal.PANEL, Pal.BORDER, 16));
+        card.addView(text(title, 16, Pal.TEXT)); TextView sub = text(subtitle, 13, Pal.MUTED); sub.setPadding(0, dp(8), 0, 0); card.addView(sub); parent.addView(card);
     }
     private LinearLayout card(LinearLayout parent) {
-        LinearLayout card = row(); card.setPadding(dp(12), dp(12), dp(8), dp(12)); card.setBackground(shape(PANEL, BORDER, 16));
+        LinearLayout card = row(); card.setPadding(dp(12), dp(12), dp(8), dp(12)); card.setBackground(shape(Pal.PANEL, Pal.BORDER, 16));
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(-1, -2); lp.setMargins(0, 0, 0, dp(8)); parent.addView(card, lp); return card;
     }
     private void cardLabels(LinearLayout card, String title, String subtitle, String status, boolean terminal) {
-        TextView icon = text(terminal ? ">_" : "$", 18, ACCENT); icon.setGravity(Gravity.CENTER); icon.setTypeface(Typeface.MONOSPACE);
-        icon.setBackground(shape(0xff102b27, 0xff183c36, 12)); LinearLayout.LayoutParams ilp = new LinearLayout.LayoutParams(dp(42), dp(48)); ilp.setMarginEnd(dp(12)); card.addView(icon, ilp);
-        LinearLayout labels = column(); TextView name = text(title, 15, TEXT); name.setTypeface(null, Typeface.BOLD); name.setSingleLine(); name.setEllipsize(TextUtils.TruncateAt.END); labels.addView(name);
-        TextView sub = text(subtitle, 11, MUTED); sub.setSingleLine(); sub.setEllipsize(TextUtils.TruncateAt.MIDDLE); sub.setPadding(0, dp(4), 0, dp(4)); labels.addView(sub);
-        TextView state = text(status, 10, terminal ? ACCENT : MUTED); labels.addView(state);
+        TextView icon = text(terminal ? ">_" : "$", 18, Pal.ACCENT); icon.setGravity(Gravity.CENTER); icon.setTypeface(Typeface.MONOSPACE);
+        icon.setBackground(shape(Pal.CARD2, Pal.TINT_BORDER, 12)); LinearLayout.LayoutParams ilp = new LinearLayout.LayoutParams(dp(42), dp(48)); ilp.setMarginEnd(dp(12)); card.addView(icon, ilp);
+        LinearLayout labels = column(); TextView name = text(title, 15, Pal.TEXT); name.setTypeface(null, Typeface.BOLD); name.setSingleLine(); name.setEllipsize(TextUtils.TruncateAt.END); labels.addView(name);
+        TextView sub = text(subtitle, 11, Pal.MUTED); sub.setSingleLine(); sub.setEllipsize(TextUtils.TruncateAt.MIDDLE); sub.setPadding(0, dp(4), 0, dp(4)); labels.addView(sub);
+        TextView state = text(status, 10, terminal ? Pal.ACCENT : Pal.MUTED); labels.addView(state);
         card.addView(labels, new LinearLayout.LayoutParams(0, -2, 1));
     }
     private void commandCard(LinearLayout parent, WorkspaceStore.Command c) {
-        LinearLayout card = card(parent); card.setBackground(shape(Color.BLACK, BORDER, 12));
+        LinearLayout card = card(parent); card.setBackground(shape(Pal.BG, Pal.BORDER, 12));
         cardLabels(card, c.name, c.command, c.category + (c.favorite ? "  ★" : ""), false);
         card.setOnClickListener(v -> openCommand(c));
         card.setContentDescription(WorkspaceText.tr("Команда ")+c.name);
@@ -986,16 +984,16 @@ public final class WorkspaceController {
     private void sessionCard(LinearLayout parent, WorkspaceStore.Session s) {
         TerminalSession running = liveFor(s); boolean active = running != null && running.isRunning();
         LinearLayout card = card(parent); cardLabels(card, s.name, s.startupCommands().isEmpty() ? compact(s.directory) : android.text.TextUtils.join(" → ", s.startupCommands()), active ? WorkspaceText.tr("● Активна") : running != null ? WorkspaceText.tr("Завершена") : WorkspaceText.tr("Сохранена"), true);
-        if (screen == Screen.HOME) card.setBackground(shape(Color.BLACK, BORDER, 12));
+        if (screen == Screen.HOME) card.setBackground(shape(Pal.BG, Pal.BORDER, 12));
         card.setOnClickListener(v -> openSavedSession(s));
         TextView run = button(active ? "›" : "▷", false, () -> openSavedSession(s)); run.setContentDescription(active ? WorkspaceText.tr("Открыть ") + s.name : WorkspaceText.tr("Запустить ") + s.name); card.addView(run,new LinearLayout.LayoutParams(dp(48),dp(48)));
         TextView more = button("⋮", false, () -> sessionMenu(s)); more.setContentDescription(WorkspaceText.tr("Действия с сессией ") + s.name); LinearLayout.LayoutParams moreParams=new LinearLayout.LayoutParams(dp(48),dp(48)); moreParams.setMarginStart(dp(8)); card.addView(more,moreParams);
     }
     private void openSavedSession(WorkspaceStore.Session profile) {
         if(!profile.environment.equals("codex")||liveFor(profile)!=null&&liveFor(profile).isRunning()){launch(profile);return;}
-        LinearLayout body=column();body.addView(text(WorkspaceText.tr("Папка: ")+profile.directory,14,TEXT));body.addView(text(WorkspaceText.tr("Среда: ")+ProjectFiles.environmentLabel(profile),13,MUTED));
-        body.addView(text(WorkspaceText.tr("Чат: ")+(profile.codexThreadName.isEmpty()?WorkspaceText.tr("Новый чат"):profile.codexThreadName),14,TEXT));
-        body.addView(text(WorkspaceText.tr("Новый чат не заменяет прежнюю историю. Сохранение — по вашему выбору."),12,MUTED));
+        LinearLayout body=column();body.addView(text(WorkspaceText.tr("Папка: ")+profile.directory,14,Pal.TEXT));body.addView(text(WorkspaceText.tr("Среда: ")+ProjectFiles.environmentLabel(profile),13,Pal.MUTED));
+        body.addView(text(WorkspaceText.tr("Чат: ")+(profile.codexThreadName.isEmpty()?WorkspaceText.tr("Новый чат"):profile.codexThreadName),14,Pal.TEXT));
+        body.addView(text(WorkspaceText.tr("Новый чат не заменяет прежнюю историю. Сохранение — по вашему выбору."),12,Pal.MUTED));
         WorkspaceDialogs.builder(activity).setTitle(profile.name).setView(body)
             .setPositiveButton(profile.codexChat.equals("id")?WorkspaceText.tr("Продолжить чат"):WorkspaceText.tr("Начать чат"),(d,w)->launch(profile))
             .setNeutralButton(WorkspaceText.tr("Новый чат"),(d,w)->{WorkspaceStore.Session next=profile.copy();next.name=profile.name;next.codexChat="new";next.codexThread="";next.codexThreadName="";next.codexSourceDirectory="";next.saved=false;launchNew(next,true);})
@@ -1008,8 +1006,8 @@ public final class WorkspaceController {
             .setNegativeButton(WorkspaceText.tr("Отмена"), null).show();
     }
     private EditText field(String hint, String value, boolean multiline) {
-        EditText e = new EditText(activity); e.setHint(hint); e.setText(value); e.setTextColor(TEXT); e.setHintTextColor(MUTED); e.setTextSize(14);
-        e.setPadding(dp(12), dp(10), dp(12), dp(10)); e.setBackground(shape(PANEL, BORDER, 10));
+        EditText e = new EditText(activity); e.setHint(hint); e.setText(value); e.setTextColor(Pal.TEXT); e.setHintTextColor(Pal.MUTED); e.setTextSize(14);
+        e.setPadding(dp(12), dp(10), dp(12), dp(10)); e.setBackground(shape(Pal.PANEL, Pal.BORDER, 10));
         e.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS | (multiline ? InputType.TYPE_TEXT_FLAG_MULTI_LINE : 0));
         e.setShowSoftInputOnFocus(true);
         e.setOnClickListener(v->{prepareKeyboardWindow();e.requestFocus();e.post(()->((InputMethodManager)activity.getSystemService(Context.INPUT_METHOD_SERVICE)).showSoftInput(e,0));});
@@ -1018,15 +1016,15 @@ public final class WorkspaceController {
         return e;
     }
     private EditText labeled(LinearLayout form, String label, String value, boolean multiline) {
-        TextView title = text(label, 12, MUTED); title.setPadding(0, dp(12), 0, dp(6)); form.addView(title);
+        TextView title = text(label, 12, Pal.MUTED); title.setPadding(0, dp(12), 0, dp(6)); form.addView(title);
         EditText e = field(label, value, multiline); form.addView(e, new LinearLayout.LayoutParams(-1, -2)); return e;
     }
     private EditText categoryField(LinearLayout form,String value,List<String> categories){
-        TextView title=text(WorkspaceText.tr("Категория"),12,MUTED);title.setPadding(0,dp(12),0,dp(6));form.addView(title);
-        android.widget.AutoCompleteTextView input=new android.widget.AutoCompleteTextView(activity);input.setTextColor(TEXT);input.setHintTextColor(MUTED);input.setTextSize(14);input.setSingleLine(true);input.setThreshold(1);
-        input.setPadding(dp(12),dp(10),dp(12),dp(10));input.setBackground(shape(PANEL,BORDER,10));input.setDropDownBackgroundDrawable(shape(PANEL,BORDER,10));
+        TextView title=text(WorkspaceText.tr("Категория"),12,Pal.MUTED);title.setPadding(0,dp(12),0,dp(6));form.addView(title);
+        android.widget.AutoCompleteTextView input=new android.widget.AutoCompleteTextView(activity);input.setTextColor(Pal.TEXT);input.setHintTextColor(Pal.MUTED);input.setTextSize(14);input.setSingleLine(true);input.setThreshold(1);
+        input.setPadding(dp(12),dp(10),dp(12),dp(10));input.setBackground(shape(Pal.PANEL,Pal.BORDER,10));input.setDropDownBackgroundDrawable(shape(Pal.PANEL,Pal.BORDER,10));
         input.setAdapter(new android.widget.ArrayAdapter<String>(activity,android.R.layout.simple_dropdown_item_1line,categories){
-            @Override public View getView(int position,View recycled,ViewGroup parent){TextView row=(TextView)super.getView(position,recycled,parent);row.setTextColor(TEXT);return row;}
+            @Override public View getView(int position,View recycled,ViewGroup parent){TextView row=(TextView)super.getView(position,recycled,parent);row.setTextColor(Pal.TEXT);return row;}
         });input.setText(value,false);input.setHint(WorkspaceText.tr("Категория"));input.setOnClickListener(v->{if(!categories.isEmpty())input.showDropDown();});
         LinearLayout line=row();line.addView(input,new LinearLayout.LayoutParams(0,-2,1));
         TextView choose=button("▾",false,()->{
@@ -1050,7 +1048,7 @@ public final class WorkspaceController {
         LinearLayout form = column(); EditText name = labeled(form, WorkspaceText.tr("Название"), draft.name, false);
         EditText command = labeled(form, WorkspaceText.tr("Команда"), draft.command, true);
         EditText categoryInput = categoryField(form,draft.category,commandCategories());
-        CheckBox favorite = new CheckBox(activity); favorite.setText(WorkspaceText.tr("Добавить в избранное")); favorite.setTextColor(TEXT); favorite.setChecked(draft.favorite); form.addView(favorite);
+        CheckBox favorite = new CheckBox(activity); favorite.setText(WorkspaceText.tr("Добавить в избранное")); favorite.setTextColor(Pal.TEXT); favorite.setChecked(draft.favorite); form.addView(favorite);
         AlertDialog dialog = WorkspaceDialogs.builder(activity).setTitle(existing == null ? WorkspaceText.tr("Новая команда") : WorkspaceText.tr("Редактировать команду"))
             .setView(formScroll(form)).setPositiveButton(WorkspaceText.tr("Сохранить"), null).setNegativeButton(WorkspaceText.tr("Отмена"), null).create();
         dialog.setOnShowListener(d -> dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
@@ -1072,8 +1070,8 @@ public final class WorkspaceController {
     }
     private static WorkspaceStore.Session agentQueryProfile(String env){WorkspaceStore.Session p=new WorkspaceStore.Session();p.codexEnvironment=env;return p;}
     private void unavailableAgentScope(LinearLayout form){
-        CheckBox scope=new CheckBox(activity);scope.setText(tr("Работать только в пределах проекта · недоступно","Work only within the project · unavailable"));scope.setTextColor(MUTED);scope.setEnabled(false);scope.setChecked(false);form.addView(scope);
-        form.addView(text(tr("Для этого агента ограничение папкой не реализовано в нашей среде Android/proot. Рабочий каталог не является защитной границей; действуют штатные права агента.","Project-folder enforcement is not implemented for this agent in our Android/proot environment. The working directory is not a security boundary; native agent permissions apply."),12,MUTED));
+        CheckBox scope=new CheckBox(activity);scope.setText(tr("Работать только в пределах проекта · недоступно","Work only within the project · unavailable"));scope.setTextColor(Pal.MUTED);scope.setEnabled(false);scope.setChecked(false);form.addView(scope);
+        form.addView(text(tr("Для этого агента ограничение папкой не реализовано в нашей среде Android/proot. Рабочий каталог не является защитной границей; действуют штатные права агента.","Project-folder enforcement is not implemented for this agent in our Android/proot environment. The working directory is not a security boundary; native agent permissions apply."),12,Pal.MUTED));
     }
     private void editSession(WorkspaceStore.Session existing) { editSession(existing, true); }
     private void editSession(WorkspaceStore.Session existing, boolean launchAfterSave) {
@@ -1082,7 +1080,7 @@ public final class WorkspaceController {
         WorkspaceStore.Session draft = existing == null ? new WorkspaceStore.Session() : existing;
         if(existing!=null&&draft.environment.equals("codex")&&draft.codexEnvironment.equals("termux"))
             activity.showToast(tr("Старый профиль Codex сохраняет Termux, авторизацию и историю. Для Ubuntu создайте новую сессию.","This legacy Codex profile keeps Termux, authentication and history. Create a new session for Ubuntu."),true);
-        LinearLayout form = column(); if(draft.restoreReview)form.addView(text(WorkspaceLanguage.code(activity).equals("ru")?"Импортированный пресет: проверьте среду, команды и пути. Отдельное восстановленное окружение доступно своим пресетом запуска. Сохраните настройки перед запуском.":"Imported preset: review environment, commands and paths. A separate restored environment has its own launch preset. Save settings before launching.",14,MUTED)); EditText name = labeled(form, WorkspaceText.tr("Название сессии"), existing == null ? "" : draft.name, false);
+        LinearLayout form = column(); if(draft.restoreReview)form.addView(text(WorkspaceLanguage.code(activity).equals("ru")?"Импортированный пресет: проверьте среду, команды и пути. Отдельное восстановленное окружение доступно своим пресетом запуска. Сохраните настройки перед запуском.":"Imported preset: review environment, commands and paths. A separate restored environment has its own launch preset. Save settings before launching.",14,Pal.MUTED)); EditText name = labeled(form, WorkspaceText.tr("Название сессии"), existing == null ? "" : draft.name, false);
         EditText directory = labeled(form, WorkspaceText.tr("Рабочий каталог"), existing == null ? TermuxConstants.TERMUX_HOME_DIR_PATH : draft.directory, false);
         String[] chosenEnvironment = {existing == null ? "termux" : (draft.aiAgent.equals("opencode") || draft.claudeAgent || draft.geminiAgent) ? "codex" : draft.environment.equals("legacy")?"termux":!draft.prootAlias.isEmpty()?"proot:"+draft.prootAlias:draft.environment};
         String[] codexEnvironment={AgentEnvironments.editorUbuntu(existing)};
@@ -1096,7 +1094,7 @@ public final class WorkspaceController {
         String[] environmentNames = {tr("Окружения Termux","Termux environments"), WorkspaceText.tr("SSH · сервер"), "AI Agents"};
         LinearLayout localFields=column();
         TextView localEnvironment=button("",false,()->{});localEnvironment.setContentDescription(tr("Окружение","Environment"));localFields.addView(localEnvironment);
-        TextView environmentLogin=text("",13,MUTED);environmentLogin.setContentDescription("Environment login command");environmentLogin.setTextIsSelectable(true);localFields.addView(environmentLogin);
+        TextView environmentLogin=text("",13,Pal.MUTED);environmentLogin.setContentDescription("Environment login command");environmentLogin.setTextIsSelectable(true);localFields.addView(environmentLogin);
         TextView environment = button("", false, () -> {});
         environment.setContentDescription(WorkspaceText.tr("Среда запуска"));
         TextView environmentCheck=button(tr("Проверка среды запуска","Launch environment check"),false,()->{});environmentCheck.setTag("agent-environment-check");
@@ -1119,14 +1117,14 @@ public final class WorkspaceController {
         password.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
         password.setSaveEnabled(false); password.setLongClickable(false);
         if (!draft.sshEncryptedPassword.isEmpty()) password.setHint(WorkspaceText.tr("Сохранён; оставьте пустым, чтобы не менять"));
-        CheckBox showPassword = new CheckBox(activity); showPassword.setText(WorkspaceText.tr("Показать пароль")); showPassword.setTextColor(TEXT);
+        CheckBox showPassword = new CheckBox(activity); showPassword.setText(WorkspaceText.tr("Показать пароль")); showPassword.setTextColor(Pal.TEXT);
         showPassword.setOnCheckedChangeListener((b, checked) -> {
             password.setTransformationMethod(checked ? null : android.text.method.PasswordTransformationMethod.getInstance());
             password.setSelection(password.length());
         }); passwordFields.addView(showPassword);
-        CheckBox rememberPassword = new CheckBox(activity); rememberPassword.setText(WorkspaceText.tr("Запомнить пароль")); rememberPassword.setTextColor(TEXT);
+        CheckBox rememberPassword = new CheckBox(activity); rememberPassword.setText(WorkspaceText.tr("Запомнить пароль")); rememberPassword.setTextColor(Pal.TEXT);
         rememberPassword.setChecked(!draft.sshEncryptedPassword.isEmpty()); passwordFields.addView(rememberPassword);
-        passwordFields.addView(text(WorkspaceText.tr("Сохранение через Android Keystore. После удаления приложения пароль потребуется ввести заново."), 12, MUTED));
+        passwordFields.addView(text(WorkspaceText.tr("Сохранение через Android Keystore. После удаления приложения пароль потребуется ввести заново."), 12, Pal.MUTED));
         Runnable updateAuth = () -> {
             auth.setText(WorkspaceText.tr("Авторизация: ") + authNames[Math.max(0, java.util.Arrays.asList(authModes).indexOf(chosenAuth[0]))]);
             keyFields.setVisibility(chosenAuth[0].equals("key") ? View.VISIBLE : View.GONE);
@@ -1137,9 +1135,9 @@ public final class WorkspaceController {
                 chosenAuth[0] = authModes[which]; updateAuth.run(); d.dismiss();
             }).setNegativeButton(WorkspaceText.tr("Отмена"), null).show());
         android.widget.CheckBox sshKeepOpen = new android.widget.CheckBox(activity);
-        sshKeepOpen.setText(WorkspaceText.tr("Оставить подключение открытым")); sshKeepOpen.setTextColor(TEXT);
+        sshKeepOpen.setText(WorkspaceText.tr("Оставить подключение открытым")); sshKeepOpen.setTextColor(Pal.TEXT);
         sshKeepOpen.setChecked(draft.sshKeepOpen); sshFields.addView(sshKeepOpen);
-        LinearLayout agentFields=column();agentFields.addView(text(tr("Права применяются при следующем запуске. Сохранение настроек не меняет работающий агент.","Permissions apply on next launch. Saving settings does not change a running agent."),12,MUTED));
+        LinearLayout agentFields=column();agentFields.addView(text(tr("Права применяются при следующем запуске. Сохранение настроек не меняет работающий агент.","Permissions apply on next launch. Saving settings does not change a running agent."),12,Pal.MUTED));
         TextView agentButton=button("",false,()->{});agentFields.addView(agentButton);
         LinearLayout geminiFields=column();agentFields.addView(geminiFields);
         String[] geminiModel={draft.geminiModel},geminiMode={draft.geminiMode},geminiChat={draft.geminiChat},geminiThread={draft.geminiThread};
@@ -1148,23 +1146,23 @@ public final class WorkspaceController {
         LinearLayout geminiKeyFields=column();geminiKeyFields.setTag("gemini-api-key-fields");geminiFields.addView(geminiKeyFields);
         String[] geminiStoredKey={draft.geminiEncryptedKey};
         EditText geminiApiKey=field(draft.geminiEncryptedKey.isEmpty()?tr("Gemini API-ключ (необязательно)","Gemini API key (optional)"):tr("Ключ сохранён · введите новый для замены","Key saved · enter a replacement"),"",false);geminiApiKey.setTag("gemini-api-key");geminiApiKey.setInputType(android.text.InputType.TYPE_CLASS_TEXT|android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD);geminiApiKey.setSaveEnabled(false);geminiApiKey.setImeOptions(android.view.inputmethod.EditorInfo.IME_FLAG_NO_PERSONALIZED_LEARNING);geminiKeyFields.addView(geminiApiKey);
-        geminiKeyFields.addView(text(tr("Если ключ не указан и ранее не сохранён, при запуске Gemini предложит ввести его в терминальном окне — откройте его кнопкой робота. Пустое поле сохраняет уже заданный ключ, новый ключ заменяет его. Ключ защищён Android Keystore и применяется при следующем запуске.","If no key is entered or saved, Gemini will offer key entry in the terminal at launch — open it with the robot button. Empty keeps an existing key; a new key replaces it. Android Keystore protects the key; changes apply at the next launch."),12,MUTED));
+        geminiKeyFields.addView(text(tr("Если ключ не указан и ранее не сохранён, при запуске Gemini предложит ввести его в терминальном окне — откройте его кнопкой робота. Пустое поле сохраняет уже заданный ключ, новый ключ заменяет его. Ключ защищён Android Keystore и применяется при следующем запуске.","If no key is entered or saved, Gemini will offer key entry in the terminal at launch — open it with the robot button. Empty keeps an existing key; a new key replaces it. Android Keystore protects the key; changes apply at the next launch."),12,Pal.MUTED));
         TextView clearGeminiKey=button(tr("Удалить сохранённый ключ","Remove saved key"),false,()->{});geminiKeyFields.addView(clearGeminiKey);clearGeminiKey.setVisibility(geminiStoredKey[0].isEmpty()?View.GONE:View.VISIBLE);clearGeminiKey.setOnClickListener(v->{geminiStoredKey[0]="";geminiApiKey.setText("");geminiApiKey.setHint(tr("Gemini API-ключ (необязательно)","Gemini API key (optional)"));clearGeminiKey.setVisibility(View.GONE);});
-        TextView geminiAuthDescription=text("",12,MUTED);geminiFields.addView(geminiAuthDescription);
+        TextView geminiAuthDescription=text("",12,Pal.MUTED);geminiFields.addView(geminiAuthDescription);
         LinearLayout geminiCloudFields=column();geminiFields.addView(geminiCloudFields);
-        geminiCloudFields.addView(text(tr("Проект Google Cloud — облачный ID, не рабочая папка","Google Cloud project — cloud ID, not a working folder"),12,MUTED));
+        geminiCloudFields.addView(text(tr("Проект Google Cloud — облачный ID, не рабочая папка","Google Cloud project — cloud ID, not a working folder"),12,Pal.MUTED));
         VertexConnection.applyDefaults(activity,draft);
         EditText geminiCloudProject=field(tr("ID проекта Google Cloud (если используется)","Google Cloud project ID (if used)"),draft.geminiCloudProject,false);geminiCloudProject.setTag("gemini-cloud-project");geminiCloudFields.addView(geminiCloudProject);
-        geminiCloudFields.addView(text(tr("Регион Vertex AI","Vertex AI location"),12,MUTED));
+        geminiCloudFields.addView(text(tr("Регион Vertex AI","Vertex AI location"),12,Pal.MUTED));
         EditText geminiCloudLocation=field(tr("Например: global или us-central1","For example: global or us-central1"),draft.geminiCloudLocation,false);geminiCloudLocation.setTag("gemini-cloud-location");geminiCloudLocation.setFocusable(false);geminiCloudLocation.setCursorVisible(false);geminiCloudLocation.setOnClickListener(v->GeminiAuthUi.location(activity,geminiCloudLocation.getText().toString(),value->geminiCloudLocation.setText(value)));geminiCloudFields.addView(geminiCloudLocation);
-        geminiCloudFields.addView(text(tr("Обычно укажите ID облачного проекта и регион; в Ubuntu должны быть настроены Google Cloud ADC или сервисный аккаунт. Для Vertex Express используется отдельный GOOGLE_API_KEY. Пустые поля сохраняют параметры окружения; ключи здесь не вводятся. Подключение само не создаёт облачный проект и не настраивает оплату.","Normally enter your cloud project ID and location; Google Cloud ADC or a service account must be configured in Ubuntu. Vertex Express uses a separate GOOGLE_API_KEY. Empty fields preserve environment settings; do not enter keys here. Connecting does not create a cloud project or configure billing."),12,MUTED));
+        geminiCloudFields.addView(text(tr("Обычно укажите ID облачного проекта и регион; в Ubuntu должны быть настроены Google Cloud ADC или сервисный аккаунт. Для Vertex Express используется отдельный GOOGLE_API_KEY. Пустые поля сохраняют параметры окружения; ключи здесь не вводятся. Подключение само не создаёт облачный проект и не настраивает оплату.","Normally enter your cloud project ID and location; Google Cloud ADC or a service account must be configured in Ubuntu. Vertex Express uses a separate GOOGLE_API_KEY. Empty fields preserve environment settings; do not enter keys here. Connecting does not create a cloud project or configure billing."),12,Pal.MUTED));
         TextView geminiModelButton=button("",false,()->{});geminiFields.addView(geminiModelButton);
         TextView geminiModeButton=button("",false,()->{});geminiFields.addView(geminiModeButton);
         TextView geminiChatButton=button("",false,()->{});geminiFields.addView(geminiChatButton);
         String[] geminiModes=GeminiRightsUi.MODES;
         String[] geminiModeNames={GeminiRightsUi.label("default"),GeminiRightsUi.label("auto_edit"),GeminiRightsUi.label("plan")};
         String[] geminiModeDescriptions={WorkspaceText.tr("Gemini запрашивает разрешения на действия в терминале."),WorkspaceText.tr("Gemini автоматически разрешает инструменты редактирования; остальные действия требуют подтверждения."),WorkspaceText.tr("Анализ и план без выполнения изменений. Это режим Gemini, а не системная песочница.")};
-        TextView geminiAccessDetails=text("",12,MUTED);geminiFields.addView(geminiAccessDetails);unavailableAgentScope(geminiFields);
+        TextView geminiAccessDetails=text("",12,Pal.MUTED);geminiFields.addView(geminiAccessDetails);unavailableAgentScope(geminiFields);
         Runnable updateGemini=()->{
             resetEnvironmentCheck[0].run();
             geminiKeyFields.setVisibility(geminiAuth[0].equals("api")?View.VISIBLE:View.GONE);geminiAuthButton.setText(WorkspaceText.tr("Вход Gemini: ")+GeminiAuthUi.label(activity,geminiAuth[0]));geminiAuthDescription.setText(GeminiAuthUi.description(activity,geminiAuth[0]));geminiCloudFields.setVisibility(geminiAuth[0].equals("vertex")?View.VISIBLE:View.GONE);
@@ -1186,7 +1184,7 @@ public final class WorkspaceController {
                 AlertDialog picker=WorkspaceDialogs.builder(activity).setTitle(WorkspaceText.tr("ID чата Gemini CLI")).setView(id).setPositiveButton(WorkspaceText.tr("Выбрать"),null).setNegativeButton(WorkspaceText.tr("Отмена"),null).create();
                 picker.setOnShowListener(x->picker.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(y->{String value=id.getText().toString().trim();if(!GeminiCli.validThread(value)){id.setError(WorkspaceText.tr("Некорректный ID"));return;}geminiThread[0]=value;geminiChat[0]="id";updateGemini.run();picker.dismiss();}));picker.show();
             }).setNegativeButton(WorkspaceText.tr("Отмена"),null).show());
-        geminiFields.addView(text(tr("Gemini CLI запускается в Ubuntu. При запуске проверяем компоненты и предлагаем установить недостающее. Выберите Gemini API-ключ или Vertex AI с отдельной авторизацией Google Cloud. История привязана к каталогу проекта; для продолжения выберите прежний каталог.","Gemini CLI runs in Ubuntu. Launch checks components and offers to install missing items. Choose a Gemini API key or Vertex AI with separate Google Cloud authentication. History is tied to the project directory; choose the previous directory to resume."),12,MUTED));
+        geminiFields.addView(text(tr("Gemini CLI запускается в Ubuntu. При запуске проверяем компоненты и предлагаем установить недостающее. Выберите Gemini API-ключ или Vertex AI с отдельной авторизацией Google Cloud. История привязана к каталогу проекта; для продолжения выберите прежний каталог.","Gemini CLI runs in Ubuntu. Launch checks components and offers to install missing items. Choose a Gemini API key or Vertex AI with separate Google Cloud authentication. History is tied to the project directory; choose the previous directory to resume."),12,Pal.MUTED));
         LinearLayout claudeFields=column();agentFields.addView(claudeFields);
         String[] claudeModel={draft.claudeModel},claudeMode={draft.claudeMode},claudeChat={draft.claudeChat},claudeThread={draft.claudeThread};
         TextView claudeModelButton=button("",false,()->{});claudeFields.addView(claudeModelButton);
@@ -1195,7 +1193,7 @@ public final class WorkspaceController {
         String[] claudeModes={"manual","acceptEdits","plan"};
         String[] claudeModeNames={WorkspaceText.tr("Подтверждать действия"),WorkspaceText.tr("Разрешать редактирование"),WorkspaceText.tr("Планирование")};
         String[] claudeModeDescriptions={WorkspaceText.tr("Claude запрашивает разрешения на действия в терминале."),WorkspaceText.tr("Правки файлов и обычные файловые команды разрешаются автоматически; остальные действия требуют разрешения."),WorkspaceText.tr("Анализ и план без выполнения изменений. Это режим Claude, а не системная песочница.")};
-        TextView claudeAccessDetails=text("",12,MUTED);claudeFields.addView(claudeAccessDetails);unavailableAgentScope(claudeFields);
+        TextView claudeAccessDetails=text("",12,Pal.MUTED);claudeFields.addView(claudeAccessDetails);unavailableAgentScope(claudeFields);
         Runnable updateClaude=()->{
             claudeModelButton.setText(WorkspaceText.tr("Модель: ")+(claudeModel[0].isEmpty()?WorkspaceText.tr("По умолчанию"):claudeModel[0]));
             claudeModeButton.setText(tr("Права: ","Permissions: ")+claudeModeNames[java.util.Arrays.asList(claudeModes).indexOf(claudeMode[0])]);
@@ -1213,19 +1211,19 @@ public final class WorkspaceController {
                 AlertDialog picker=WorkspaceDialogs.builder(activity).setTitle(WorkspaceText.tr("ID чата Claude Code")).setView(id).setPositiveButton(WorkspaceText.tr("Выбрать"),null).setNegativeButton(WorkspaceText.tr("Отмена"),null).create();
                 picker.setOnShowListener(x->picker.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(y->{String value=id.getText().toString().trim();if(!ClaudeCode.validThread(value)){id.setError(WorkspaceText.tr("Некорректный ID"));return;}claudeThread[0]=value;claudeChat[0]="id";updateClaude.run();picker.dismiss();}));picker.show();
             }).setNegativeButton(WorkspaceText.tr("Отмена"),null).show());
-        claudeFields.addView(text(WorkspaceText.tr("Claude Code запускается в Ubuntu. Компоненты устанавливаются при первом запуске в отдельный каталог. Нужна подписка Claude или оплачиваемый API; ChatGPT Plus не подходит. Авторизация и история отдельные. «Выбрать чат» открывает список Claude в терминале. Доступность моделей зависит от аккаунта."),12,MUTED));
+        claudeFields.addView(text(WorkspaceText.tr("Claude Code запускается в Ubuntu. Компоненты устанавливаются при первом запуске в отдельный каталог. Нужна подписка Claude или оплачиваемый API; ChatGPT Plus не подходит. Авторизация и история отдельные. «Выбрать чат» открывает список Claude в терминале. Доступность моделей зависит от аккаунта."),12,Pal.MUTED));
         LinearLayout openCodeFields=column();agentFields.addView(openCodeFields);
-        CheckBox aiProjectScope=new CheckBox(activity);aiProjectScope.setText(tr("Ограничивать внешние пути · OpenCode","Restrict external paths · OpenCode"));aiProjectScope.setTextColor(TEXT);aiProjectScope.setChecked(draft.aiProjectOnly);aiProjectScope.setContentDescription("OpenCode project scope");
+        CheckBox aiProjectScope=new CheckBox(activity);aiProjectScope.setText(tr("Ограничивать внешние пути · OpenCode","Restrict external paths · OpenCode"));aiProjectScope.setTextColor(Pal.TEXT);aiProjectScope.setChecked(draft.aiProjectOnly);aiProjectScope.setContentDescription("OpenCode project scope");
         String[] aiConnection={draft.aiConnection},aiModel={draft.aiModel},aiVariant={draft.aiVariant},aiMode={draft.aiMode},aiAccess={draft.aiAccess},aiChat={draft.aiChat},aiThread={draft.aiThread};
         TextView connectionButton=button("",false,()->{});openCodeFields.addView(connectionButton);
         TextView modelButton=button("",false,()->{});openCodeFields.addView(modelButton);
         TextView modeButton=button("",false,()->{});openCodeFields.addView(modeButton);
-        TextView modeDescription=text("",12,MUTED);openCodeFields.addView(modeDescription);
+        TextView modeDescription=text("",12,Pal.MUTED);openCodeFields.addView(modeDescription);
         TextView aiAccessButton=button("",false,()->{});openCodeFields.addView(aiAccessButton);
-        TextView aiAccessDescription=text("",12,MUTED);openCodeFields.addView(aiAccessDescription);openCodeFields.addView(aiProjectScope);
-        openCodeFields.addView(text(tr("Включено: правила OpenCode запрещают внешние каталоги, shell-команды, субагентов, MCP и неизвестные инструменты. Доступны файловые инструменты проекта/рабочего дерева OpenCode в рамках выбранных прав. Это правила инструментов: они не гарантируют защиту от символьных ссылок и не создают системную песочницу. Выключено: внешние пути регулируются штатными правами OpenCode.","On: OpenCode rules deny external directories, shell, subagents, MCP and unknown tools. File tools operate in the OpenCode project/worktree according to selected permissions. This tool policy does not guarantee protection against symlink escapes and is not an OS sandbox. Off: native OpenCode permissions govern external paths."),12,MUTED));
+        TextView aiAccessDescription=text("",12,Pal.MUTED);openCodeFields.addView(aiAccessDescription);openCodeFields.addView(aiProjectScope);
+        openCodeFields.addView(text(tr("Включено: правила OpenCode запрещают внешние каталоги, shell-команды, субагентов, MCP и неизвестные инструменты. Доступны файловые инструменты проекта/рабочего дерева OpenCode в рамках выбранных прав. Это правила инструментов: они не гарантируют защиту от символьных ссылок и не создают системную песочницу. Выключено: внешние пути регулируются штатными правами OpenCode.","On: OpenCode rules deny external directories, shell, subagents, MCP and unknown tools. File tools operate in the OpenCode project/worktree according to selected permissions. This tool policy does not guarantee protection against symlink escapes and is not an OS sandbox. Off: native OpenCode permissions govern external paths."),12,Pal.MUTED));
         TextView chatButton=button("",false,()->{});openCodeFields.addView(chatButton);
-        openCodeFields.addView(text(WorkspaceText.tr("OpenCode запускается в Ubuntu. При «Создать и запустить» компоненты проверяются и при необходимости устанавливаются в этой же вкладке. Node.js устанавливается отдельно от системного. Подключения и история отдельные от Codex; разрешения запрашиваются в терминале."),12,MUTED));
+        openCodeFields.addView(text(WorkspaceText.tr("OpenCode запускается в Ubuntu. При «Создать и запустить» компоненты проверяются и при необходимости устанавливаются в этой же вкладке. Node.js устанавливается отдельно от системного. Подключения и история отдельные от Codex; разрешения запрашиваются в терминале."),12,Pal.MUTED));
         Runnable updateOpenCode=()->{connectionButton.setText(WorkspaceText.tr("Подключение: ")+AiAgentsUi.title(activity,aiConnection[0]));modelButton.setText(WorkspaceText.tr("Модель: ")+(aiModel[0].isEmpty()?WorkspaceText.tr("По умолчанию"):aiModel[0]));modeButton.setText(WorkspaceText.tr("Режим: ")+ (aiMode[0].equals("build")?"Build":"Plan"));modeDescription.setText(AiAgentsUi.modeDescription(aiMode[0]));aiAccessButton.setText(tr("Права: ","Permissions: ")+AiAgentsUi.accessLabel(aiAccess[0]));aiAccessDescription.setText(AiAgentsUi.accessDescription(aiAccess[0]));chatButton.setText(WorkspaceText.tr("Чат: ")+(aiChat[0].equals("new")?WorkspaceText.tr("Новый чат"):aiThread[0]));};updateOpenCode.run();
         connectionButton.setOnClickListener(v->AiAgentsUi.chooseConnection(activity,aiConnection[0],(id,title)->{aiConnection[0]=id;aiModel[0]="";aiVariant[0]="";aiChat[0]="new";aiThread[0]="ses"+java.util.UUID.randomUUID().toString().replace("-","");updateOpenCode.run();}));
         modelButton.setOnClickListener(v->AiAgentsUi.chooseModel(activity,aiConnection[0],agentQueryProfile(codexEnvironment[0]),(provider,model,variant)->{aiModel[0]=provider+"/"+model;aiVariant[0]=variant;updateOpenCode.run();}));
@@ -1246,12 +1244,12 @@ public final class WorkspaceController {
             tr("Без файловой песочницы Codex: файлы и команды доступны в пределах прав среды. Подтверждения настраиваются отдельно. Это не root Android.","No Codex filesystem sandbox: files and commands are available within environment permissions. Approvals are configured separately. This is not Android root."),
             tr("Штатный workspace-write: запись в проект и разрешённые служебные каталоги. Чтение вне проекта не обязательно запрещено. Подтверждения регулируются отдельно; поддержка песочницы зависит от Android/proot.","Native workspace-write: writes to the project and runtime-managed writable directories. Reads outside the project are not necessarily blocked. Approvals are separate; sandbox support depends on Android/proot."),
             tr("Штатный read-only Codex запрещает запись внутри песочницы; команды чтения могут быть доступны. Это не режим «только чат». Выход за ограничения зависит от политики подтверждений и поддержки Android/proot.","Native Codex read-only blocks sandbox writes; read commands may be available. This is not chat-only mode. Escalation depends on approval policy and Android/proot support.")};
-        TextView codexAccessDescription=text("",12,MUTED);codexFields.addView(codexAccessDescription);
+        TextView codexAccessDescription=text("",12,Pal.MUTED);codexFields.addView(codexAccessDescription);
         boolean[] codexWriteScope={draft.codexAccess.equals("project")};
-        CheckBox codexScope=new CheckBox(activity);codexScope.setText(tr("Ограничивать запись проектом · Codex","Restrict writes to the project · Codex"));codexScope.setTextColor(TEXT);codexScope.setChecked(codexWriteScope[0]);codexScope.setContentDescription("Codex project write scope");codexFields.addView(codexScope);
-        codexFields.addView(text(tr("Штатный workspace-write ограничивает запись, но не всё чтение вне проекта. Возможны служебные разрешённые каталоги. Поддержка песочницы зависит от Android/proot; при ошибке запуска приложение не переключается на полный доступ. При включённых подтверждениях Codex может запросить выход за ограничения.","Native workspace-write restricts writes, not all reads outside the project; runtime-managed writable directories may exist. Sandbox support depends on Android/proot; startup errors never trigger a full-access fallback. With confirmations enabled, Codex may request approval to exceed restrictions."),12,MUTED));
-        CheckBox codexConfirm=new CheckBox(activity);codexConfirm.setText(tr("Подтверждать действия · Codex","Confirm actions · Codex"));codexConfirm.setTextColor(TEXT);codexConfirm.setChecked(CodexSessionShell.approval(draft).equals("on-request"));codexConfirm.setContentDescription("Codex action confirmations");codexFields.addView(codexConfirm);
-        codexFields.addView(text(tr("on-request: подтверждения запрашивает сам Codex по своей политике, не перед каждым действием. Выключено: never, запросы повышения прав не разрешаются; выбранная песочница сохраняется.","on-request: Codex requests approvals under its own policy, not before every action. Off: never, no escalation approvals; the selected sandbox remains in force."),12,MUTED));
+        CheckBox codexScope=new CheckBox(activity);codexScope.setText(tr("Ограничивать запись проектом · Codex","Restrict writes to the project · Codex"));codexScope.setTextColor(Pal.TEXT);codexScope.setChecked(codexWriteScope[0]);codexScope.setContentDescription("Codex project write scope");codexFields.addView(codexScope);
+        codexFields.addView(text(tr("Штатный workspace-write ограничивает запись, но не всё чтение вне проекта. Возможны служебные разрешённые каталоги. Поддержка песочницы зависит от Android/proot; при ошибке запуска приложение не переключается на полный доступ. При включённых подтверждениях Codex может запросить выход за ограничения.","Native workspace-write restricts writes, not all reads outside the project; runtime-managed writable directories may exist. Sandbox support depends on Android/proot; startup errors never trigger a full-access fallback. With confirmations enabled, Codex may request approval to exceed restrictions."),12,Pal.MUTED));
+        CheckBox codexConfirm=new CheckBox(activity);codexConfirm.setText(tr("Подтверждать действия · Codex","Confirm actions · Codex"));codexConfirm.setTextColor(Pal.TEXT);codexConfirm.setChecked(CodexSessionShell.approval(draft).equals("on-request"));codexConfirm.setContentDescription("Codex action confirmations");codexFields.addView(codexConfirm);
+        codexFields.addView(text(tr("on-request: подтверждения запрашивает сам Codex по своей политике, не перед каждым действием. Выключено: never, запросы повышения прав не разрешаются; выбранная песочница сохраняется.","on-request: Codex requests approvals under its own policy, not before every action. Off: never, no escalation approvals; the selected sandbox remains in force."),12,Pal.MUTED));
 
         boolean[] codexChatEdited={false};
         Runnable updateCodex = () -> {
@@ -1292,10 +1290,10 @@ public final class WorkspaceController {
             }
             public void afterTextChanged(Editable t){}
         });
-        codexFields.addView(text(WorkspaceText.tr("Авторизация и история берутся из выбранной среды. Если вход не выполнен, Codex предложит авторизоваться. Для карточки управления нужна версия Codex с app-server и --remote. Полный доступ действует в пределах доступных среде файлов. На Android ограничения sandbox зависят от поддержки Codex; при ошибке запуск остановится, права не повышаются автоматически."), 12, MUTED));
+        codexFields.addView(text(WorkspaceText.tr("Авторизация и история берутся из выбранной среды. Если вход не выполнен, Codex предложит авторизоваться. Для карточки управления нужна версия Codex с app-server и --remote. Полный доступ действует в пределах доступных среде файлов. На Android ограничения sandbox зависят от поддержки Codex; при ошибке запуск остановится, права не повышаются автоматически."), 12, Pal.MUTED));
         TextView agentUbuntu=button("",false,()->{});
         TextView migrateAgent=button(tr("Миграция среды агента","Agent environment migration"),false,()->{});
-        TextView codexLoginHint=text(tr("После запуска будет предложено войти в Codex, если вход ещё не выполнен.","After launch, you will be prompted to sign in to Codex if you are not already signed in."),12,MUTED);codexLoginHint.setTag("codex-login-hint");form.addView(codexLoginHint,0);
+        TextView codexLoginHint=text(tr("После запуска будет предложено войти в Codex, если вход ещё не выполнен.","After launch, you will be prompted to sign in to Codex if you are not already signed in."),12,Pal.MUTED);codexLoginHint.setTag("codex-login-hint");form.addView(codexLoginHint,0);
         Runnable updateEnvironment = () -> {
             codexLoginHint.setVisibility(chosenEnvironment[0].equals("codex")&&chosenAgent[0].equals("codex")?View.VISIBLE:View.GONE);
             resetEnvironmentCheck[0].run();environmentCheck.setVisibility(View.VISIBLE);
@@ -1366,16 +1364,16 @@ public final class WorkspaceController {
             public void beforeTextChanged(CharSequence x, int a, int b, int c) {} public void onTextChanged(CharSequence x, int a, int b, int c) { toggleCommands.run(); }
             public void afterTextChanged(Editable x) {}
         });
-        TextView hint = text(tr("Окружения Termux: вход выполняется автоматически в выбранный экземпляр. Команда ручного входа показана выше; добавлять её в команды запуска не нужно. До трёх шагов, при ошибке остановка. Для Ubuntu используется Bash, для остальных систем — Bash или sh. SSH: каталог и команды выполняются на сервере с Bash; пароль и подтверждение ключа — в терминале.","Termux environments: automatically enter the selected instance. The manual entry command is shown above; do not add it to startup commands. Up to three steps, stopping after a failure. Ubuntu uses Bash; other systems use Bash or sh. SSH: directories and commands run on the server with Bash; password and host-key confirmation are handled in the terminal."), 12, MUTED);
+        TextView hint = text(tr("Окружения Termux: вход выполняется автоматически в выбранный экземпляр. Команда ручного входа показана выше; добавлять её в команды запуска не нужно. До трёх шагов, при ошибке остановка. Для Ubuntu используется Bash, для остальных систем — Bash или sh. SSH: каталог и команды выполняются на сервере с Bash; пароль и подтверждение ключа — в терминале.","Termux environments: automatically enter the selected instance. The manual entry command is shown above; do not add it to startup commands. Up to three steps, stopping after a failure. Ubuntu uses Bash; other systems use Bash or sh. SSH: directories and commands run on the server with Bash; password and host-key confirmation are handled in the terminal."), 12, Pal.MUTED);
         hint.setPadding(0, dp(16), 0, 0); form.addView(hint);
         LinearLayout connectionFields=column();connectionFields.setTag("agent-connection-fields");form.addView(connectionFields);
         EditText connectionCommand=labeled(connectionFields,tr("Команда подключения (необязательно)","Connection command (optional)"),draft.agentConnectionCommand,false);connectionCommand.setTag("agent-connection-command");connectionCommand.setContentDescription(tr("Команда подключения","Connection command"));
         connectionCommand.setHint("/absolute/path/to/launcher");
-        connectionFields.addView(text(tr("Путь к исполняемому запускателю в выбранном окружении, без аргументов. Ему передаются штатная команда агента и её параметры. Пусто — обычное подключение. Для работающего чата после сохранения перезапустите эту сессию, продолжив тот же чат. Другие сессии не меняются.","Executable launcher path in the selected environment, without arguments. It receives the normal agent command and arguments. Empty means normal connection. After saving, restart this session and resume the same chat. Other sessions are unchanged."),12,MUTED));
+        connectionFields.addView(text(tr("Путь к исполняемому запускателю в выбранном окружении, без аргументов. Ему передаются штатная команда агента и её параметры. Пусто — обычное подключение. Для работающего чата после сохранения перезапустите эту сессию, продолжив тот же чат. Другие сессии не меняются.","Executable launcher path in the selected environment, without arguments. It receives the normal agent command and arguments. Empty means normal connection. After saving, restart this session and resume the same chat. Other sessions are unchanged."),12,Pal.MUTED));
         Runnable toggleConnection=()->connectionFields.setVisibility(chosenEnvironment[0].equals("codex")&&AgentEnvironments.ubuntu(codexEnvironment[0])?View.VISIBLE:View.GONE);toggleConnection.run();
         environment.addTextChangedListener(new TextWatcher(){public void beforeTextChanged(CharSequence s,int a,int b,int c){}public void onTextChanged(CharSequence s,int a,int b,int c){toggleConnection.run();}public void afterTextChanged(Editable s){}});
-        CheckBox extendedDebug=new CheckBox(activity);extendedDebug.setTag("agent-extended-debug");extendedDebug.setText(WorkspaceText.tr("Расширенный дебаг-журнал"));extendedDebug.setTextColor(TEXT);extendedDebug.setChecked(draft.extendedDebug);form.addView(extendedDebug);
-        form.addView(text(WorkspaceText.tr("Базовый журнал ведётся автоматически. Расширенный: события и коды ошибок, для Gemini также штатный debug с запуска. Без записи ввода и диалога. Изменение действует при следующем запуске."),12,MUTED));
+        CheckBox extendedDebug=new CheckBox(activity);extendedDebug.setTag("agent-extended-debug");extendedDebug.setText(WorkspaceText.tr("Расширенный дебаг-журнал"));extendedDebug.setTextColor(Pal.TEXT);extendedDebug.setChecked(draft.extendedDebug);form.addView(extendedDebug);
+        form.addView(text(WorkspaceText.tr("Базовый журнал ведётся автоматически. Расширенный: события и коды ошибок, для Gemini также штатный debug с запуска. Без записи ввода и диалога. Изменение действует при следующем запуске."),12,Pal.MUTED));
         AlertDialog dialog = WorkspaceDialogs.builder(activity).setTitle(existing == null ? WorkspaceText.tr(launchAfterSave ? "Создать сессию" : "Создать пресет") : WorkspaceText.tr("Настройки сессии"))
             .setView(formScroll(form)).setPositiveButton(existing == null && launchAfterSave ? WorkspaceText.tr("Создать и запустить") : WorkspaceText.tr("Сохранить"), null).setNegativeButton(WorkspaceText.tr("Отмена"), null).create();
         if (existing == null && launchAfterSave) dialog.setButton(AlertDialog.BUTTON_NEUTRAL, WorkspaceText.tr("Пресеты"), (d, w) -> chooseSavedSession());
@@ -1489,10 +1487,10 @@ public final class WorkspaceController {
         String cwd=CodexProjects.directory(environment,directory);
         if(cwd.isEmpty()){activity.showToast(WorkspaceText.tr("Укажите абсолютный рабочий каталог"),true);return;}
         LinearLayout body=column();body.setPadding(dp(12),dp(4),dp(12),dp(8));
-        TextView loading=text(WorkspaceText.tr("Загрузка истории…"),13,MUTED);body.addView(loading);
+        TextView loading=text(WorkspaceText.tr("Загрузка истории…"),13,Pal.MUTED);body.addView(loading);
         EditText search=field(WorkspaceText.tr("Найти чат или каталог"),"",false);body.addView(search);
         LinearLayout filters=row();body.addView(filters);
-        TextView all=button(WorkspaceText.tr("Все чаты"),false,()->{}),project=button(WorkspaceText.tr("Чаты этой папки"),false,()->{});all.setTextSize(12);project.setTextSize(12);all.setTextColor(ACCENT);
+        TextView all=button(WorkspaceText.tr("Все чаты"),false,()->{}),project=button(WorkspaceText.tr("Чаты этой папки"),false,()->{});all.setTextSize(12);project.setTextSize(12);all.setTextColor(Pal.ACCENT);
         filters.addView(all,new LinearLayout.LayoutParams(0,-2,1));LinearLayout.LayoutParams projectParams=new LinearLayout.LayoutParams(0,-2,1);projectParams.setMarginStart(dp(6));filters.addView(project,projectParams);
         ScrollView scroll=new ScrollView(activity);LinearLayout rows=column();scroll.addView(rows);body.addView(scroll,new LinearLayout.LayoutParams(-1,dp(280)));
         AlertDialog dialog=WorkspaceDialogs.builder(activity).setTitle(WorkspaceText.tr("Выбрать чат Codex")).setView(body)
@@ -1514,16 +1512,16 @@ public final class WorkspaceController {
                 loading.setText(error!=null?error:AgentEnvironments.label(environment)+WorkspaceText.tr(" · новый каталог: ")+cwd+(chats.isEmpty()?WorkspaceText.tr("\nСохранённых чатов пока нет."):""));
                 int[] selected={-1};boolean[] projectOnly={false};Runnable[] render=new Runnable[1];
                 render[0]=()->{
-                    rows.removeAllViews();all.setTextColor(projectOnly[0]?MUTED:ACCENT);project.setTextColor(projectOnly[0]?ACCENT:MUTED);int shown=0;
+                    rows.removeAllViews();all.setTextColor(projectOnly[0]?Pal.MUTED:Pal.ACCENT);project.setTextColor(projectOnly[0]?Pal.ACCENT:Pal.MUTED);int shown=0;
                     for(int i=0;i<chats.size();i++) {
                         CodexChatCatalog.Entry entry=chats.get(i);if(!CodexChatCatalog.visible(entry,environment,cwd,projectOnly[0],search.getText().toString()))continue;
                         final int index=i;String subtitle=entry.cwd.isEmpty()?WorkspaceText.tr("Каталог неизвестен"):entry.cwd;
                         if(entry.updated>0)subtitle+=" · "+android.text.format.DateFormat.format("dd.MM HH:mm",entry.updated*1000);
                         TextView item=button(entry.name+(selected[0]==i?"  ✓":"")+"\n"+subtitle,false,()->{selected[0]=index;dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);render[0].run();});
-                        item.setTextSize(13);item.setGravity(Gravity.START|Gravity.CENTER_VERTICAL);item.setTextColor(selected[0]==i?ACCENT:TEXT);item.setMaxLines(3);item.setEllipsize(TextUtils.TruncateAt.END);
+                        item.setTextSize(13);item.setGravity(Gravity.START|Gravity.CENTER_VERTICAL);item.setTextColor(selected[0]==i?Pal.ACCENT:Pal.TEXT);item.setMaxLines(3);item.setEllipsize(TextUtils.TruncateAt.END);
                         LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(-1,-2);lp.bottomMargin=dp(6);rows.addView(item,lp);shown++;
                     }
-                    if(shown==0)rows.addView(text(projectOnly[0]?WorkspaceText.tr("Чатов этой папки нет. Выберите «Все чаты»."):WorkspaceText.tr("Нет подходящих чатов"),13,MUTED));
+                    if(shown==0)rows.addView(text(projectOnly[0]?WorkspaceText.tr("Чатов этой папки нет. Выберите «Все чаты»."):WorkspaceText.tr("Нет подходящих чатов"),13,Pal.MUTED));
                     if(selected[0]>=0&&!CodexChatCatalog.visible(chats.get(selected[0]),environment,cwd,projectOnly[0],search.getText().toString()))selected[0]=-1;
                     dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(selected[0]>=0);
                 };
@@ -1540,7 +1538,7 @@ public final class WorkspaceController {
             .setPositiveButton(WorkspaceText.tr("Продолжить в новой папке"),(d,w)->accepted.run()).setNegativeButton(WorkspaceText.tr("Отмена"),null).show();
     }
     private void verifyCodexChat(String environment,String cwd,String id,java.util.function.BiConsumer<String,String> choice) {
-        TextView waiting=text(WorkspaceText.tr("Проверка истории и каталога…"),14,MUTED);waiting.setPadding(dp(16),dp(16),dp(16),dp(16));
+        TextView waiting=text(WorkspaceText.tr("Проверка истории и каталога…"),14,Pal.MUTED);waiting.setPadding(dp(16),dp(16),dp(16),dp(16));
         AlertDialog progress=WorkspaceDialogs.builder(activity).setTitle(WorkspaceText.tr("Проверка чата")).setView(waiting).setNegativeButton(WorkspaceText.tr("Отмена"),null).show();
         codexReader.execute(()->{
             WorkspaceStore.Session profile=new WorkspaceStore.Session();profile.codexEnvironment=environment;String title=null,source=null;
@@ -1629,28 +1627,28 @@ public final class WorkspaceController {
         AlertDialog[] shown = {null};
         LinearLayout form = AgentStatusUi.body(activity);
         if (status == null || !status.error.isEmpty()) {
-            form.addView(text(status == null ? WorkspaceText.tr("Получение статуса Codex…") : WorkspaceText.statusError(status.error), 14, MUTED));
+            form.addView(text(status == null ? WorkspaceText.tr("Получение статуса Codex…") : WorkspaceText.statusError(status.error), 14, Pal.MUTED));
         } else {
             AgentStatusUi.row(form,WorkspaceText.tr("Модель: ")+(status.model.isEmpty()?WorkspaceText.tr("нет данных"):status.model)+" ›","model",()->{if(shown[0]!=null)shown[0].dismiss();chooseCodexModel(profile,status);});
             AgentStatusUi.row(form,WorkspaceText.tr("Рассуждение: ")+(status.effort.isEmpty()?WorkspaceText.tr("нет данных"):effortName(status.effort))+" ›","reasoning",()->{if(shown[0]!=null)shown[0].dismiss();chooseCodexEffort(profile,status);});
-            if(status.modelPending)form.addView(text(tr("Выбранные модель и рассуждение будут переданы Codex со следующим сообщением.","The selected model and reasoning will be sent to Codex with your next message."),12,MUTED));
-            form.addView(text("", 12, MUTED));
-            form.addView(text(status.planLabel(),14,TEXT));
-            if(status.windows().isEmpty())form.addView(text(tr("Сервер не передал окна лимитов.","The server did not provide rate-limit windows."),14,MUTED));
+            if(status.modelPending)form.addView(text(tr("Выбранные модель и рассуждение будут переданы Codex со следующим сообщением.","The selected model and reasoning will be sent to Codex with your next message."),12,Pal.MUTED));
+            form.addView(text("", 12, Pal.MUTED));
+            form.addView(text(status.planLabel(),14,Pal.TEXT));
+            if(status.windows().isEmpty())form.addView(text(tr("Сервер не передал окна лимитов.","The server did not provide rate-limit windows."),14,Pal.MUTED));
             for (String window : status.windows()) {
                 String title = CodexStatus.windowLabel(status.limits,window,false);
-                form.addView(text(CodexStatus.limit(status.limits, window, title)+(CodexStatus.remaining(status.limits.optJSONObject(window))==null?"":tr(" осталось"," remaining")), 14, TEXT));
+                form.addView(text(CodexStatus.limit(status.limits, window, title)+(CodexStatus.remaining(status.limits.optJSONObject(window))==null?"":tr(" осталось"," remaining")), 14, Pal.TEXT));
                 org.json.JSONObject limit = status.limits.optJSONObject(window);
                 Integer remaining=CodexStatus.remaining(limit);
                 if (remaining!=null) {
                     android.widget.ProgressBar bar = new android.widget.ProgressBar(activity, null, android.R.attr.progressBarStyleHorizontal);
                     bar.setMax(100); bar.setProgress(remaining);
-                    bar.setProgressTintList(ColorStateList.valueOf(ACCENT)); form.addView(bar, new LinearLayout.LayoutParams(-1, dp(18)));
+                    bar.setProgressTintList(ColorStateList.valueOf(Pal.ACCENT)); form.addView(bar, new LinearLayout.LayoutParams(-1, dp(18)));
                 }
-                TextView time = text(codexResetTime(status, window), 12, MUTED); time.setPadding(0, dp(4), 0, dp(14)); form.addView(time);
+                TextView time = text(codexResetTime(status, window), 12, Pal.MUTED); time.setPadding(0, dp(4), 0, dp(14)); form.addView(time);
             }
             form.addView(text(WorkspaceText.tr("Общий лимит аккаунта. Доступ: ") + (profile.codexAccess.equals("full") ? WorkspaceText.tr("полный") : profile.codexAccess.equals("read") ? WorkspaceText.tr("только чтение") : WorkspaceText.tr("в пределах проекта")) +
-                (CodexChatControl.enabled(activity.getFilesDir(),profile)?tr("\nСтатус обновляется раз в 30 секунд. Выбранные модель и рассуждение передаются со следующим сообщением этой сессии. До отправки они помечены как следующий ответ. Поле Shell выполняет вашу команду напрямую с правами Ubuntu, без обращения к модели.","\nStatus refreshes every 30 seconds. Selected model and reasoning are sent with this session’s next message and marked as next response until then. The Shell field runs your command directly with Ubuntu privileges without model inference."):WorkspaceText.tr("\nСтатус обновляется раз в 30 секунд. Выбор модели и рассуждения применяется через штатное меню Codex только к этой сессии. Если Codex отвечает, приложение дождётся завершения. Поле ввода сохраняется.")), 12, MUTED));
+                (CodexChatControl.enabled(activity.getFilesDir(),profile)?tr("\nСтатус обновляется раз в 30 секунд. Выбранные модель и рассуждение передаются со следующим сообщением этой сессии. До отправки они помечены как следующий ответ. Поле Shell выполняет вашу команду напрямую с правами Ubuntu, без обращения к модели.","\nStatus refreshes every 30 seconds. Selected model and reasoning are sent with this session’s next message and marked as next response until then. The Shell field runs your command directly with Ubuntu privileges without model inference."):WorkspaceText.tr("\nСтатус обновляется раз в 30 секунд. Выбор модели и рассуждения применяется через штатное меню Codex только к этой сессии. Если Codex отвечает, приложение дождётся завершения. Поле ввода сохраняется.")), 12, Pal.MUTED));
         }
         AgentChatScale.controls(form,profile,()->!closed&&currentCodex()==profile,this::previewChatScale,store::save);
         AlertDialog dialog = WorkspaceDialogs.builder(activity).setTitle(WorkspaceText.tr("Статус Codex")).setView(formScroll(form))
@@ -1900,8 +1898,8 @@ public final class WorkspaceController {
             dialog.setMessage(WorkspaceText.tr("Процесс будет остановлен, вкладка терминала закрыта. Сохранённые настройки и история останутся.")+desktopWarning)
                 .setPositiveButton(WorkspaceText.tr("Закрыть сессию"), (d, which) -> finishClose(profile, target, true));
         } else {
-            LinearLayout body=column();CheckBox keep=new CheckBox(activity);keep.setText(tr("Сохранить историю","Keep history"));keep.setTextColor(TEXT);keep.setChecked(true);keep.setTag("close-keep-history");body.addView(keep);body.addView(text(tr("Галочка сохраняет историю оболочки на стороне приложения. Собственные чаты Codex и других CLI-агентов не удаляются; для удаления используйте «Истории чатов». Пресет сохраняет настройки запуска и историю.","The checkbox keeps app-side shell history. Native Codex/CLI conversations are not deleted; use Chat histories for deletion. A preset keeps launch settings and history."),13,MUTED));
-            if(!desktopWarning.isEmpty())body.addView(text(desktopWarning,13,MUTED));
+            LinearLayout body=column();CheckBox keep=new CheckBox(activity);keep.setText(tr("Сохранить историю","Keep history"));keep.setTextColor(Pal.TEXT);keep.setChecked(true);keep.setTag("close-keep-history");body.addView(keep);body.addView(text(tr("Галочка сохраняет историю оболочки на стороне приложения. Собственные чаты Codex и других CLI-агентов не удаляются; для удаления используйте «Истории чатов». Пресет сохраняет настройки запуска и историю.","The checkbox keeps app-side shell history. Native Codex/CLI conversations are not deleted; use Chat histories for deletion. A preset keeps launch settings and history."),13,Pal.MUTED));
+            if(!desktopWarning.isEmpty())body.addView(text(desktopWarning,13,Pal.MUTED));
             dialog.setView(body).setPositiveButton(tr("Добавить в пресеты и закрыть","Add preset and close"), (d, which) -> {profile.keepHistory=true;finishClose(profile, target, true);})
                 .setNegativeButton(tr("Закрыть","Close"), (d, which) -> {profile.keepHistory=keep.isChecked();finishClose(profile, target, false);});
         }
@@ -2045,11 +2043,11 @@ public final class WorkspaceController {
         commandTab.setPadding(dp(6), dp(8), dp(6), dp(8));
         LinearLayout.LayoutParams tabParams = new LinearLayout.LayoutParams(0, -2, 1); tabParams.setMarginEnd(dp(8));
         tabs.addView(commandTab, tabParams); LinearLayout.LayoutParams aliasParams=new LinearLayout.LayoutParams(0,-2,1);aliasParams.setMarginEnd(dp(8));tabs.addView(aliasTab,aliasParams); tabs.addView(notesTab, new LinearLayout.LayoutParams(0, -2, 1)); heading.addView(tabs);
-        TextView hint = text(WorkspaceText.tr("Нажми на карточку, чтобы прочитать полностью"), 12, MUTED); hint.setPadding(0, dp(8), 0, dp(12)); heading.addView(hint);
+        TextView hint = text(WorkspaceText.tr("Нажми на карточку, чтобы прочитать полностью"), 12, Pal.MUTED); hint.setPadding(0, dp(8), 0, dp(12)); heading.addView(hint);
         EditText search = field(WorkspaceText.tr("Найти команду"), "", false); search.setContentDescription(WorkspaceText.tr("Поиск в меню звёздочки"));
         search.setImeOptions(android.view.inputmethod.EditorInfo.IME_ACTION_SEARCH | android.view.inputmethod.EditorInfo.IME_FLAG_NO_EXTRACT_UI);
         search.setMinHeight(dp(48)); heading.addView(search, new LinearLayout.LayoutParams(-1, -2));
-        TextView empty = text(commands.isEmpty() ? WorkspaceText.tr("Сохраните команду в библиотеке или нажмите «Сохранить ввод».") : WorkspaceText.tr("Ничего не найдено"), 12, MUTED);
+        TextView empty = text(commands.isEmpty() ? WorkspaceText.tr("Сохраните команду в библиотеке или нажмите «Сохранить ввод».") : WorkspaceText.tr("Ничего не найдено"), 12, Pal.MUTED);
         empty.setPadding(0, dp(12), 0, 0); empty.setVisibility(commands.isEmpty() ? View.VISIBLE : View.GONE); heading.addView(empty);
         AlertDialog.Builder builder = WorkspaceDialogs.builder(activity).setCustomTitle(heading)
             .setAdapter(adapter, (dialog, index) -> {
@@ -2083,8 +2081,8 @@ public final class WorkspaceController {
             search.setHint(libraryTab[0]==1?tr("Найти alias","Find alias"):libraryTab[0]==2 ? WorkspaceText.tr("Найти заметку") : WorkspaceText.tr("Найти команду"));
             for (TextView tab : new TextView[]{commandTab,aliasTab,notesTab}) {
                 boolean selected = (tab==commandTab?0:tab==aliasTab?1:2)==libraryTab[0]; tab.setSelected(selected);
-                tintButton(tab, selected ? ACCENT : TEXT);
-                tab.setBackground(new RippleDrawable(ColorStateList.valueOf(0x4479dfcd), shape(selected ? 0xff102522 : PANEL, selected ? ACCENT : BORDER, 12), null));
+                tintButton(tab, selected ? Pal.ACCENT : Pal.TEXT);
+                tab.setBackground(new RippleDrawable(ColorStateList.valueOf(Pal.RIPPLE), shape(selected ? Pal.CARD2 : Pal.PANEL, selected ? Pal.ACCENT : Pal.BORDER, 12), null));
             }
         };
         commandTab.setOnClickListener(v -> { libraryTab[0]=0; search.setText(queries[0]); refresh.run(); });
@@ -2155,7 +2153,7 @@ public final class WorkspaceController {
         if(!SessionShell.hasCancellableStartup(profile))return;
         StringBuilder commands=new StringBuilder();int step=0;for(String command:profile.startupCommands())commands.append(++step).append(". ").append(command).append("\n\n");
         LinearLayout body=previewBody(commands.toString().trim(),true);
-        TextView explanation=text(WorkspaceText.tr("Отменить следующие шаги запуска? Ниже все настроенные команды. Уже выполняемая команда продолжит работу."),13,MUTED);body.addView(explanation,0);
+        TextView explanation=text(WorkspaceText.tr("Отменить следующие шаги запуска? Ниже все настроенные команды. Уже выполняемая команда продолжит работу."),13,Pal.MUTED);body.addView(explanation,0);
         WorkspaceDialogs.builder(activity).setTitle(WorkspaceText.tr("Отменить команды запуска"))
             .setView(formScroll(body)).setPositiveButton(WorkspaceText.tr("Да"),(d,w)->cancelStartup(profile))
             .setNegativeButton(WorkspaceText.tr("Нет"),null).show();

@@ -53,13 +53,13 @@ final class WorkspaceUpdates {
         android.widget.TextView title=WorkspaceDialogs.action(a,menuLabel(a),0);title.setBackground(null);
         android.widget.LinearLayout labels=new android.widget.LinearLayout(a);labels.setOrientation(android.widget.LinearLayout.VERTICAL);
         labels.addView(title);
-        android.widget.TextView hint=new android.widget.TextView(a);hint.setText(text(a,"Проверять при открытии приложения","Check when opening the app"));hint.setTextColor(WorkspaceDialogs.MUTED);hint.setTextSize(12);
+        android.widget.TextView hint=new android.widget.TextView(a);hint.setText(text(a,"Проверять при открытии приложения","Check when opening the app"));hint.setTextColor(Pal.MUTED);hint.setTextSize(12);
         int pad=WorkspaceDialogs.dp(a,16);hint.setPadding(pad,0,0,WorkspaceDialogs.dp(a,12));labels.addView(hint);
         row.addView(labels,new android.widget.LinearLayout.LayoutParams(0,-2,1));
         android.widget.CheckBox automatic=new android.widget.CheckBox(a);automatic.setChecked(autoEnabled(a));
-        automatic.setButtonTintList(android.content.res.ColorStateList.valueOf(WorkspaceDialogs.ACCENT));
+        automatic.setButtonTintList(android.content.res.ColorStateList.valueOf(Pal.ACCENT));
         automatic.setContentDescription(text(a,"Автопроверка при открытии приложения","Check automatically when opening the app"));
-        automatic.setText(text(a,"Авто","Auto"));automatic.setTextSize(12);automatic.setTextColor(WorkspaceDialogs.MUTED);
+        automatic.setText(text(a,"Авто","Auto"));automatic.setTextSize(12);automatic.setTextColor(Pal.MUTED);
         int size=WorkspaceDialogs.dp(a,54);row.addView(automatic,new android.widget.LinearLayout.LayoutParams(WorkspaceDialogs.dp(a,90),size));
         automatic.setOnCheckedChangeListener((button,checked)->autoEnabled(a,checked));
         title.setOnClickListener(v->manual.run());labels.setOnClickListener(v->manual.run());row.setOnClickListener(v->manual.run());return row;
@@ -128,9 +128,9 @@ final class WorkspaceUpdates {
         UpdateProgress(Activity a){
             activity=a;view=new android.widget.LinearLayout(a);view.setOrientation(android.widget.LinearLayout.VERTICAL);
             int pad=WorkspaceDialogs.dp(a,20);view.setPadding(pad,pad,pad,pad);
-            status=new android.widget.TextView(a);status.setTextColor(WorkspaceDialogs.TEXT);status.setTextSize(14);view.addView(status);
+            status=new android.widget.TextView(a);status.setTextColor(Pal.TEXT);status.setTextSize(14);view.addView(status);
             bar=new android.widget.ProgressBar(a,null,android.R.attr.progressBarStyleHorizontal);bar.setMax(100);
-            android.content.res.ColorStateList tint=android.content.res.ColorStateList.valueOf(WorkspaceDialogs.ACCENT);
+            android.content.res.ColorStateList tint=android.content.res.ColorStateList.valueOf(Pal.ACCENT);
             bar.setProgressTintList(tint);bar.setIndeterminateTintList(tint);
             android.widget.LinearLayout.LayoutParams params=new android.widget.LinearLayout.LayoutParams(-1,WorkspaceDialogs.dp(a,6));params.topMargin=WorkspaceDialogs.dp(a,16);view.addView(bar,params);
             checking();

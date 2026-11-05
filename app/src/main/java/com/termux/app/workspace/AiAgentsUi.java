@@ -17,10 +17,10 @@ public final class AiAgentsUi {
     interface ModelChoice {void chosen(String provider,String model,String variant);}
     private interface Result {void ready(JSONObject value);}
     private static LinearLayout column(Activity a){LinearLayout l=new LinearLayout(a);l.setOrientation(LinearLayout.VERTICAL);l.setPadding(24,12,24,12);return l;}
-    private static TextView text(Activity a,String label){TextView t=new TextView(a);t.setText(label);t.setTextColor(WorkspaceDialogs.TEXT);t.setTextSize(14);t.setPadding(0,12,0,12);return t;}
+    private static TextView text(Activity a,String label){TextView t=new TextView(a);t.setText(label);t.setTextColor(Pal.TEXT);t.setTextSize(14);t.setPadding(0,12,0,12);return t;}
     private static TextView action(Activity a,String label,Runnable call){TextView v=WorkspaceDialogs.action(a,label,0);v.setOnClickListener(x->call.run());return v;}
     private static ScrollView scroll(Activity a,View child){ScrollView v=new ScrollView(a);v.addView(child);return v;}
-    private static EditText field(Activity a,String hint,String value){EditText e=new EditText(a);e.setTextColor(WorkspaceDialogs.TEXT);e.setHintTextColor(WorkspaceDialogs.MUTED);e.setHint(hint);e.setText(value);e.setSingleLine();return e;}
+    private static EditText field(Activity a,String hint,String value){EditText e=new EditText(a);e.setTextColor(Pal.TEXT);e.setHintTextColor(Pal.MUTED);e.setHint(hint);e.setText(value);e.setSingleLine();return e;}
     private static android.content.SharedPreferences prefs(Context c){return c.getSharedPreferences("ai-connections",Context.MODE_PRIVATE);}
     static JSONArray connections(Context c){try{return new JSONArray(prefs(c).getString("list","[]"));}catch(JSONException e){return new JSONArray();}}
     static String title(Context c,String id){JSONArray items=connections(c);for(int i=0;i<items.length();i++){JSONObject item=items.optJSONObject(i);if(item!=null&&id.equals(item.optString("id")))return item.optString("name");}return WorkspaceText.tr("Основное подключение");}

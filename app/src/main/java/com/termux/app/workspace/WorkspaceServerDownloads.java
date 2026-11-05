@@ -47,7 +47,7 @@ final class WorkspaceServerDownloads implements AutoCloseable {
     private void transfer(ServerProfiles.Profile profile,List<String> paths,WorkspaceStore.Session location,String folder,String root,int epoch){
         if(closed||running||epoch!=choiceEpoch||ServerConnection.disconnected(activity,profile.id))return;choiceEpoch++;ownerProfile=profile.id;running=true;cancelled=false;started=SystemClock.uptimeMillis();lastUpdate=0;
         LinearLayout body=new LinearLayout(activity);body.setOrientation(LinearLayout.VERTICAL);int pad=WorkspaceDialogs.dp(activity,16);body.setPadding(pad,pad,pad,pad);
-        TextView status=new TextView(activity);status.setTextColor(WorkspaceDialogs.TEXT);status.setText(t("Проверка выбранных файлов…","Checking selected files…"));body.addView(status);
+        TextView status=new TextView(activity);status.setTextColor(Pal.TEXT);status.setText(t("Проверка выбранных файлов…","Checking selected files…"));body.addView(status);
         ProgressBar bar=new ProgressBar(activity,null,android.R.attr.progressBarStyleHorizontal);bar.setMax(1000);bar.setIndeterminate(true);body.addView(bar);
         progress=WorkspaceDialogs.builder(activity).setTitle(t("Скачивание","Download")).setView(body).setNeutralButton(t("В фон","Background"),null).setNegativeButton(t("Остановить","Stop"),null).create();progress.setCancelable(false);progress.setCanceledOnTouchOutside(false);progress.show();presentation.begin(profile.id,progress,t("Проверка выбранных файлов…","Checking selected files…"));progress.getButton(-3).setOnClickListener(v->presentation.background());progress.getButton(-2).setOnClickListener(v->{status.setText(t("Остановка…","Stopping…"));progress.getButton(-2).setEnabled(false);cancel();});
         worker.execute(()->{

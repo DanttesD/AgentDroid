@@ -18,7 +18,7 @@ final class WorkspaceDesktopScreen {
     static void show(Context c,String target,Runnable saved,Runnable back,Apply apply){
         X11ScreenSettings s=X11ScreenSettings.load(c,target);
         LinearLayout body=AgentStatusUi.body(c);
-        CheckBox automatic=new CheckBox(c);automatic.setText(tr(c,"Автонастройка","Auto setup"));automatic.setTextColor(WorkspaceDialogs.TEXT);automatic.setTag("x11-screen-auto");automatic.setChecked(s.automatic()&&s.horizontalDp==0&&s.verticalDp==0&&s.scalePercent==100);body.addView(automatic);
+        CheckBox automatic=new CheckBox(c);automatic.setText(tr(c,"Автонастройка","Auto setup"));automatic.setTextColor(Pal.TEXT);automatic.setTag("x11-screen-auto");automatic.setChecked(s.automatic()&&s.horizontalDp==0&&s.verticalDp==0&&s.scalePercent==100);body.addView(automatic);
         LinearLayout dimensions=new LinearLayout(c);
         EditText width=number(dimensions,tr(c,"Ширина, px","Width, px"),"x11-screen-width",s.automatic()?1600:s.width);
         EditText height=number(dimensions,tr(c,"Высота, px","Height, px"),"x11-screen-height",s.automatic()?720:s.height);
@@ -43,7 +43,7 @@ final class WorkspaceDesktopScreen {
             for(EditText field:new EditText[]{width,height,scale,horizontal,vertical}){field.setEnabled(!on);((View)field.getParent()).setAlpha(on?.4f:1f);if(on)field.clearFocus();}
         };
         automatic.setOnCheckedChangeListener((b,on)->automaticChanged.accept(on));automaticChanged.accept(automatic.isChecked());
-        TextView error=AgentStatusUi.info(body,"");error.setTextColor(WorkspaceDialogs.DANGER);error.setTag("x11-screen-error");error.setVisibility(View.GONE);
+        TextView error=AgentStatusUi.info(body,"");error.setTextColor(Pal.DANGER);error.setTag("x11-screen-error");error.setVisibility(View.GONE);
         AlertDialog dialog=WorkspaceDialogs.builder(c).setTitle(tr(c,"Экран X11","X11 screen")).setView(AgentStatusUi.scroll(body))
             .setNegativeButton(tr(c,"Отмена","Cancel"),(d,w)->back.run()).setPositiveButton(tr(c,"Применить","Apply"),null).create();
         dialog.setOnCancelListener(d->back.run());dialog.show();
@@ -62,7 +62,7 @@ final class WorkspaceDesktopScreen {
     private static int parse(EditText field){return Integer.parseInt(field.getText().toString().trim());}
     private static EditText number(LinearLayout parent,String label,String tag,int value){
         Context c=parent.getContext();LinearLayout column=new LinearLayout(c);column.setOrientation(LinearLayout.VERTICAL);
-        AgentStatusUi.info(column,label);EditText input=new EditText(c);input.setTag(tag);input.setContentDescription(label);input.setTextColor(WorkspaceDialogs.TEXT);input.setSingleLine(true);input.setInputType(InputType.TYPE_CLASS_NUMBER);input.setText(String.format(java.util.Locale.ROOT,"%d",value));column.addView(input,new LinearLayout.LayoutParams(-1,-2));parent.addView(column,new LinearLayout.LayoutParams(0,-2,1));return input;
+        AgentStatusUi.info(column,label);EditText input=new EditText(c);input.setTag(tag);input.setContentDescription(label);input.setTextColor(Pal.TEXT);input.setSingleLine(true);input.setInputType(InputType.TYPE_CLASS_NUMBER);input.setText(String.format(java.util.Locale.ROOT,"%d",value));column.addView(input,new LinearLayout.LayoutParams(-1,-2));parent.addView(column,new LinearLayout.LayoutParams(0,-2,1));return input;
     }
     private static String tr(Context c,String ru,String en){return WorkspaceLanguage.code(c).equals("ru")?ru:en;}
 }
