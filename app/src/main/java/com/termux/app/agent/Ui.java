@@ -150,6 +150,61 @@ public final class Ui {
         c.setBackground(shape(on ? t.pc : t.s2, 15, 0, 0));
     }
 
+    public Switch toggle(boolean checked, final OnChecked l) {
+        Switch sw = new Switch(ctx);
+        sw.setChecked(checked);
+        int[][] st = {{android.R.attr.state_checked}, {}};
+        sw.setThumbTintList(new ColorStateList(st, new int[]{t.onp, t.on2}));
+        sw.setTrackTintList(new ColorStateList(st, new int[]{t.p, t.s3}));
+        if (l != null) sw.setOnCheckedChangeListener((b, c) -> l.on(c));
+        return sw;
+    }
+
+    /** Row with a rounded icon box, title, subtitle and a trailing view (switch, chevron or nothing). */
+    public LinearLayout iconRow(int icon, CharSequence name, CharSequence sub, View trailing, View.OnClickListener click) {
+        LinearLayout r = new LinearLayout(ctx);
+        r.setGravity(Gravity.CENTER_VERTICAL);
+        r.setMinimumHeight(dp(60));
+        r.setPadding(0, dp(6), 0, dp(6));
+        android.widget.FrameLayout box = new android.widget.FrameLayout(ctx);
+        box.setBackground(shape(t.s3, 12, 0, 0));
+        android.widget.ImageView iv = new android.widget.ImageView(ctx);
+        iv.setImageResource(icon);
+        iv.setColorFilter(t.on);
+        box.addView(iv, new android.widget.FrameLayout.LayoutParams(dp(20), dp(20), Gravity.CENTER));
+        LinearLayout.LayoutParams bl = new LinearLayout.LayoutParams(dp(36), dp(36));
+        bl.rightMargin = dp(12);
+        r.addView(box, bl);
+        LinearLayout texts = column();
+        texts.addView(text(name, 15, t.on, true));
+        if (sub != null && sub.length() > 0) texts.addView(text(sub, 12.5f, t.on2, false));
+        r.addView(texts, new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
+        if (trailing != null) r.addView(trailing);
+        if (click != null) { r.setClickable(true); r.setOnClickListener(click); }
+        return r;
+    }
+
+    public View chevron() { return icon(com.termux.R.drawable.ic_next, 20, t.on2); }
+
+    /** Square-ish tile for the 2-column grids. */
+    public LinearLayout tile(int icon, CharSequence name, CharSequence sub, boolean hi, View.OnClickListener click) {
+        LinearLayout c = column();
+        c.setBackground(shape(t.s1, 22, t.line, 1));
+        c.setPadding(dp(14), dp(14), dp(14), dp(14));
+        android.widget.FrameLayout box = new android.widget.FrameLayout(ctx);
+        box.setBackground(shape(hi ? t.pc : t.s3, 14, 0, 0));
+        android.widget.ImageView iv = new android.widget.ImageView(ctx);
+        iv.setImageResource(icon);
+        iv.setColorFilter(hi ? t.onpc : t.on);
+        box.addView(iv, new android.widget.FrameLayout.LayoutParams(dp(22), dp(22), Gravity.CENTER));
+        c.addView(box, new LinearLayout.LayoutParams(dp(40), dp(40)));
+        c.addView(text(name, 15, t.on, true), gap(10));
+        c.addView(text(sub, 12, t.on2, false));
+        c.setClickable(true);
+        c.setOnClickListener(click);
+        return c;
+    }
+
     public interface OnChecked { void on(boolean checked); }
 
     /** Title, optional explanation and a switch on the right. */

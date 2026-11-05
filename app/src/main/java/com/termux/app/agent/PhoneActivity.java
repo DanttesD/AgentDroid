@@ -52,13 +52,53 @@ public final class PhoneActivity extends TabActivity {
         hero.addView(bars, ui.gap(12));
         c.addView(hero);
 
-        LinearLayout card = ui.card();
-        addRows(card,
-                row(getString(R.string.phone_assistant), getString(R.string.phone_assistant_sub), AssistantActivity.class),
-                row(getString(R.string.phone_screen), getString(screen ? R.string.phone_screen_on : R.string.phone_screen_off), McpActivity.class),
-                row(getString(R.string.phone_rules), getString(R.string.phone_rules_sub), TriggersActivity.class),
-                row(getString(R.string.phone_mcp), getString(McpHost.isRunning() ? R.string.phone_mcp_on : R.string.phone_mcp_off), McpActivity.class));
+        final LinearLayout card = ui.card();
+        boolean running = AssistantOverlayService.isRunning();
+        LinearLayout assistant = ui.iconRow(R.drawable.ic_sparkle, getString(R.string.phone_assistant), getString(R.string.phone_assistant_sub),
+                ui.toggle(running, on -> {
+                    if (on && !overlay) { open(AssistantActivity.class); return; }
+                    if (on) AssistantOverlayService.start(this); else AssistantOverlayService.stop(this);
+                    card.postDelayed(this::refresh, 600);
+                }), null);
+        LinearLayout screenRow = ui.iconRow(R.drawable.ic_screen, getString(R.string.phone_screen),
+                getString(screen ? R.string.phone_screen_on : R.string.phone_screen_off),
+                ui.toggle(screen, null), v -> startActivity(new android.content.Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)));
+        screenRow.getChildAt(2).setClickable(false);
+        LinearLayout rules = ui.iconRow(R.drawable.ic_bell, getString(R.string.phone_rules), getString(R.string.phone_rules_sub), ui.chevron(), v -> open(TriggersActivity.class));
+        LinearLayout sec = ui.iconRow(R.drawable.ic_shield, getString(R.string.phone_security), getString(R.string.phone_security_sub), ui.chevron(), v -> open(McpActivity.class));
+        addRows(card, assistant, screenRow, rules, sec);
         c.addView(card, ui.gap(14));
+
+        boolean mcp = McpHost.isRunning();
+        boolean tunnel = TunnelManager.isRunning();
+        LinearLayout conn = ui.card();
+        LinearLayout st = new LinearLayout(this);
+        st.setGravity(android.view.Gravity.CENTER_VERTICAL);
+        android.view.View dot = new android.view.View(this);
+        dot.setBackground(ui.shape(mcp ? ui.t.ok : ui.t.on2, 5, 0, 0));
+        LinearLayout.LayoutParams dl = new LinearLayout.LayoutParams(ui.dp(10), ui.dp(10));
+        dl.rightMargin = ui.dp(10);
+        st.addView(dot, dl);
+        st.addView(ui.text(getString(mcp ? R.string.phone_mcp_working : R.string.phone_mcp_off), 15, ui.t.on, true), new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
+        st.addView(ui.text(tunnel ? "ngrok" : getString(R.string.phone_mcp_local), 12.5f, ui.t.on2, false));
+        conn.addView(st);
+        String shown = tunnel ? TunnelManager.url() + "/mcp/\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022" : "http://127.0.0.1:" + McpHost.port(this) + "/mcp/\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022";
+        TextView url = ui.text(shown, 12, ui.t.on2, false);
+        url.setTypeface(android.graphics.Typeface.MONOSPACE);
+        url.setSingleLine(true);
+        url.setEllipsize(android.text.TextUtils.TruncateAt.MIDDLE);
+        url.setPadding(ui.dp(12), ui.dp(10), ui.dp(12), ui.dp(10));
+        url.setBackground(ui.shape(ui.t.s2, 12, 0, 0));
+        conn.addView(url, ui.gap(10));
+        LinearLayout btns = new LinearLayout(this);
+        LinearLayout.LayoutParams bp = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f);
+        bp.rightMargin = ui.dp(8);
+        btns.addView(ui.button(getString(R.string.mcp_copy_short), Ui.Kind.TONAL, v ->
+                copy(tunnel ? TunnelManager.url() + "/mcp/" + McpHost.token(this) : McpHost.localUrl(this))), bp);
+        btns.addView(ui.button(getString(R.string.mcp_new_token_short), Ui.Kind.OUTLINE, v -> { McpHost.newToken(this); McpService.stop(this); v.postDelayed(this::refresh, 600); }),
+                new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
+        conn.addView(btns, ui.gap(12));
+        c.addView(conn, ui.gap(14));
 
         TextView stop = ui.button(getString(ActionGuard.isPaused() ? R.string.mcp_resume : R.string.phone_emergency), Ui.Kind.DANGER, v -> {
             if (McpHost.isRunning()) startService(new android.content.Intent(this, McpService.class).setAction(McpService.ACTION_PAUSE));

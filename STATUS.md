@@ -212,3 +212,9 @@ CI run #3 (51 min, got much further: apt, bash, libbz2 etc. built) failed on `co
 - Real vector icons (`ic_*`) instead of emoji/text; chat rebuilt like the mock (header pill, status chips, round bubbles, tool cards, composer pill with round send/stop button).
 - Every themed screen now recreates itself on resume when the palette signature changed (before: only Appearance did).
 - Still not like the mock: approval dialog (system AlertDialog), no attach/mic buttons in the composer, tabs are simpler than boards.
+
+## Design step 6: fidelity pass after looking at the phone
+- Environment: short mode chips (Авто/Root/ADB/Termux), 2-column tiles with icons that open the matching workspace screen (`agentdroid_screen` extra → `WorkspaceController.openScreen`).
+- Phone: icon rows with switches (assistant on/off), MCP status card with address, copy and new secret.
+- Agents: session-style cards with state dot, account groups with avatar and method badge, floating "+ Аккаунт".
+- Missing: storage card on Environment, approval card, attach/mic in composer.

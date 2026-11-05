@@ -203,6 +203,13 @@ public final class TermuxActivity extends Activity implements ServiceConnection 
     private String themeSig = "";
 
     @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        if (mWorkspace != null) mWorkspace.openScreen(intent.getStringExtra("agentdroid_screen"));
+    }
+
+    @Override
     public void onCreate(Bundle savedInstanceState) {
 
         Logger.logDebug(LOG_TAG, "onCreate");
@@ -266,6 +273,7 @@ public final class TermuxActivity extends Activity implements ServiceConnection 
         setToggleKeyboardView();
 
         mWorkspace = new com.termux.app.workspace.WorkspaceController(this);
+        mWorkspace.openScreen(getIntent().getStringExtra("agentdroid_screen"));
 
         registerForContextMenu(mTerminalView);
 

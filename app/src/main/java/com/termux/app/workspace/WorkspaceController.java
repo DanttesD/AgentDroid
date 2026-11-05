@@ -294,6 +294,12 @@ public final class WorkspaceController {
         if (action != null) { TextView a = button(action, false, click); a.setTextColor(Pal.ACCENT); r.addView(a); }
         parent.addView(r);
     }
+    /** Opens one of the workspace screens by name (home, sessions, commands, terminal, servers); used by the app navigation. */
+    public void openScreen(String name) {
+        if (name == null) return;
+        try { show(Screen.valueOf(name.toUpperCase(java.util.Locale.ROOT)), false); } catch (IllegalArgumentException ignored) { }
+    }
+
     private void show(Screen target, boolean animate) {
         if(target!=Screen.TERMINAL)activity.getTerminalView().setWorkspaceTerminalVisible(false);
         if(screen!=target)onTerminalViewportChanged();

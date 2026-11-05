@@ -20,6 +20,8 @@ public abstract class TabActivity extends Activity {
     protected abstract int titleRes();
     /** Fills the content column. Called again by {@link #refresh()}. */
     protected abstract void fill(LinearLayout content);
+    /** Optional floating action button. */
+    protected TextView fab() { return null; }
 
     @Override protected void onCreate(Bundle b) {
         super.onCreate(b);
@@ -43,7 +45,15 @@ public abstract class TabActivity extends Activity {
         content = ui.column();
         content.setPadding(ui.dp(16), ui.dp(8), ui.dp(16), ui.dp(16));
         sv.addView(content);
-        root.addView(sv, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
+        android.widget.FrameLayout body = new android.widget.FrameLayout(this);
+        body.addView(sv, new android.widget.FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        TextView fab = fab();
+        if (fab != null) {
+            android.widget.FrameLayout.LayoutParams fp = new android.widget.FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ui.dp(56), Gravity.END | Gravity.BOTTOM);
+            fp.setMargins(0, 0, ui.dp(16), ui.dp(16));
+            body.addView(fab, fp);
+        }
+        root.addView(body, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
         root.addView(NavBar.build(this, tab()));
         setContentView(root);
     }
@@ -76,6 +86,21 @@ public abstract class TabActivity extends Activity {
             r.setOnClickListener(v -> startActivity(new Intent(this, target)));
         }
         return r;
+    }
+
+    protected void open(Class<?> target) { startActivity(new Intent(this, target)); }
+
+    protected void openWorkspace(String screen) {
+        Intent i = new Intent(this, com.termux.app.TermuxActivity.class);
+        if (screen != null) i.putExtra("agentdroid_screen", screen);
+        i.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        startActivity(i);
+    }
+
+    protected void copy(String text) {
+        android.content.ClipboardManager cm = (android.content.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+        if (cm != null) cm.setPrimaryClip(android.content.ClipData.newPlainText("agentdroid", text));
+        android.widget.Toast.makeText(this, R.string.mcp_copied, android.widget.Toast.LENGTH_SHORT).show();
     }
 
     protected void addRows(LinearLayout card, LinearLayout... rows) {
