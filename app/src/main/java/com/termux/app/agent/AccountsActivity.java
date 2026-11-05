@@ -28,9 +28,12 @@ public class AccountsActivity extends Activity {
     private LinearLayout list;
     private ExecBackend termux;
 
+    private String themeSig = "";
+
     @Override protected void onCreate(Bundle b) {
         super.onCreate(b);
         com.agentdroid.agent.ThemeColors th = AppTheme.apply(this);
+        themeSig = AppTheme.signature(this);
         BG = th.bg; PANEL = th.s2; FG = th.on; DIM = th.on2; ACCENT = th.p; BTN = th.pc; ONBTN = th.onpc;
         store = new AccountsStore(this);
         termux = AgentBackends.create(this).find("termux");
@@ -44,7 +47,7 @@ public class AccountsActivity extends Activity {
         setContentView(sv);
     }
 
-    @Override protected void onResume() { super.onResume(); ApprovalCenter.onResume(this); render(); }
+    @Override protected void onResume() { super.onResume(); if (!themeSig.equals(AppTheme.signature(this))) { recreate(); return; } ApprovalCenter.onResume(this); render(); }
 
     @Override protected void onPause() { ApprovalCenter.onPause(this); super.onPause(); }
 

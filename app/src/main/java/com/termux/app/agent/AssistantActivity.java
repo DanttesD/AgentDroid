@@ -22,9 +22,12 @@ public final class AssistantActivity extends Activity {
     private TextView toggle;
     private Ui ui;
 
+    private String themeSig = "";
+
     @Override protected void onCreate(Bundle b) {
         super.onCreate(b);
         AppTheme.apply(this);
+        themeSig = AppTheme.signature(this);
         ui = new Ui(this);
         setTitle(R.string.assistant_title);
         int pad = Math.round(16 * getResources().getDisplayMetrics().density);
@@ -64,7 +67,7 @@ public final class AssistantActivity extends Activity {
         return ui.button(getString(text), Ui.Kind.TONAL, l);
     }
 
-    @Override protected void onResume() { super.onResume(); refresh(); }
+    @Override protected void onResume() { super.onResume(); if (!themeSig.equals(AppTheme.signature(this))) { recreate(); return; } refresh(); }
 
     @Override public void onRequestPermissionsResult(int code, String[] perms, int[] results) {
         super.onRequestPermissionsResult(code, perms, results);

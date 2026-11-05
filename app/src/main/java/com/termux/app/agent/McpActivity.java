@@ -25,9 +25,12 @@ public class McpActivity extends Activity {
 
     private com.agentdroid.agent.ThemeColors th;
 
+    private String themeSig = "";
+
     @Override protected void onCreate(Bundle b) {
         super.onCreate(b);
         th = AppTheme.apply(this);
+        themeSig = AppTheme.signature(this);
         ScrollView sv = new ScrollView(this);
         sv.setBackgroundColor(th.bg);
         LinearLayout root = new LinearLayout(this);
@@ -144,7 +147,7 @@ public class McpActivity extends Activity {
         setContentView(sv);
     }
 
-    @Override protected void onResume() { super.onResume(); ApprovalCenter.onResume(this); refresh(); }
+    @Override protected void onResume() { super.onResume(); if (!themeSig.equals(AppTheme.signature(this))) { recreate(); return; } ApprovalCenter.onResume(this); refresh(); }
 
     @Override protected void onPause() { if (tunnelState != null) tunnelState.removeCallbacks(tick); ApprovalCenter.onPause(this); super.onPause(); }
 

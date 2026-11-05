@@ -24,6 +24,7 @@ public abstract class TabActivity extends Activity {
     @Override protected void onCreate(Bundle b) {
         super.onCreate(b);
         AppTheme.apply(this);
+        themeSig = AppTheme.signature(this);
         ui = new Ui(this);
         LinearLayout root = new LinearLayout(this);
         root.setOrientation(LinearLayout.VERTICAL);
@@ -34,11 +35,8 @@ public abstract class TabActivity extends Activity {
         head.setPadding(ui.dp(20), ui.dp(28), ui.dp(8), ui.dp(4));
         TextView title = ui.title(getString(titleRes()));
         head.addView(title, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
-        TextView gear = ui.text("⚙", 24, ui.t.on, false);
-        gear.setGravity(Gravity.CENTER);
-        gear.setContentDescription(getString(R.string.nav_settings));
-        gear.setOnClickListener(v -> startActivity(new Intent(this, AppearanceActivity.class)));
-        head.addView(gear, new LinearLayout.LayoutParams(ui.dp(48), ui.dp(48)));
+        head.addView(ui.iconButton(R.drawable.ic_gear, ui.t.on, getString(R.string.nav_settings),
+                v -> startActivity(new Intent(this, AppearanceActivity.class))));
         root.addView(head);
 
         ScrollView sv = new ScrollView(this);
@@ -50,8 +48,11 @@ public abstract class TabActivity extends Activity {
         setContentView(root);
     }
 
+    private String themeSig = "";
+
     @Override protected void onResume() {
         super.onResume();
+        if (!themeSig.equals(AppTheme.signature(this))) { recreate(); return; }
         refresh();
     }
 
@@ -70,7 +71,7 @@ public abstract class TabActivity extends Activity {
         if (sub != null && sub.length() > 0) texts.addView(ui.text(sub, 12.5f, ui.t.on2, false));
         r.addView(texts, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
         if (target != null) {
-            r.addView(ui.text("›", 22, ui.t.on2, false));
+            r.addView(ui.icon(R.drawable.ic_next, 20, ui.t.on2));
             r.setClickable(true);
             r.setOnClickListener(v -> startActivity(new Intent(this, target)));
         }

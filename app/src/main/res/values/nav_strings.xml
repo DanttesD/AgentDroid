@@ -15,4 +15,5 @@
     <string name="env_adb">ADB console</string><string name="env_adb_sub">Wi-Fi debugging</string>
     <string name="env_web">Browser</string><string name="env_web_sub">Built-in browser</string>
     <string name="env_where">Where commands run</string><string name="env_where_sub">The agent uses the chosen mode for every command</string>
+    <string name="chip_screen">Screen</string><string name="chip_tunnel_on">Tunnel on</string><string name="chip_tunnel_off">Tunnel off</string><string name="tool_done">done</string><string name="tool_failed">failed</string>
 </resources>

@@ -12,7 +12,7 @@ import com.termux.R;
 /** Bottom navigation shared by the four top-level screens: Chat, Agents, Phone, Environment. */
 public final class NavBar {
     public static final int CHAT = 0, AGENTS = 1, PHONE = 2, ENV = 3;
-    private static final String[] ICONS = {"💬", "🤖", "📱", "⌨"};
+    private static final int[] ICONS = {R.drawable.ic_nav_chat, R.drawable.ic_nav_agents, R.drawable.ic_nav_phone, R.drawable.ic_nav_env};
     private static final int[] LABELS = {R.string.nav_chat, R.string.nav_agents, R.string.nav_phone, R.string.nav_env};
     private static final Class<?>[] TARGETS = {ChatActivity.class, AgentsActivity.class, PhoneActivity.class, EnvActivity.class};
 
@@ -29,8 +29,11 @@ public final class NavBar {
             boolean on = i == active;
             LinearLayout item = ui.column();
             item.setGravity(Gravity.CENTER_HORIZONTAL);
-            TextView pill = ui.text(ICONS[i], 18, on ? ui.t.onpc : ui.t.on2, false);
-            pill.setGravity(Gravity.CENTER);
+            android.widget.FrameLayout pill = new android.widget.FrameLayout(a);
+            android.widget.ImageView ic = new android.widget.ImageView(a);
+            ic.setImageResource(ICONS[i]);
+            ic.setColorFilter(on ? ui.t.onpc : ui.t.on2);
+            pill.addView(ic, new android.widget.FrameLayout.LayoutParams(ui.dp(24), ui.dp(24), Gravity.CENTER));
             pill.setBackground(ui.shape(on ? ui.t.pc : 0, 16, 0, 0));
             item.addView(pill, new LinearLayout.LayoutParams(ui.dp(64), ui.dp(32)));
             TextView label = ui.text(a.getString(LABELS[i]), 12, on ? ui.t.onpc : ui.t.on2, on);

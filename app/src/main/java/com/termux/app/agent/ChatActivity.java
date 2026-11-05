@@ -47,7 +47,12 @@ public class ChatActivity extends Activity {
     private LinearLayout messages;
     private ScrollView scroll;
     private EditText input;
-    private Button sendBtn;
+    private View sendBtn;
+    private android.widget.ImageView sendIcon;
+    private TextView chipExec, chipScreen, chipTunnel;
+    private TextView toolState;
+    private Ui ui;
+    private com.agentdroid.agent.ThemeColors tcol;
     private TextView backendLabel;
     private volatile AgentLoop loop;
     private volatile boolean busy;
@@ -64,6 +69,8 @@ public class ChatActivity extends Activity {
     @Override protected void onCreate(Bundle b) {
         super.onCreate(b);
         com.agentdroid.agent.ThemeColors th = AppTheme.apply(this);
+        tcol = th;
+        themeSig = AppTheme.signature(this);
         BG = th.bg; PANEL = th.s2; FG = th.on; DIM = th.on2; ACCENT = th.p; BTN = th.pc; ONBTN = th.onpc;
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
         config = new AgentConfig(this);
@@ -72,26 +79,54 @@ public class ChatActivity extends Activity {
         if (!pin.isEmpty()) { try { selector.pin(pin); } catch (Exception ignored) { } }
         lastPin = pin;
 
+        ui = new Ui(this);
         LinearLayout root = new LinearLayout(this);
         root.setOrientation(LinearLayout.VERTICAL);
         root.setBackgroundColor(BG);
         int pad = dp(10);
-        root.setPadding(pad, dp(28), pad, pad);
+        root.setPadding(0, dp(24), 0, 0);
 
         LinearLayout bar = new LinearLayout(this);
         bar.setOrientation(LinearLayout.HORIZONTAL);
         bar.setGravity(Gravity.CENTER_VERTICAL);
-        TextView title = text("AgentDroid", 18, FG);
-        title.setTypeface(Typeface.DEFAULT_BOLD);
-        bar.addView(title, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
-        Button settingsBtn = button(getString(R.string.agent_settings));
-        settingsBtn.setOnClickListener(v -> showSettings());
-        bar.addView(settingsBtn);
-        Button menuBtn = button("\u22ee");
-        menuBtn.setContentDescription(getString(R.string.agent_menu));
-        menuBtn.setOnClickListener(v -> showMenu());
-        bar.addView(menuBtn);
+        bar.setPadding(dp(16), dp(8), dp(8), dp(8));
+        LinearLayout pill = new LinearLayout(this);
+        pill.setGravity(Gravity.CENTER_VERTICAL);
+        pill.setPadding(dp(6), dp(6), dp(12), dp(6));
+        pill.setBackground(ui.shape(th.s1, 30, th.line, 1));
+        pill.setClickable(true);
+        pill.setOnClickListener(v -> pickBackend());
+        TextView avatar = ui.text("\u2726", 18, th.onpc, false);
+        avatar.setGravity(Gravity.CENTER);
+        avatar.setBackground(ui.shape(th.pc, 18, 0, 0));
+        pill.addView(avatar, new LinearLayout.LayoutParams(dp(36), dp(36)));
+        LinearLayout names = ui.column();
+        TextView title = ui.text("AgentDroid", 15, th.on, true);
+        names.addView(title);
+        backendLabel = ui.text("", 12, th.on2, false);
+        backendLabel.setSingleLine(true);
+        backendLabel.setEllipsize(android.text.TextUtils.TruncateAt.END);
+        names.addView(backendLabel);
+        LinearLayout.LayoutParams nlp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+        nlp.leftMargin = dp(10);
+        pill.addView(names, nlp);
+        pill.addView(ui.icon(R.drawable.ic_chev, 20, th.on2));
+        bar.addView(pill, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        bar.addView(ui.iconButton(R.drawable.ic_dots, th.on, getString(R.string.agent_menu), v -> showMenu()));
+        bar.addView(ui.iconButton(R.drawable.ic_gear, th.on, getString(R.string.agent_settings), v -> showSettings()));
         root.addView(bar);
+
+        LinearLayout chips = new LinearLayout(this);
+        chips.setPadding(dp(16), dp(4), dp(16), dp(8));
+        chipExec = ui.statusChip("", false);
+        chipScreen = ui.statusChip("", false);
+        chipTunnel = ui.statusChip("", false);
+        for (TextView c : new TextView[]{chipExec, chipScreen, chipTunnel}) {
+            LinearLayout.LayoutParams cl = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, dp(30));
+            cl.rightMargin = dp(8);
+            chips.addView(c, cl);
+        }
+        root.addView(chips);
 
         nativeBox = new LinearLayout(this);
         nativeBox.setOrientation(LinearLayout.VERTICAL);
@@ -100,30 +135,41 @@ public class ChatActivity extends Activity {
         webBox.setVisibility(View.GONE);
         root.addView(webBox, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
 
-        backendLabel = text("", 12, DIM);
-        nativeBox.addView(backendLabel);
-
         scroll = new ScrollView(this);
         messages = new LinearLayout(this);
         messages.setOrientation(LinearLayout.VERTICAL);
+        messages.setPadding(dp(16), dp(8), dp(16), dp(8));
         scroll.addView(messages);
         nativeBox.addView(scroll, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
 
         LinearLayout row = new LinearLayout(this);
         row.setOrientation(LinearLayout.HORIZONTAL);
+        row.setGravity(Gravity.CENTER_VERTICAL);
+        row.setBackground(ui.shape(th.s2, 32, th.line, 1));
+        row.setPadding(dp(16), dp(6), dp(6), dp(6));
         input = new EditText(this);
         input.setTextColor(FG);
         input.setHintTextColor(DIM);
         input.setHint(R.string.agent_hint);
-        input.setBackgroundColor(PANEL);
+        input.setBackground(null);
+        input.setTextSize(15);
         input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE);
         input.setMaxLines(5);
-        input.setPadding(pad, pad, pad, pad);
+        input.setPadding(0, dp(8), 0, dp(8));
         row.addView(input, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
-        sendBtn = button(getString(R.string.agent_send));
+        sendBtn = new FrameLayout(this);
+        sendIcon = new android.widget.ImageView(this);
+        sendIcon.setImageResource(R.drawable.ic_send);
+        sendIcon.setColorFilter(th.onp);
+        ((FrameLayout) sendBtn).addView(sendIcon, new FrameLayout.LayoutParams(dp(22), dp(22), Gravity.CENTER));
+        sendBtn.setBackground(ui.shape(th.p, 22, 0, 0));
+        sendBtn.setContentDescription(getString(R.string.agent_send));
+        sendBtn.setClickable(true);
         sendBtn.setOnClickListener(v -> onSend());
-        row.addView(sendBtn);
-        nativeBox.addView(row);
+        row.addView(sendBtn, new LinearLayout.LayoutParams(dp(44), dp(44)));
+        LinearLayout.LayoutParams rlp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        rlp.setMargins(dp(12), dp(6), dp(12), dp(10));
+        nativeBox.addView(row, rlp);
         root.addView(NavBar.build(this, NavBar.CHAT));
         outer = new FrameLayout(this);
         outer.addView(root, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
@@ -163,20 +209,84 @@ public class ChatActivity extends Activity {
         return bt;
     }
 
-    private TextView bubble(String s, int color, int bg) {
-        TextView t = text(s, 15, color);
-        t.setBackgroundColor(bg);
-        int p = dp(10);
-        t.setPadding(p, p, p, p);
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        lp.topMargin = dp(8);
+    private TextView userBubble(String s) {
+        TextView t = ui.text(s, 15, tcol.onpc, false);
+        t.setTextIsSelectable(true);
+        t.setLineSpacing(0, 1.15f);
+        t.setBackground(ui.bubbleShape(tcol.pc, 22, 22, 6, 22));
+        t.setPadding(dp(16), dp(12), dp(16), dp(12));
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        lp.gravity = Gravity.END;
+        lp.topMargin = dp(14);
+        lp.leftMargin = dp(48);
         t.setLayoutParams(lp);
         messages.addView(t);
         scrollDown();
         return t;
     }
 
-    private void addNote(String s) { bubble(s, DIM, BG); }
+    private TextView assistantText() {
+        TextView t = ui.text("", 15, tcol.on, false);
+        t.setTextIsSelectable(true);
+        t.setLineSpacing(0, 1.2f);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        lp.topMargin = dp(14);
+        t.setLayoutParams(lp);
+        messages.addView(t);
+        scrollDown();
+        return t;
+    }
+
+    private TextView note(String s, int color) {
+        TextView t = ui.text(s, 13, color, false);
+        t.setTextIsSelectable(true);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        lp.topMargin = dp(10);
+        t.setLayoutParams(lp);
+        messages.addView(t);
+        scrollDown();
+        return t;
+    }
+
+    /** One tool call as a card: name in mono, state on the right, short result under it. */
+    private LinearLayout toolCard(String name, String args) {
+        LinearLayout card = ui.column();
+        card.setBackground(ui.shape(tcol.s1, 14, tcol.line, 1));
+        card.setPadding(dp(12), dp(10), dp(12), dp(10));
+        LinearLayout top = new LinearLayout(this);
+        top.setGravity(Gravity.CENTER_VERTICAL);
+        TextView n = ui.text(name + (args.length() > 2 ? " " + args : ""), 12.5f, tcol.p, false);
+        n.setTypeface(Typeface.MONOSPACE);
+        n.setSingleLine(true);
+        n.setEllipsize(android.text.TextUtils.TruncateAt.END);
+        top.addView(n, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        toolState = ui.text("…", 12, tcol.on2, false);
+        top.addView(toolState);
+        card.addView(top);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        lp.topMargin = dp(8);
+        card.setLayoutParams(lp);
+        messages.addView(card);
+        scrollDown();
+        return card;
+    }
+    private LinearLayout lastCard;
+
+    private void setSending(boolean on) {
+        sendIcon.setImageResource(on ? R.drawable.ic_stop : R.drawable.ic_send);
+        sendIcon.setColorFilter(on ? tcol.err : tcol.onp);
+        sendBtn.setBackground(ui.shape(on ? tcol.err2 : tcol.p, 22, 0, 0));
+        sendBtn.setContentDescription(getString(on ? R.string.agent_stop : R.string.agent_send));
+    }
+
+    private void updateChips() {
+        boolean screen = AgentAccessibilityService.isRunning();
+        boolean tunnel = TunnelManager.isRunning();
+        ui.styleChip(chipScreen, getString(R.string.chip_screen), screen);
+        ui.styleChip(chipTunnel, getString(tunnel ? R.string.chip_tunnel_on : R.string.chip_tunnel_off), tunnel);
+    }
+
+    private void addNote(String s) { note(s, DIM); }
 
     private void scrollDown() { scroll.post(() -> scroll.fullScroll(View.FOCUS_DOWN)); }
 
@@ -189,7 +299,13 @@ public class ChatActivity extends Activity {
                     ? (pin != null ? getString(R.string.agent_backend_pinned_missing, pin) : getString(R.string.agent_backend_none))
                     : getString(R.string.agent_backend_line, b.displayName(),
                             getString(pin != null ? R.string.agent_mode_pinned : R.string.agent_mode_auto));
-            runOnUiThread(() -> backendLabel.setText(s + "   |   " + config.provider() + " / " + config.model()));
+            final String exec = b == null ? getString(R.string.agent_backend_none) : b.displayName();
+            final boolean okExec = b != null;
+            runOnUiThread(() -> {
+                backendLabel.setText(config.model() + " \u00b7 " + config.provider());
+                ui.styleChip(chipExec, exec, okExec);
+                updateChips();
+            });
         }, "backend-probe").start();
     }
 
@@ -471,6 +587,8 @@ public class ChatActivity extends Activity {
     @Override protected void onResume() {
         super.onResume();
         ApprovalCenter.onResume(this);
+        if (!themeSig.equals(AppTheme.signature(this))) { recreate(); return; }
+        updateChips();
         String pin = config.backendPin();
         if (!pin.equals(lastPin)) {
             lastPin = pin;
@@ -480,6 +598,7 @@ public class ChatActivity extends Activity {
         }
     }
     private String lastPin = "";
+    private String themeSig = "";
 
     @Override protected void onPause() { ApprovalCenter.onPause(this); super.onPause(); }
 
@@ -489,9 +608,9 @@ public class ChatActivity extends Activity {
         if (msg.isEmpty()) return;
         if (config.apiKey().isEmpty() && !config.provider().equals("custom")) { showSettings(); return; }
         input.setText("");
-        bubble(msg, FG, PANEL);
+        userBubble(msg);
         busy = true;
-        sendBtn.setText(R.string.agent_stop);
+        setSending(true);
         currentAssistant = null;
         new Thread(() -> {
             try {
@@ -500,18 +619,27 @@ public class ChatActivity extends Activity {
                 l.send(msg, new StreamListener() {
                     @Override public void onText(final String delta) {
                         runOnUiThread(() -> {
-                            if (currentAssistant == null) currentAssistant = bubble("", ACCENT, BG);
+                            if (currentAssistant == null) currentAssistant = assistantText();
                             currentAssistant.append(delta);
                             scrollDown();
                         });
                     }
                     @Override public void onToolCall(final ToolCall call) {
-                        runOnUiThread(() -> { currentAssistant = null; addNote("▶ " + call.name + " " + com.agentdroid.agent.Json.stringify(call.args)); });
+                        runOnUiThread(() -> { currentAssistant = null; lastCard = toolCard(call.name, com.agentdroid.agent.Json.stringify(call.args)); });
                     }
                     @Override public void onToolResult(ToolCall call, final String result, final boolean error) {
                         runOnUiThread(() -> {
-                            String shown = result.length() > 1500 ? result.substring(0, 1500) + "\n…" : result;
-                            addNote((error ? "✖ " : "✔ ") + shown);
+                            String shown = result.length() > 600 ? result.substring(0, 600) + "\n…" : result;
+                            if (toolState != null) {
+                                toolState.setText(getString(error ? R.string.tool_failed : R.string.tool_done));
+                                toolState.setTextColor(error ? tcol.err : tcol.ok);
+                            }
+                            if (lastCard != null && !shown.trim().isEmpty()) {
+                                TextView r = ui.text(shown, 12, tcol.on2, false);
+                                r.setTypeface(Typeface.MONOSPACE);
+                                r.setTextIsSelectable(true);
+                                lastCard.addView(r, ui.gap(6));
+                            }
                         });
                     }
                     @Override public void onError(final String m) { runOnUiThread(() -> addNote("⚠ " + m)); }
@@ -519,7 +647,7 @@ public class ChatActivity extends Activity {
             } catch (final Exception e) {
                 runOnUiThread(() -> addNote("⚠ " + e.getMessage()));
             } finally {
-                runOnUiThread(() -> { busy = false; sendBtn.setText(R.string.agent_send); currentAssistant = null; });
+                runOnUiThread(() -> { busy = false; setSending(false); currentAssistant = null; lastCard = null; });
             }
         }, "agent-loop").start();
     }

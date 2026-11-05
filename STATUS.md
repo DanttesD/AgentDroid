@@ -207,3 +207,8 @@ CI run #3 (51 min, got much further: apt, bash, libbz2 etc. built) failed on `co
 ## Design step 4: workspace screens on the theme palette (not compiled here)
 - `workspace/Pal` holds the colours of all workspace screens (terminal shell, servers, files, dialogs, agent chat, markdown); all hardcoded teal literals replaced by `Pal.*`, filled from the app theme in `TermuxActivity.onCreate`. `TermuxActivity` recreates itself when the theme signature changes.
 - Not touched on purpose: terminal colour scheme, red stop button, syntax highlighting colours.
+
+## Design step 5: fixes after the first look
+- Real vector icons (`ic_*`) instead of emoji/text; chat rebuilt like the mock (header pill, status chips, round bubbles, tool cards, composer pill with round send/stop button).
+- Every themed screen now recreates itself on resume when the palette signature changed (before: only Appearance did).
+- Still not like the mock: approval dialog (system AlertDialog), no attach/mic buttons in the composer, tabs are simpler than boards.

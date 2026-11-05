@@ -29,9 +29,12 @@ public final class TriggersActivity extends Activity {
     private TextView access;
     private Ui ui;
 
+    private String themeSig = "";
+
     @Override protected void onCreate(Bundle b) {
         super.onCreate(b);
         ThemeColors th = AppTheme.apply(this);
+        themeSig = AppTheme.signature(this);
         ui = new Ui(this);
         setTitle(R.string.trig_title);
         store = new TriggerStore(this);
@@ -55,7 +58,7 @@ public final class TriggersActivity extends Activity {
         setContentView(col);
     }
 
-    @Override protected void onResume() { super.onResume(); refresh(); }
+    @Override protected void onResume() { super.onResume(); if (!themeSig.equals(AppTheme.signature(this))) { recreate(); return; } refresh(); }
 
     private boolean accessGranted() {
         String flat = Settings.Secure.getString(getContentResolver(), "enabled_notification_listeners");

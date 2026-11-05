@@ -36,6 +36,38 @@ public final class Ui {
         return g;
     }
 
+    public android.widget.ImageView icon(int res, int sizeDp, int color) {
+        android.widget.ImageView v = new android.widget.ImageView(ctx);
+        v.setImageResource(res);
+        v.setColorFilter(color);
+        v.setScaleType(android.widget.ImageView.ScaleType.FIT_CENTER);
+        int p = dp((48 - sizeDp) / 2f);
+        v.setPadding(0, 0, 0, 0);
+        v.setLayoutParams(new LinearLayout.LayoutParams(dp(sizeDp), dp(sizeDp)));
+        return v;
+    }
+
+    /** A tappable round icon button 48dp wide. */
+    public android.widget.FrameLayout iconButton(int res, int color, CharSequence desc, View.OnClickListener l) {
+        android.widget.FrameLayout f = new android.widget.FrameLayout(ctx);
+        android.widget.ImageView i = new android.widget.ImageView(ctx);
+        i.setImageResource(res);
+        i.setColorFilter(color);
+        f.addView(i, new android.widget.FrameLayout.LayoutParams(dp(24), dp(24), Gravity.CENTER));
+        f.setContentDescription(desc);
+        f.setClickable(true);
+        f.setOnClickListener(l);
+        f.setLayoutParams(new LinearLayout.LayoutParams(dp(48), dp(48)));
+        return f;
+    }
+
+    public GradientDrawable bubbleShape(int fill, float tl, float tr, float br, float bl) {
+        GradientDrawable g = new GradientDrawable();
+        g.setColor(fill);
+        g.setCornerRadii(new float[]{dp(tl), dp(tl), dp(tr), dp(tr), dp(br), dp(br), dp(bl), dp(bl)});
+        return g;
+    }
+
     public TextView text(CharSequence s, float sp, int color, boolean bold) {
         TextView v = new TextView(ctx);
         v.setText(s);
@@ -101,6 +133,21 @@ public final class Ui {
         c.setClickable(true);
         c.setOnClickListener(l);
         return c;
+    }
+
+    public TextView statusChip(CharSequence label, boolean on) {
+        TextView c = text(label, 12.5f, on ? t.onpc : t.on2, on);
+        c.setGravity(Gravity.CENTER_VERTICAL);
+        c.setPadding(dp(12), 0, dp(12), 0);
+        c.setBackground(shape(on ? t.pc : t.s2, 15, 0, 0));
+        return c;
+    }
+
+    public void styleChip(TextView c, CharSequence label, boolean on) {
+        c.setText((on ? "\u25CF " : "\u25CB ") + label);
+        c.setTextColor(on ? t.onpc : t.on2);
+        c.setTypeface(on ? Typeface.DEFAULT_BOLD : Typeface.DEFAULT);
+        c.setBackground(shape(on ? t.pc : t.s2, 15, 0, 0));
     }
 
     public interface OnChecked { void on(boolean checked); }
