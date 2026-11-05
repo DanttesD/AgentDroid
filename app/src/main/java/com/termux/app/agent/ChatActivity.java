@@ -40,11 +40,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 /** Chat with the agent. Programmatic UI, no layout resources. */
 public class ChatActivity extends Activity {
-    private static final int BG = Color.parseColor("#121418");
-    private static final int PANEL = Color.parseColor("#1c1f26");
-    private static final int FG = Color.parseColor("#e6e8ee");
-    private static final int DIM = Color.parseColor("#8b93a7");
-    private static final int ACCENT = Color.parseColor("#7aa2ff");
+    private int BG, PANEL, FG, DIM, ACCENT, BTN, ONBTN;
 
     private AgentConfig config;
     private BackendSelector selector;
@@ -67,6 +63,8 @@ public class ChatActivity extends Activity {
 
     @Override protected void onCreate(Bundle b) {
         super.onCreate(b);
+        com.agentdroid.agent.ThemeColors th = AppTheme.apply(this);
+        BG = th.bg; PANEL = th.s2; FG = th.on; DIM = th.on2; ACCENT = th.p; BTN = th.pc; ONBTN = th.onpc;
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
         config = new AgentConfig(this);
         selector = AgentBackends.create(this);
@@ -204,6 +202,7 @@ public class ChatActivity extends Activity {
         items.add(getString(R.string.agent_menu_desktop));
         items.add(getString(R.string.agent_menu_assistant));
         items.add(getString(R.string.agent_menu_triggers));
+        items.add(getString(R.string.agent_menu_appearance));
         final int webStart = items.size();
         for (WebAccounts.Account a : accs) items.add(a.name + (a.url.isEmpty() ? "" : "  (" + hostOf(a.url) + ")"));
         items.add(getString(R.string.agent_menu_web_add));
@@ -221,6 +220,7 @@ public class ChatActivity extends Activity {
             }
             else if (which == 6) startActivity(new Intent(this, AssistantActivity.class));
             else if (which == 7) startActivity(new Intent(this, TriggersActivity.class));
+            else if (which == 8) startActivity(new Intent(this, AppearanceActivity.class));
             else if (which == addIndex) { WebAccounts.Account n = webAccounts.add(); pickService(n); }
             else if (which > addIndex) setWebMode(false);
             else openWebAccount(accs.get(which - webStart));

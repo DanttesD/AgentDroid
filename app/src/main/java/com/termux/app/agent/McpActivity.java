@@ -23,21 +23,24 @@ public class McpActivity extends Activity {
     private TextView local;
     private TextView tunnel;
 
+    private com.agentdroid.agent.ThemeColors th;
+
     @Override protected void onCreate(Bundle b) {
         super.onCreate(b);
+        th = AppTheme.apply(this);
         ScrollView sv = new ScrollView(this);
-        sv.setBackgroundColor(Color.parseColor("#121418"));
+        sv.setBackgroundColor(th.bg);
         LinearLayout root = new LinearLayout(this);
         root.setOrientation(LinearLayout.VERTICAL);
         int p = dp(14);
         root.setPadding(p, dp(30), p, p);
         sv.addView(root);
 
-        TextView title = tv(getString(R.string.mcp_title), 18, Color.WHITE);
+        TextView title = tv(getString(R.string.mcp_title), 18, th.on);
         title.setTypeface(android.graphics.Typeface.DEFAULT_BOLD);
         root.addView(title);
-        root.addView(tv(getString(R.string.mcp_intro), 14, Color.parseColor("#b6bccb")));
-        status = tv("", 15, Color.parseColor("#7aa2ff"));
+        root.addView(tv(getString(R.string.mcp_intro), 14, th.on2));
+        status = tv("", 15, th.p);
         root.addView(status);
 
         Button start = btn(getString(R.string.mcp_start));
@@ -63,10 +66,10 @@ public class McpActivity extends Activity {
         stopAgent.setText(stopLabel());
         root.addView(stopAgent);
 
-        TextView sec = tv(getString(R.string.mcp_security_title), 16, Color.WHITE);
+        TextView sec = tv(getString(R.string.mcp_security_title), 16, th.on);
         sec.setTypeface(android.graphics.Typeface.DEFAULT_BOLD);
         root.addView(sec);
-        a11yState = tv("", 14, Color.parseColor("#7aa2ff"));
+        a11yState = tv("", 14, th.p);
         root.addView(a11yState);
         Button a11y = btn(getString(R.string.mcp_a11y_open));
         a11y.setOnClickListener(v -> startActivity(new Intent(android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS)));
@@ -88,7 +91,7 @@ public class McpActivity extends Activity {
         boot.setText(bootLabel());
         root.addView(boot);
 
-        local = tv("", 13, Color.parseColor("#e6e8ee"));
+        local = tv("", 13, th.on);
         root.addView(local);
         Button copy = btn(getString(R.string.mcp_copy));
         copy.setOnClickListener(v -> copy(McpHost.localUrl(this)));
@@ -97,7 +100,7 @@ public class McpActivity extends Activity {
         renew.setOnClickListener(v -> { McpHost.newToken(this); McpService.stop(this); v.postDelayed(this::refresh, 500); });
         root.addView(renew);
 
-        tunnelState = tv("", 14, Color.parseColor("#7aa2ff"));
+        tunnelState = tv("", 14, th.p);
         final Button tunBtn = btn("");
         tunBtn.setOnClickListener(v -> {
             if (TunnelManager.isRunning()) TunnelManager.stop();
@@ -118,16 +121,16 @@ public class McpActivity extends Activity {
         ngrokInstall.setOnClickListener(v -> TermuxSessions.run(this, "ngrok", TunnelManager.ngrokInstallScript(), BrowserPicker.SLOTS[0]));
         Button ngrokSite = btn(getString(R.string.mcp_ngrok_site));
         ngrokSite.setOnClickListener(v -> BrowserPicker.show(this, "https://dashboard.ngrok.com/get-started/your-authtoken"));
-        root.addView(tv(getString(R.string.mcp_ngrok_hint), 13, Color.parseColor("#b6bccb")));
+        root.addView(tv(getString(R.string.mcp_ngrok_hint), 13, th.on2));
         root.addView(ngrokSite);
         root.addView(ngrokInstall);
         root.addView(ngrokSetup);
         root.addView(copyPublic);
 
-        TextView tt = tv(getString(R.string.mcp_tunnel_title), 16, Color.WHITE);
+        TextView tt = tv(getString(R.string.mcp_tunnel_title), 16, th.on);
         tt.setTypeface(android.graphics.Typeface.DEFAULT_BOLD);
         root.addView(tt);
-        tunnel = tv("", 13, Color.parseColor("#b6bccb"));
+        tunnel = tv("", 13, th.on2);
         root.addView(tunnel);
         Button term = btn(getString(R.string.mcp_open_terminal));
         term.setOnClickListener(v -> startActivity(new Intent(this, TermuxActivity.class)));
@@ -291,7 +294,7 @@ public class McpActivity extends Activity {
 
     private Button btn(String s) {
         Button bt = new Button(this);
-        bt.setText(s); bt.setAllCaps(false); bt.setTextColor(Color.WHITE); bt.setBackgroundColor(Color.parseColor("#1c1f26"));
+        bt.setText(s); bt.setAllCaps(false); bt.setTextColor(th.onpc); bt.setBackgroundColor(th.pc);
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         lp.topMargin = dp(6);
         bt.setLayoutParams(lp);

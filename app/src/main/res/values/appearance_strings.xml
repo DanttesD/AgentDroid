@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="agent_menu_appearance">Appearance</string>
+    <string name="appearance_title">Appearance</string>
+    <string name="appearance_theme">Theme</string>
+    <string name="appearance_system">System</string>
+    <string name="appearance_dark">Dark</string>
+    <string name="appearance_light">Light</string>
+    <string name="appearance_you">Material You</string>
+    <string name="appearance_you_sub">Colours come from your wallpaper (Android 12 and newer)</string>
+    <string name="appearance_you_old">Needs Android 12 or newer; a fixed accent is used instead</string>
+    <string name="appearance_amoled">AMOLED: pure black background</string>
+    <string name="appearance_amoled_sub">Saves battery. Works in the dark theme</string>
+    <string name="appearance_accent">Accent without Material You</string>
+    <string name="appearance_accent_you">Material You is on: the accent follows the wallpaper. Picking a colour here turns it off</string>
+    <string name="appearance_accent_sub">Used on older phones or when Material You is off</string>
+    <string name="appearance_preview">Preview</string>
+    <string name="appearance_preview_title">Agent is ready</string>
+    <string name="appearance_preview_body">Surfaces, text and buttons in the chosen colours.</string>
+    <string name="appearance_run">Run</string>
+    <string name="appearance_add">Add</string>
+    <string name="appearance_stop">Stop</string>
+</resources>

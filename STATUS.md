@@ -189,3 +189,9 @@ CI run #3 (51 min, got much further: apt, bash, libbz2 etc. built) failed on `co
 - New: `assets/agentdroid-mcp.cjs` + `AiAgents.writeMcpDescriptor`: when the OpenCode server starts, the connection's own `config/opencode/opencode.json` gets `mcp.agentdroid` (remote, loopback URL with the app's secret) and an `instructions` entry pointing to an environment file ("you run on the user's phone"). User keys are preserved; invalid user config is never overwritten. Test: `scripts/tests/test_agentdroid_mcp.cjs` (node).
 - Needs the MCP server running (start it on the MCP screen) for OpenCode to see the phone tools.
 - Next: device check of the OpenCode install/launch, OpenRouter free models, the Accounts card (Debian npm path) vs the fork's AI Agents path.
+
+## Design step 1: theme layer (Android side not compiled here)
+- `ThemeColors` (agent module, tested): palette from a hue, dark/light, AMOLED (pure black), contrast checked for every hue.
+- `AppTheme`: mode system/dark/light, Material You (wallpaper accent on Android 12+), AMOLED, 4 fixed accents. `Ui`: cards, buttons, chips, switch rows.
+- `AppearanceActivity` (chat menu → «Внешний вид»). Chat, Accounts and MCP screens now take colours from the theme.
+- Next: bottom navigation shell (Чат, Агенты, Телефон, Среда), then Assistant/Triggers/overlay colours, then the Termux screens.

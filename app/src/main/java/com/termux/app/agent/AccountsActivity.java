@@ -22,11 +22,7 @@ import java.util.List;
 
 /** Accounts and sign-in: install the official agents, add accounts, sign in through the built-in browser. */
 public class AccountsActivity extends Activity {
-    private static final int BG = Color.parseColor("#121418");
-    private static final int PANEL = Color.parseColor("#1c1f26");
-    private static final int FG = Color.parseColor("#e6e8ee");
-    private static final int DIM = Color.parseColor("#8b93a7");
-    private static final int ACCENT = Color.parseColor("#7aa2ff");
+    private int BG, PANEL, FG, DIM, ACCENT, BTN, ONBTN;
 
     private AccountsStore store;
     private LinearLayout list;
@@ -34,6 +30,8 @@ public class AccountsActivity extends Activity {
 
     @Override protected void onCreate(Bundle b) {
         super.onCreate(b);
+        com.agentdroid.agent.ThemeColors th = AppTheme.apply(this);
+        BG = th.bg; PANEL = th.s2; FG = th.on; DIM = th.on2; ACCENT = th.p; BTN = th.pc; ONBTN = th.onpc;
         store = new AccountsStore(this);
         termux = AgentBackends.create(this).find("termux");
         ScrollView sv = new ScrollView(this);
@@ -172,7 +170,7 @@ public class AccountsActivity extends Activity {
 
     private Button btn(String s) {
         Button bt = new Button(this);
-        bt.setText(s); bt.setAllCaps(false); bt.setTextColor(Color.WHITE); bt.setBackgroundColor(Color.parseColor("#2a2f3a"));
+        bt.setText(s); bt.setAllCaps(false); bt.setTextColor(ONBTN); bt.setBackgroundColor(BTN);
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         lp.topMargin = dp(8);
         bt.setLayoutParams(lp);
@@ -181,7 +179,7 @@ public class AccountsActivity extends Activity {
 
     private Button small(String s) {
         Button bt = new Button(this);
-        bt.setText(s); bt.setAllCaps(false); bt.setTextColor(Color.WHITE); bt.setBackgroundColor(Color.parseColor("#2a2f3a"));
+        bt.setText(s); bt.setAllCaps(false); bt.setTextColor(ONBTN); bt.setBackgroundColor(BTN);
         bt.setTextSize(12);
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
         lp.rightMargin = dp(6);
