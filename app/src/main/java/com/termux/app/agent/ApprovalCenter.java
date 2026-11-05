@@ -86,7 +86,7 @@ public final class ApprovalCenter {
         a.runOnUiThread(new Runnable() {
             @Override public void run() {
                 try {
-                    AlertDialog.Builder db = new AlertDialog.Builder(a).setTitle(R.string.agent_allow_title).setMessage(description).setCancelable(false)
+                    AlertDialog.Builder db = new com.termux.app.agent.ThemedDialog(a).setTitle(R.string.agent_allow_title).setMessage(description).setCancelable(false)
                             .setPositiveButton(R.string.agent_allow, (d, w) -> { ok.set(true); latch.countDown(); })
                             .setNegativeButton(R.string.agent_deny, (d, w) -> latch.countDown());
                     if (!force) db.setNeutralButton(R.string.agent_allow_hour, (d, w) -> { setMode(a, 1); ok.set(true); latch.countDown(); });

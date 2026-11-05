@@ -335,7 +335,7 @@ public class TermuxTerminalSessionClient extends TermuxTerminalSessionClientBase
         if (service == null) return;
 
         if (service.getTermuxSessionsSize() >= MAX_SESSIONS) {
-            new AlertDialog.Builder(mActivity).setTitle(R.string.title_max_terminals_reached).setMessage(R.string.msg_max_terminals_reached)
+            new com.termux.app.agent.ThemedDialog(mActivity).setTitle(R.string.title_max_terminals_reached).setMessage(R.string.msg_max_terminals_reached)
                 .setPositiveButton(android.R.string.ok, null).show();
         } else {
             TerminalSession currentSession = mActivity.getCurrentSession();

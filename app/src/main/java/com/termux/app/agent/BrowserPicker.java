@@ -32,7 +32,7 @@ public final class BrowserPicker {
     public static void show(final Activity a, final String url) {
         String[] names = new String[SLOTS.length];
         for (int i = 0; i < names.length; i++) names[i] = name(a, i);
-        final AlertDialog d = new AlertDialog.Builder(a).setTitle(R.string.agent_browser_pick)
+        final AlertDialog d = new com.termux.app.agent.ThemedDialog(a).setTitle(R.string.agent_browser_pick)
                 .setItems(names, (dlg, which) -> {
                     Intent i = new Intent(a, SLOTS[which]);
                     if (url != null) i.putExtra("url", url);
@@ -50,7 +50,7 @@ public final class BrowserPicker {
         final EditText e = new EditText(a);
         e.setText(prefs(a).getString("name" + slot, ""));
         e.setHint(name(a, slot));
-        new AlertDialog.Builder(a).setTitle(R.string.agent_browser_rename).setView(e)
+        new com.termux.app.agent.ThemedDialog(a).setTitle(R.string.agent_browser_rename).setView(e)
                 .setPositiveButton(R.string.agent_save, (dlg, w) ->
                         prefs(a).edit().putString("name" + slot, e.getText().toString().trim()).apply())
                 .setNegativeButton(R.string.agent_cancel, null).show();

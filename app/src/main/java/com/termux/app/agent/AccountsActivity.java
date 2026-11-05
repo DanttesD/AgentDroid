@@ -63,8 +63,8 @@ public class AccountsActivity extends Activity {
     private LinearLayout agentCard(final AgentCatalog.Entry e) {
         LinearLayout card = new LinearLayout(this);
         card.setOrientation(LinearLayout.VERTICAL);
-        card.setBackgroundColor(PANEL);
-        int p = dp(12);
+        card.setBackground(new Ui(this).shape(PANEL, 22, new Ui(this).t.line, 1));
+        int p = dp(16);
         card.setPadding(p, p, p, p);
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         lp.topMargin = dp(12);
@@ -78,13 +78,13 @@ public class AccountsActivity extends Activity {
         card.addView(status);
         checkInstalled(e, status);
 
-        Button install = btn(getString(R.string.acc_install));
+        TextView install = btn(getString(R.string.acc_install));
         install.setOnClickListener(v -> {
             Toast.makeText(this, R.string.acc_install_note, Toast.LENGTH_LONG).show();
             TermuxSessions.run(this, e.title, e.ensureInstalled(), BrowserPicker.SLOTS[0]);
         });
         card.addView(install);
-        Button add = btn(getString(R.string.acc_add));
+        TextView add = btn(getString(R.string.acc_add));
         add.setOnClickListener(v -> askName(e));
         card.addView(add);
 
@@ -99,12 +99,12 @@ public class AccountsActivity extends Activity {
         row.addView(tv(getString(R.string.acc_account_line, a.name, BrowserPicker.name(this, a.browserSlot)), 14, FG));
         LinearLayout btns = new LinearLayout(this);
         btns.setOrientation(LinearLayout.HORIZONTAL);
-        Button run = small(getString(R.string.acc_run));
+        TextView run = small(getString(R.string.acc_run));
         run.setOnClickListener(v -> TermuxSessions.run(this, e.title + " " + a.name,
                 e.ensureInstalled() + "; mkdir -p " + ShellQuote.quote(a.dir()) + "; " + e.withAccount(e.run, a.dir()), BrowserPicker.SLOTS[a.browserSlot]));
-        Button relogin = small(getString(R.string.acc_relogin));
+        TextView relogin = small(getString(R.string.acc_relogin));
         relogin.setOnClickListener(v -> login(e, a));
-        Button del = small(getString(R.string.acc_delete));
+        TextView del = small(getString(R.string.acc_delete));
         del.setOnClickListener(v -> confirmDelete(e, a));
         btns.addView(run); btns.addView(relogin); btns.addView(del);
         row.addView(btns);
@@ -119,7 +119,7 @@ public class AccountsActivity extends Activity {
     private void askName(final AgentCatalog.Entry e) {
         final EditText input = new EditText(this);
         input.setSingleLine(true);
-        new AlertDialog.Builder(this).setTitle(R.string.acc_name_title).setView(input)
+        new com.termux.app.agent.ThemedDialog(this).setTitle(R.string.acc_name_title).setView(input)
                 .setPositiveButton(R.string.agent_save, (d, w) -> {
                     String name = input.getText().toString().trim();
                     if (!AccountsStore.validName(name)) { toast(R.string.acc_name_bad); return; }
@@ -133,7 +133,7 @@ public class AccountsActivity extends Activity {
     }
 
     private void confirmDelete(final AgentCatalog.Entry e, final AccountsStore.Account a) {
-        new AlertDialog.Builder(this).setMessage(getString(R.string.acc_delete_confirm, a.name))
+        new com.termux.app.agent.ThemedDialog(this).setMessage(getString(R.string.acc_delete_confirm, a.name))
                 .setPositiveButton(R.string.acc_delete, (d, w) -> {
                     store.remove(a);
                     new Thread(() -> {
@@ -171,19 +171,19 @@ public class AccountsActivity extends Activity {
         return t;
     }
 
-    private Button btn(String s) {
-        Button bt = new Button(this);
-        bt.setText(s); bt.setAllCaps(false); bt.setTextColor(ONBTN); bt.setBackgroundColor(BTN);
+    private TextView btn(String s) {
+        TextView bt = new Ui(this).button(s, Ui.Kind.TONAL, null);
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         lp.topMargin = dp(8);
         bt.setLayoutParams(lp);
         return bt;
     }
 
-    private Button small(String s) {
-        Button bt = new Button(this);
-        bt.setText(s); bt.setAllCaps(false); bt.setTextColor(ONBTN); bt.setBackgroundColor(BTN);
-        bt.setTextSize(12);
+    private TextView small(String s) {
+        TextView bt = new Ui(this).button(s, Ui.Kind.OUTLINE, null);
+        bt.setTextSize(12.5f);
+        bt.setMinHeight(dp(40));
+        bt.setPadding(dp(8), 0, dp(8), 0);
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
         lp.rightMargin = dp(6);
         bt.setLayoutParams(lp);

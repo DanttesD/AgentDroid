@@ -218,3 +218,9 @@ CI run #3 (51 min, got much further: apt, bash, libbz2 etc. built) failed on `co
 - Phone: icon rows with switches (assistant on/off), MCP status card with address, copy and new secret.
 - Agents: session-style cards with state dot, account groups with avatar and method badge, floating "+ Аккаунт".
 - Missing: storage card on Environment, approval card, attach/mic in composer.
+
+## Design step 7: after the full screenshot review
+- All dialogs (`ThemedDialog`/`DialogSkin`, also the workspace builder) follow the theme: surface, text, accent buttons, tinted inputs. No more white or teal dialogs.
+- ADB console, Accounts and MCP screens restyled (cards, rounded buttons); MCP grouped into four cards.
+- Web chat mode hides the status chips and shows "Веб-аккаунт в браузере" in the header pill.
+- Still open: chat ⋮ menu duplicates tabs, workspace screens (home/commands/terminal top bar) keep the old layout, no storage card, no approval card.

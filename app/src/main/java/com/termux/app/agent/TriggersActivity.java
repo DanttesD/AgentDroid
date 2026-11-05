@@ -115,7 +115,7 @@ public final class TriggersActivity extends Activity {
         mode.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, getResources().getStringArray(R.array.trig_modes)));
         mode.setSelection(rule.mode);
         col.addView(mode);
-        AlertDialog.Builder db = new AlertDialog.Builder(this).setTitle(R.string.trig_title).setView(col)
+        AlertDialog.Builder db = new com.termux.app.agent.ThemedDialog(this).setTitle(R.string.trig_title).setView(col)
                 .setPositiveButton(R.string.trig_save, (d, w) -> {
                     rule.name = name.getText().toString().trim();
                     rule.pkg = pkg.getText().toString().trim();

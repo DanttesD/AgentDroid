@@ -27,7 +27,7 @@ final class WorkspaceDialogs {
         private boolean blockOutside;
         Builder(Context c) { super(c, R.style.WorkspaceDialog); }
         Builder blockOutsideDismiss(){blockOutside=true;return this;}
-        @Override public AlertDialog create(){AlertDialog dialog=super.create();if(blockOutside)dialog.setCanceledOnTouchOutside(false);return dialog;}
+        @Override public AlertDialog create(){AlertDialog dialog=super.create();if(blockOutside)dialog.setCanceledOnTouchOutside(false);com.termux.app.agent.DialogSkin.attach(dialog);return dialog;}
         @Override public AlertDialog.Builder setItems(CharSequence[] items, DialogInterface.OnClickListener listener) {
             return super.setAdapter(new Rows(getContext(), items, -1), listener);
         }

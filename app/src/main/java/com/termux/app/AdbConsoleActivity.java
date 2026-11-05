@@ -13,6 +13,8 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.agentdroid.adb.AgentAdb;
+import com.termux.app.agent.AppTheme;
+import com.termux.app.agent.Ui;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -27,10 +29,15 @@ public class AdbConsoleActivity extends Activity {
     private AgentAdb adb;
     private EditText host, pairPort, code, connectPort, command;
     private TextView output;
+    private Ui ui;
+    private String themeSig = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        AppTheme.apply(this);
+        themeSig = AppTheme.signature(this);
+        ui = new Ui(this);
         setTitle("AgentDroid ADB");
         adb = new AgentAdb(this);
 
@@ -38,7 +45,8 @@ public class AdbConsoleActivity extends Activity {
         root.setOrientation(LinearLayout.VERTICAL);
         int pad = (int) (12 * getResources().getDisplayMetrics().density);
         root.setPadding(pad, pad, pad, pad);
-        root.setBackgroundColor(Color.parseColor("#101418"));
+        root.setBackgroundColor(ui.t.bg);
+        root.addView(ui.title("ADB"));
 
         root.addView(label("Адрес (по умолчанию этот телефон)"));
         host = edit("127.0.0.1", false);
@@ -89,12 +97,12 @@ public class AdbConsoleActivity extends Activity {
         output = new TextView(this);
         output.setTypeface(Typeface.MONOSPACE);
         output.setTextIsSelectable(true);
-        output.setTextColor(Color.WHITE);
+        output.setTextColor(ui.t.on);
         output.setPadding(0, pad, 0, 0);
         root.addView(output);
 
         ScrollView scroll = new ScrollView(this);
-        scroll.setBackgroundColor(Color.parseColor("#101418"));
+        scroll.setBackgroundColor(ui.t.bg);
         scroll.addView(root);
         setContentView(scroll);
     }
@@ -118,28 +126,36 @@ public class AdbConsoleActivity extends Activity {
     private String text(EditText e) { return e.getText().toString().trim(); }
 
     private TextView label(String s) {
-        TextView t = new TextView(this);
-        t.setText(s);
-        t.setTextColor(Color.parseColor("#9FE6D0"));
-        t.setPadding(0, 24, 0, 8);
+        TextView t = ui.text(s, 13.5f, ui.t.on2, false);
+        t.setPadding(ui.dp(4), ui.dp(18), 0, ui.dp(8));
         return t;
     }
 
     private EditText edit(String value, boolean number) {
         EditText e = new EditText(this);
         e.setText(value);
-        e.setTextColor(Color.WHITE);
-        e.setHintTextColor(Color.GRAY);
+        e.setTextColor(ui.t.on);
+        e.setHintTextColor(ui.t.on2);
         e.setSingleLine(true);
+        e.setBackground(ui.shape(ui.t.s2, 16, ui.t.line, 1));
+        e.setPadding(ui.dp(16), ui.dp(12), ui.dp(16), ui.dp(12));
         if (number) e.setInputType(InputType.TYPE_CLASS_NUMBER);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        lp.topMargin = ui.dp(8);
+        e.setLayoutParams(lp);
         return e;
     }
 
-    private Button button(String s, View.OnClickListener l) {
-        Button b = new Button(this);
-        b.setText(s);
-        b.setAllCaps(false);
-        b.setOnClickListener(l);
+    private TextView button(String s, View.OnClickListener l) {
+        TextView b = ui.button(s, Ui.Kind.TONAL, l);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        lp.topMargin = ui.dp(8);
+        b.setLayoutParams(lp);
         return b;
+    }
+
+    @Override protected void onResume() {
+        super.onResume();
+        if (!themeSig.equals(AppTheme.signature(this))) recreate();
     }
 }

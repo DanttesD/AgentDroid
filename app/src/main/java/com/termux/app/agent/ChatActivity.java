@@ -51,6 +51,7 @@ public class ChatActivity extends Activity {
     private android.widget.ImageView sendIcon;
     private TextView chipExec, chipScreen, chipTunnel;
     private TextView toolState;
+    private LinearLayout chipsRow;
     private Ui ui;
     private com.agentdroid.agent.ThemeColors tcol;
     private TextView backendLabel;
@@ -117,6 +118,7 @@ public class ChatActivity extends Activity {
         root.addView(bar);
 
         LinearLayout chips = new LinearLayout(this);
+        chipsRow = chips;
         chips.setPadding(dp(16), dp(4), dp(16), dp(8));
         chipExec = ui.statusChip("", false);
         chipScreen = ui.statusChip("", false);
@@ -326,7 +328,7 @@ public class ChatActivity extends Activity {
         items.add(getString(R.string.agent_menu_web_add));
         final int addIndex = items.size() - 1;
         if (webMode) items.add(getString(R.string.agent_menu_mode_native));
-        AlertDialog dlg = new AlertDialog.Builder(this).setItems(items.toArray(new String[0]), (d, which) -> {
+        AlertDialog dlg = new com.termux.app.agent.ThemedDialog(this).setItems(items.toArray(new String[0]), (d, which) -> {
             if (which == 0) pickBackend();
             else if (which == 1) startActivity(new Intent(this, TermuxActivity.class));
             else if (which == 2) startActivity(new Intent(this, AdbConsoleActivity.class));
@@ -398,7 +400,7 @@ public class ChatActivity extends Activity {
         String[] names = new String[svc.size() + 1];
         for (int i = 0; i < svc.size(); i++) names[i] = svc.get(i).name;
         names[svc.size()] = getString(R.string.agent_web_add_service);
-        new AlertDialog.Builder(this).setTitle(R.string.agent_web_pick_title).setItems(names, (d, which) -> {
+        new com.termux.app.agent.ThemedDialog(this).setTitle(R.string.agent_web_pick_title).setItems(names, (d, which) -> {
             if (which == svc.size()) { addService(acc); return; }
             acc.url = svc.get(which).url;
             webAccounts.update(acc);
@@ -419,7 +421,7 @@ public class ChatActivity extends Activity {
         box.setPadding(40, 10, 40, 0);
         box.addView(name);
         box.addView(url);
-        new AlertDialog.Builder(this).setTitle(R.string.agent_web_add_service).setView(box)
+        new com.termux.app.agent.ThemedDialog(this).setTitle(R.string.agent_web_add_service).setView(box)
                 .setPositiveButton(R.string.agent_save, (d, w) -> {
                     String n = name.getText().toString().trim();
                     String u = url.getText().toString().trim();
@@ -442,7 +444,7 @@ public class ChatActivity extends Activity {
 
     private void editWebAccount(final WebAccounts.Account acc) {
         String[] opts = {getString(R.string.agent_web_rename), getString(R.string.agent_web_change_service), getString(R.string.agent_web_delete)};
-        new AlertDialog.Builder(this).setTitle(acc.name).setItems(opts, (d, which) -> {
+        new com.termux.app.agent.ThemedDialog(this).setTitle(acc.name).setItems(opts, (d, which) -> {
             if (which == 0) renameWebAccount(acc);
             else if (which == 1) pickService(acc);
             else {
@@ -458,7 +460,7 @@ public class ChatActivity extends Activity {
         final EditText input = new EditText(this);
         input.setText(acc.name);
         input.setSingleLine(true);
-        new AlertDialog.Builder(this).setTitle(R.string.agent_web_rename).setView(input)
+        new com.termux.app.agent.ThemedDialog(this).setTitle(R.string.agent_web_rename).setView(input)
                 .setPositiveButton(R.string.agent_save, (d, w) -> {
                     String n = input.getText().toString().trim();
                     if (n.isEmpty()) return;
@@ -474,6 +476,9 @@ public class ChatActivity extends Activity {
         getSharedPreferences("agentdroid_agent", MODE_PRIVATE).edit().putBoolean("web_mode", on).apply();
         nativeBox.setVisibility(on ? View.GONE : View.VISIBLE);
         webBox.setVisibility(on ? View.VISIBLE : View.GONE);
+        if (chipsRow != null) chipsRow.setVisibility(on ? View.GONE : View.VISIBLE);
+        if (on && backendLabel != null) backendLabel.setText(R.string.chat_web_label);
+        else if (backendLabel != null) refreshBackendLabel();
     }
 
     private WebView currentWebView() { return webViews.get(currentWeb); }
@@ -497,7 +502,7 @@ public class ChatActivity extends Activity {
             ids[i + 1] = selector.all().get(i).id();
             names[i + 1] = selector.all().get(i).displayName();
         }
-        new AlertDialog.Builder(this).setTitle(R.string.agent_backend_title).setItems(names, (d, which) -> {
+        new com.termux.app.agent.ThemedDialog(this).setTitle(R.string.agent_backend_title).setItems(names, (d, which) -> {
             config.setBackendPin(ids[which]);
             selector.pin(ids[which].isEmpty() ? null : ids[which]);
             loop = null;
@@ -535,7 +540,7 @@ public class ChatActivity extends Activity {
             }
             @Override public void onNothingSelected(AdapterView<?> parent) { }
         });
-        new AlertDialog.Builder(this).setTitle(R.string.agent_provider_title).setView(box)
+        new com.termux.app.agent.ThemedDialog(this).setTitle(R.string.agent_provider_title).setView(box)
                 .setPositiveButton(R.string.agent_save, (d, w) -> {
                     config.setProvider(AgentConfig.PROVIDERS[sp.getSelectedItemPosition()]);
                     String u = url.getText().toString().trim();

@@ -309,7 +309,7 @@ final class TermuxInstaller {
 
         activity.runOnUiThread(() -> {
             try {
-                new AlertDialog.Builder(activity).setTitle(R.string.bootstrap_error_title).setMessage(R.string.bootstrap_error_body)
+                new com.termux.app.agent.ThemedDialog(activity).setTitle(R.string.bootstrap_error_title).setMessage(R.string.bootstrap_error_body)
                     .setNegativeButton(R.string.bootstrap_error_abort, (dialog, which) -> {
                         dialog.dismiss();
                         activity.finish();

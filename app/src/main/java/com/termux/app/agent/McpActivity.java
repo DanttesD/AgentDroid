@@ -39,111 +39,119 @@ public class McpActivity extends Activity {
         root.setPadding(p, dp(30), p, p);
         sv.addView(root);
 
-        TextView title = tv(getString(R.string.mcp_title), 18, th.on);
+        final Ui ui = new Ui(this);
+        LinearLayout cur = root;
+        TextView title = tv(getString(R.string.mcp_title), 26, th.on);
         title.setTypeface(android.graphics.Typeface.DEFAULT_BOLD);
         root.addView(title);
         root.addView(tv(getString(R.string.mcp_intro), 14, th.on2));
+        cur = ui.card();
+        root.addView(cur, ui.gap(14));
+        cur.addView(ui.text(getString(R.string.mcp_card_server), 16, th.on, true));
         status = tv("", 15, th.p);
-        root.addView(status);
+        cur.addView(status);
 
-        Button start = btn(getString(R.string.mcp_start));
+        TextView start = btn(getString(R.string.mcp_start));
         start.setOnClickListener(v -> { McpService.start(this); v.postDelayed(this::refresh, 800); });
-        Button stop = btn(getString(R.string.mcp_stop));
+        TextView stop = btn(getString(R.string.mcp_stop));
         stop.setOnClickListener(v -> { McpService.stop(this); v.postDelayed(this::refresh, 500); });
-        final Button approval = btn("");
+        final TextView approval = btn("");
         approval.setOnClickListener(v -> {
             ApprovalCenter.setMode(this, (ApprovalCenter.mode(this) + 1) % 3);
             approval.setText(approvalLabel());
         });
         approval.setText(approvalLabel());
-        root.addView(approval);
-        root.addView(start);
-        root.addView(stop);
+        cur.addView(approval);
+        cur.addView(start);
+        cur.addView(stop);
 
-        final Button stopAgent = btn("");
+        final TextView stopAgent = btn("");
         stopAgent.setOnClickListener(v -> {
             if (McpHost.isRunning()) startService(new Intent(this, McpService.class).setAction(McpService.ACTION_PAUSE));
             else ActionGuard.setPaused(!ActionGuard.isPaused());
             v.postDelayed(() -> stopAgent.setText(stopLabel()), 300);
         });
         stopAgent.setText(stopLabel());
-        root.addView(stopAgent);
+        cur.addView(stopAgent);
 
-        TextView sec = tv(getString(R.string.mcp_security_title), 16, th.on);
-        sec.setTypeface(android.graphics.Typeface.DEFAULT_BOLD);
-        root.addView(sec);
+        cur = ui.card();
+        root.addView(cur, ui.gap(14));
+        cur.addView(ui.text(getString(R.string.mcp_security_title), 16, th.on, true));
         a11yState = tv("", 14, th.p);
-        root.addView(a11yState);
-        Button a11y = btn(getString(R.string.mcp_a11y_open));
+        cur.addView(a11yState);
+        TextView a11y = btn(getString(R.string.mcp_a11y_open));
         a11y.setOnClickListener(v -> startActivity(new Intent(android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS)));
-        root.addView(a11y);
-        Button a11yAuto = btn(getString(R.string.mcp_a11y_auto));
+        cur.addView(a11y);
+        TextView a11yAuto = btn(getString(R.string.mcp_a11y_auto));
         a11yAuto.setOnClickListener(v -> enableA11yViaShell());
-        root.addView(a11yAuto);
-        Button awake = btn(getString(R.string.mcp_keepalive));
+        cur.addView(a11yAuto);
+        TextView awake = btn(getString(R.string.mcp_keepalive));
         awake.setOnClickListener(v -> keepAliveViaShell());
-        root.addView(awake);
-        Button blocked = btn(getString(R.string.mcp_blocked_apps));
+        cur.addView(awake);
+        TextView blocked = btn(getString(R.string.mcp_blocked_apps));
         blocked.setOnClickListener(v -> editBlocked());
-        root.addView(blocked);
-        Button logBtn = btn(getString(R.string.mcp_action_log));
+        cur.addView(blocked);
+        TextView logBtn = btn(getString(R.string.mcp_action_log));
         logBtn.setOnClickListener(v -> showLog());
-        root.addView(logBtn);
-        final Button boot = btn("");
+        cur.addView(logBtn);
+        final TextView boot = btn("");
         boot.setOnClickListener(v -> { BootReceiver.setMode(this, (BootReceiver.mode(this) + 1) % 3); boot.setText(bootLabel()); });
         boot.setText(bootLabel());
-        root.addView(boot);
+        cur.addView(boot);
 
+        cur = ui.card();
+        root.addView(cur, ui.gap(14));
+        cur.addView(ui.text(getString(R.string.mcp_card_address), 16, th.on, true));
         local = tv("", 13, th.on);
-        root.addView(local);
-        Button copy = btn(getString(R.string.mcp_copy));
+        cur.addView(local);
+        TextView copy = btn(getString(R.string.mcp_copy));
         copy.setOnClickListener(v -> copy(McpHost.localUrl(this)));
-        root.addView(copy);
-        Button renew = btn(getString(R.string.mcp_new_token));
+        cur.addView(copy);
+        TextView renew = btn(getString(R.string.mcp_new_token));
         renew.setOnClickListener(v -> { McpHost.newToken(this); McpService.stop(this); v.postDelayed(this::refresh, 500); });
-        root.addView(renew);
+        cur.addView(renew);
 
         tunnelState = tv("", 14, th.p);
-        final Button tunBtn = btn("");
+        final TextView tunBtn = btn("");
         tunBtn.setOnClickListener(v -> {
             if (TunnelManager.isRunning()) TunnelManager.stop();
             else { if (!McpHost.isRunning()) McpService.start(this); TunnelManager.start(this, McpHost.port(this)); }
             refresh();
         });
         tunnelButton = tunBtn;
-        Button copyPublic = btn(getString(R.string.mcp_copy_public));
+        TextView copyPublic = btn(getString(R.string.mcp_copy_public));
         copyPublic.setOnClickListener(v -> {
             if (TunnelManager.url().isEmpty()) toast(R.string.mcp_no_public);
             else copy(TunnelManager.url() + "/mcp/" + McpHost.token(this));
         });
-        root.addView(tunBtn);
-        root.addView(tunnelState);
-        Button ngrokSetup = btn(getString(R.string.mcp_ngrok_setup));
+        cur.addView(tunBtn);
+        cur.addView(tunnelState);
+        TextView ngrokSetup = btn(getString(R.string.mcp_ngrok_setup));
         ngrokSetup.setOnClickListener(v -> askNgrok());
-        Button ngrokInstall = btn(getString(R.string.mcp_ngrok_install));
+        TextView ngrokInstall = btn(getString(R.string.mcp_ngrok_install));
         ngrokInstall.setOnClickListener(v -> TermuxSessions.run(this, "ngrok", TunnelManager.ngrokInstallScript(), BrowserPicker.SLOTS[0]));
-        Button ngrokSite = btn(getString(R.string.mcp_ngrok_site));
+        TextView ngrokSite = btn(getString(R.string.mcp_ngrok_site));
         ngrokSite.setOnClickListener(v -> BrowserPicker.show(this, "https://dashboard.ngrok.com/get-started/your-authtoken"));
-        root.addView(tv(getString(R.string.mcp_ngrok_hint), 13, th.on2));
-        root.addView(ngrokSite);
-        root.addView(ngrokInstall);
-        root.addView(ngrokSetup);
-        root.addView(copyPublic);
+        cur.addView(tv(getString(R.string.mcp_ngrok_hint), 13, th.on2));
+        cur.addView(ngrokSite);
+        cur.addView(ngrokInstall);
+        cur.addView(ngrokSetup);
+        cur.addView(copyPublic);
 
-        TextView tt = tv(getString(R.string.mcp_tunnel_title), 16, th.on);
-        tt.setTypeface(android.graphics.Typeface.DEFAULT_BOLD);
-        root.addView(tt);
+        cur = ui.card();
+        root.addView(cur, ui.gap(14));
+        cur.addView(ui.text(getString(R.string.mcp_tunnel_title), 16, th.on, true));
         tunnel = tv("", 13, th.on2);
-        root.addView(tunnel);
-        Button term = btn(getString(R.string.mcp_open_terminal));
+        cur.addView(tunnel);
+        TextView term = btn(getString(R.string.mcp_open_terminal));
         term.setOnClickListener(v -> startActivity(new Intent(this, TermuxActivity.class)));
-        root.addView(term);
-        Button cmd = btn(getString(R.string.mcp_copy_tunnel_cmd));
+        cur.addView(term);
+        TextView cmd = btn(getString(R.string.mcp_copy_tunnel_cmd));
         cmd.setOnClickListener(v -> copy("pkg install -y cloudflared && cloudflared tunnel --url http://127.0.0.1:" + McpHost.port(this)));
-        root.addView(cmd);
-        Button claude = btn(getString(R.string.mcp_open_claude));
+        cur.addView(cmd);
+        TextView claude = btn(getString(R.string.mcp_open_claude));
         claude.setOnClickListener(v -> BrowserPicker.show(this, "https://claude.ai"));
-        root.addView(claude);
+        cur.addView(claude);
         setContentView(sv);
     }
 
@@ -169,7 +177,7 @@ public class McpActivity extends Activity {
         box.setPadding(40, 10, 40, 0);
         box.addView(token);
         box.addView(domain);
-        new android.app.AlertDialog.Builder(this).setTitle(R.string.mcp_ngrok_setup).setView(box)
+        new com.termux.app.agent.ThemedDialog(this).setTitle(R.string.mcp_ngrok_setup).setView(box)
                 .setPositiveButton(R.string.agent_save, (d, w) -> {
                     String t = token.getText().toString().trim();
                     if (t.isEmpty() && TunnelManager.ngrokConfigured(this)) t = new SecretStore(this).get("ngrok_token");
@@ -241,21 +249,21 @@ public class McpActivity extends Activity {
         et.setMinLines(6);
         et.setGravity(android.view.Gravity.TOP);
         et.setText(ActionGuard.blocked(this));
-        new android.app.AlertDialog.Builder(this).setTitle(R.string.mcp_blocked_apps).setMessage(R.string.mcp_blocked_hint).setView(et)
+        new com.termux.app.agent.ThemedDialog(this).setTitle(R.string.mcp_blocked_apps).setMessage(R.string.mcp_blocked_hint).setView(et)
                 .setPositiveButton(R.string.agent_save, (d, w) -> ActionGuard.setBlocked(this, et.getText().toString()))
                 .setNegativeButton(R.string.agent_cancel, null).show();
     }
 
     private void showLog() {
         String log = ActionGuard.readLog(this);
-        new android.app.AlertDialog.Builder(this).setTitle(R.string.mcp_action_log)
+        new com.termux.app.agent.ThemedDialog(this).setTitle(R.string.mcp_action_log)
                 .setMessage(log.isEmpty() ? getString(R.string.mcp_log_empty) : log)
                 .setPositiveButton(android.R.string.ok, null)
                 .setNeutralButton(R.string.mcp_log_clear, (d, w) -> ActionGuard.clearLog(this)).show();
     }
 
     private TextView tunnelState;
-    private Button tunnelButton;
+    private TextView tunnelButton;
     private final Runnable tick = this::refresh;
 
     private void toast(int res) { android.widget.Toast.makeText(this, res, android.widget.Toast.LENGTH_SHORT).show(); }
@@ -295,11 +303,10 @@ public class McpActivity extends Activity {
         return t;
     }
 
-    private Button btn(String s) {
-        Button bt = new Button(this);
-        bt.setText(s); bt.setAllCaps(false); bt.setTextColor(th.onpc); bt.setBackgroundColor(th.pc);
+    private TextView btn(String s) {
+        TextView bt = new Ui(this).button(s, Ui.Kind.TONAL, null);
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        lp.topMargin = dp(6);
+        lp.topMargin = dp(8);
         bt.setLayoutParams(lp);
         return bt;
     }
