@@ -199,3 +199,7 @@ CI run #3 (51 min, got much further: apt, bash, libbz2 etc. built) failed on `co
 ## Design step 2: navigation shell (Android side not compiled here)
 - `NavBar` (bottom bar), `TabActivity` base; new tabs `AgentsActivity`, `PhoneActivity` (readiness, assistant, rules, MCP, emergency stop), `EnvActivity`. Chat has the bar; gear opens Appearance.
 - Still old colours: Assistant, Triggers, overlay, Termux/workspace screens. The old chat menu still exists in parallel.
+
+## Design step 3
+- Assistant, Rules screens and the overlay take theme colours. The "where commands run" choice (Auto/Root/ADB/…) moved to the Environment tab; chat re-reads it on resume.
+- Left: remove duplicated items from the chat ⋮ menu, Termux/workspace screens, per-account sign-in method in the Agents tab.

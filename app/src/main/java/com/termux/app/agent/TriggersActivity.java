@@ -1,5 +1,6 @@
 package com.termux.app.agent;
 
+import com.agentdroid.agent.ThemeColors;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ComponentName;
@@ -26,32 +27,30 @@ public final class TriggersActivity extends Activity {
     private TriggerStore store;
     private ListView list;
     private TextView access;
+    private Ui ui;
 
     @Override protected void onCreate(Bundle b) {
         super.onCreate(b);
+        ThemeColors th = AppTheme.apply(this);
+        ui = new Ui(this);
         setTitle(R.string.trig_title);
         store = new TriggerStore(this);
         int pad = Math.round(16 * getResources().getDisplayMetrics().density);
         LinearLayout col = new LinearLayout(this);
         col.setOrientation(LinearLayout.VERTICAL);
         col.setPadding(pad, pad, pad, pad);
-        TextView info = new TextView(this);
-        info.setText(R.string.trig_info);
-        info.setTextSize(14);
-        col.addView(info);
-        access = new TextView(this);
-        access.setTextSize(14);
+        col.setBackgroundColor(th.bg);
+        col.addView(ui.title(getString(R.string.trig_title)));
+        col.addView(ui.text(getString(R.string.trig_info), 14, th.on2, false), ui.gap(8));
+        access = ui.text("", 14, th.on, true);
         access.setPadding(0, pad / 2, 0, pad / 2);
         col.addView(access);
-        Button grant = new Button(this);
-        grant.setText(R.string.trig_access_btn);
-        grant.setOnClickListener(v -> startActivity(new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS")));
-        col.addView(grant);
-        Button add = new Button(this);
-        add.setText(R.string.trig_add);
-        add.setOnClickListener(v -> edit(new Triggers.Rule(), true));
-        col.addView(add);
+        col.addView(ui.button(getString(R.string.trig_access_btn), Ui.Kind.TONAL,
+                v -> startActivity(new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS"))));
+        col.addView(ui.button(getString(R.string.trig_add), Ui.Kind.FILLED, v -> edit(new Triggers.Rule(), true)), ui.gap(8));
         list = new ListView(this);
+        list.setDivider(new android.graphics.drawable.ColorDrawable(th.line));
+        list.setDividerHeight(1);
         col.addView(list, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f));
         setContentView(col);
     }
@@ -77,7 +76,15 @@ public final class TriggersActivity extends Activity {
                     + (r.pkg.isEmpty() ? getString(R.string.trig_any_app) : r.pkg)
                     + (r.contains.isEmpty() ? "" : " · «" + r.contains + "»");
         }
-        list.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, rows));
+        list.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, rows) {
+            @Override public android.view.View getView(int pos, android.view.View cv, android.view.ViewGroup parent) {
+                TextView tv = (TextView) super.getView(pos, cv, parent);
+                tv.setTextColor(ui.t.on);
+                tv.setTextSize(14);
+                tv.setPadding(ui.dp(4), ui.dp(12), ui.dp(4), ui.dp(12));
+                return tv;
+            }
+        });
         list.setOnItemClickListener((p, v, pos, id) -> edit(rules.get(pos), false));
     }
 

@@ -14,5 +14,5 @@
     <string name="env_workspace">Рабочая область</string><string name="env_workspace_sub">Файлы, рабочий стол, серверы, копии</string>
     <string name="env_adb">ADB-консоль</string><string name="env_adb_sub">Отладка по Wi‑Fi</string>
     <string name="env_web">Браузер</string><string name="env_web_sub">Встроенный браузер</string>
-    <string name="env_where">Где выполнять команды</string><string name="env_where_sub">Авто, Root, ADB или Termux: выбирается в меню чата</string>
+    <string name="env_where">Где выполнять команды</string><string name="env_where_sub">Выбранный способ используют все команды агента</string>
 </resources>

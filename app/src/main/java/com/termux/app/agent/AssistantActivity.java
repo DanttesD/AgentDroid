@@ -19,50 +19,49 @@ import com.termux.R;
 /** Settings and switch for the floating voice assistant: the three permissions it needs and a start/stop button. */
 public final class AssistantActivity extends Activity {
     private TextView status;
-    private Button toggle;
+    private TextView toggle;
+    private Ui ui;
 
     @Override protected void onCreate(Bundle b) {
         super.onCreate(b);
+        AppTheme.apply(this);
+        ui = new Ui(this);
         setTitle(R.string.assistant_title);
         int pad = Math.round(16 * getResources().getDisplayMetrics().density);
         LinearLayout col = new LinearLayout(this);
         col.setOrientation(LinearLayout.VERTICAL);
         col.setPadding(pad, pad, pad, pad);
 
-        TextView info = new TextView(this);
-        info.setText(R.string.assistant_info);
-        info.setTextSize(15);
-        col.addView(info);
+        col.addView(ui.title(getString(R.string.assistant_title)));
+        col.addView(ui.text(getString(R.string.assistant_info), 15, ui.t.on2, false), ui.gap(8));
 
-        status = new TextView(this);
-        status.setTextSize(15);
-        status.setPadding(0, pad, 0, pad);
-        col.addView(status);
+        status = ui.text("", 15, ui.t.on, false);
+        LinearLayout sc = ui.card();
+        sc.addView(status);
+        col.addView(sc, ui.gap(14));
 
         col.addView(button(R.string.assistant_overlay_btn, v -> {
             if (Build.VERSION.SDK_INT >= 23) startActivity(new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + getPackageName())));
-        }));
+        }), ui.gap(10));
         col.addView(button(R.string.assistant_mic_btn, v -> {
             if (Build.VERSION.SDK_INT >= 23) requestPermissions(new String[]{Manifest.permission.RECORD_AUDIO}, 1);
-        }));
-        col.addView(button(R.string.assistant_a11y_btn, v -> startActivity(new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))));
-        toggle = button(R.string.assistant_start, v -> {
+        }), ui.gap(10));
+        col.addView(button(R.string.assistant_a11y_btn, v -> startActivity(new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))), ui.gap(10));
+        toggle = ui.button(getString(R.string.assistant_start), Ui.Kind.FILLED, v -> {
             if (AssistantOverlayService.isRunning()) AssistantOverlayService.stop(this);
             else AssistantOverlayService.start(this);
             v.postDelayed(this::refresh, 600);
         });
-        col.addView(toggle);
+        col.addView(toggle, ui.gap(10));
 
         ScrollView sv = new ScrollView(this);
+        sv.setBackgroundColor(ui.t.bg);
         sv.addView(col);
         setContentView(sv);
     }
 
-    private Button button(int text, View.OnClickListener l) {
-        Button bt = new Button(this);
-        bt.setText(text);
-        bt.setOnClickListener(l);
-        return bt;
+    private TextView button(int text, View.OnClickListener l) {
+        return ui.button(getString(text), Ui.Kind.TONAL, l);
     }
 
     @Override protected void onResume() { super.onResume(); refresh(); }
@@ -80,5 +79,7 @@ public final class AssistantActivity extends Activity {
         boolean on = AssistantOverlayService.isRunning();
         status.setText(getString(R.string.assistant_status, yn(overlay), yn(mic), yn(AgentAccessibilityService.isRunning()), yn(on)));
         toggle.setText(on ? R.string.assistant_off : R.string.assistant_start);
+        toggle.setBackground(ui.shape(on ? ui.t.err2 : ui.t.p, 24, 0, 0));
+        toggle.setTextColor(on ? ui.t.err : ui.t.onp);
     }
 }

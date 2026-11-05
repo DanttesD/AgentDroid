@@ -160,7 +160,10 @@ public final class AssistantOverlayService extends Service {
     private static final int PASSIVE = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
             | WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS;
 
+    private com.agentdroid.agent.ThemeColors tc;
+
     private void buildViews() {
+        tc = AppTheme.colors(this);
         int screenW = getResources().getDisplayMetrics().widthPixels;
         int screenH = getResources().getDisplayMetrics().heightPixels;
 
@@ -204,9 +207,9 @@ public final class AssistantOverlayService extends Service {
         panel.setOrientation(LinearLayout.VERTICAL);
         panel.setPadding(dp(14), dp(12), dp(14), dp(12));
         GradientDrawable pbg = new GradientDrawable();
-        pbg.setColor(0xF2161B22);
+        pbg.setColor((tc.s1 & 0xFFFFFF) | 0xF2000000);
         pbg.setCornerRadius(dp(22));
-        pbg.setStroke(dp(1), 0x44FFFFFF);
+        pbg.setStroke(dp(1), tc.line);
         panel.setBackground(pbg);
 
         LinearLayout head = new LinearLayout(this);
@@ -214,7 +217,7 @@ public final class AssistantOverlayService extends Service {
         head.setGravity(Gravity.CENTER_VERTICAL);
         TextView title = new TextView(this);
         title.setText(R.string.assistant_title);
-        title.setTextColor(Color.WHITE);
+        title.setTextColor(tc.on);
         title.setTextSize(15);
         title.setTypeface(null, android.graphics.Typeface.BOLD);
         head.addView(title, new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
@@ -227,7 +230,7 @@ public final class AssistantOverlayService extends Service {
         panel.addView(head);
 
         log = new TextView(this);
-        log.setTextColor(0xFFE6EDF3);
+        log.setTextColor(tc.on);
         log.setTextSize(14);
         log.setMaxLines(9);
         log.setMovementMethod(new ScrollingMovementMethod());
@@ -239,8 +242,8 @@ public final class AssistantOverlayService extends Service {
         row.setGravity(Gravity.CENTER_VERTICAL);
         input = new EditText(this);
         input.setHint(R.string.assistant_hint);
-        input.setHintTextColor(0x88FFFFFF);
-        input.setTextColor(Color.WHITE);
+        input.setHintTextColor(tc.on2);
+        input.setTextColor(tc.on);
         input.setTextSize(15);
         input.setMaxLines(3);
         input.setImeOptions(EditorInfo.IME_ACTION_SEND);
@@ -263,14 +266,14 @@ public final class AssistantOverlayService extends Service {
 
         pill = new TextView(this);
         pill.setText(R.string.assistant_working);
-        pill.setTextColor(Color.WHITE);
+        pill.setTextColor(tc.on);
         pill.setTextSize(13);
         pill.setPadding(dp(16), dp(10), dp(16), dp(10));
         pill.setMaxLines(2);
         GradientDrawable pillBg = new GradientDrawable();
-        pillBg.setColor(0xEE161B22);
+        pillBg.setColor((tc.s1 & 0xFFFFFF) | 0xEE000000);
         pillBg.setCornerRadius(dp(22));
-        pillBg.setStroke(dp(1), 0x66FFFFFF);
+        pillBg.setStroke(dp(1), tc.line);
         pill.setBackground(pillBg);
         pill.setOnClickListener(v -> { AgentLoop l = loop; if (l != null) l.cancel(); });
 
@@ -280,12 +283,12 @@ public final class AssistantOverlayService extends Service {
         confirm.setOrientation(LinearLayout.VERTICAL);
         confirm.setPadding(dp(16), dp(14), dp(16), dp(12));
         GradientDrawable cbg = new GradientDrawable();
-        cbg.setColor(0xF51C2128);
+        cbg.setColor((tc.s2 & 0xFFFFFF) | 0xF5000000);
         cbg.setCornerRadius(dp(22));
-        cbg.setStroke(dp(2), 0xFFD96570);
+        cbg.setStroke(dp(2), tc.err);
         confirm.setBackground(cbg);
         confirmText = new TextView(this);
-        confirmText.setTextColor(Color.WHITE);
+        confirmText.setTextColor(tc.on);
         confirmText.setTextSize(15);
         confirm.addView(confirmText);
         LinearLayout buttons = new LinearLayout(this);
@@ -305,7 +308,7 @@ public final class AssistantOverlayService extends Service {
     private TextView smallAction(String text) {
         TextView t = new TextView(this);
         t.setText(text);
-        t.setTextColor(0xFF9BB0C3);
+        t.setTextColor(tc.on2);
         t.setTextSize(13);
         t.setPadding(dp(10), dp(6), dp(10), dp(6));
         return t;

@@ -14,5 +14,5 @@
     <string name="env_workspace">Workspace</string><string name="env_workspace_sub">Files, desktop, servers, backups</string>
     <string name="env_adb">ADB console</string><string name="env_adb_sub">Wi-Fi debugging</string>
     <string name="env_web">Browser</string><string name="env_web_sub">Built-in browser</string>
-    <string name="env_where">Where commands run</string><string name="env_where_sub">Auto, Root, ADB or Termux: chosen in the chat menu</string>
+    <string name="env_where">Where commands run</string><string name="env_where_sub">The agent uses the chosen mode for every command</string>
 </resources>

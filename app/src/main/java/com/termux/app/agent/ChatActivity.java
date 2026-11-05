@@ -70,6 +70,7 @@ public class ChatActivity extends Activity {
         selector = AgentBackends.create(this);
         String pin = config.backendPin();
         if (!pin.isEmpty()) { try { selector.pin(pin); } catch (Exception ignored) { } }
+        lastPin = pin;
 
         LinearLayout root = new LinearLayout(this);
         root.setOrientation(LinearLayout.VERTICAL);
@@ -467,7 +468,18 @@ public class ChatActivity extends Activity {
         return ApprovalCenter.ask(getApplicationContext(), description);
     }
 
-    @Override protected void onResume() { super.onResume(); ApprovalCenter.onResume(this); }
+    @Override protected void onResume() {
+        super.onResume();
+        ApprovalCenter.onResume(this);
+        String pin = config.backendPin();
+        if (!pin.equals(lastPin)) {
+            lastPin = pin;
+            try { selector.pin(pin.isEmpty() ? null : pin); } catch (Exception ignored) { }
+            loop = null;
+            refreshBackendLabel();
+        }
+    }
+    private String lastPin = "";
 
     @Override protected void onPause() { ApprovalCenter.onPause(this); super.onPause(); }
 
