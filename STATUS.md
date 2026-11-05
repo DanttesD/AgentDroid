@@ -195,3 +195,7 @@ CI run #3 (51 min, got much further: apt, bash, libbz2 etc. built) failed on `co
 - `AppTheme`: mode system/dark/light, Material You (wallpaper accent on Android 12+), AMOLED, 4 fixed accents. `Ui`: cards, buttons, chips, switch rows.
 - `AppearanceActivity` (chat menu → «Внешний вид»). Chat, Accounts and MCP screens now take colours from the theme.
 - Next: bottom navigation shell (Чат, Агенты, Телефон, Среда), then Assistant/Triggers/overlay colours, then the Termux screens.
+
+## Design step 2: navigation shell (Android side not compiled here)
+- `NavBar` (bottom bar), `TabActivity` base; new tabs `AgentsActivity`, `PhoneActivity` (readiness, assistant, rules, MCP, emergency stop), `EnvActivity`. Chat has the bar; gear opens Appearance.
+- Still old colours: Assistant, Triggers, overlay, Termux/workspace screens. The old chat menu still exists in parallel.

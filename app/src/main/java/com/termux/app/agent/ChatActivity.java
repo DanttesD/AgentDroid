@@ -123,6 +123,7 @@ public class ChatActivity extends Activity {
         sendBtn.setOnClickListener(v -> onSend());
         row.addView(sendBtn);
         nativeBox.addView(row);
+        root.addView(NavBar.build(this, NavBar.CHAT));
         outer = new FrameLayout(this);
         outer.addView(root, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         setContentView(outer);

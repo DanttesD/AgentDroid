@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="nav_chat">Чат</string><string name="nav_agents">Агенты</string><string name="nav_phone">Телефон</string><string name="nav_env">Среда</string><string name="nav_settings">Настройки</string>
+    <string name="phone_chk_screen">Экран</string><string name="phone_chk_overlay">Поверх окон</string><string name="phone_chk_mic">Микрофон</string><string name="phone_chk_notif">Уведомления</string>
+    <string name="phone_ready">Агент готов к работе</string><string name="phone_not_ready">Нужна настройка</string><string name="phone_count">%1$d из %2$d</string>
+    <string name="phone_assistant">Помощник поверх экрана</string><string name="phone_assistant_sub">Плавающая кнопка, голос и текст</string>
+    <string name="phone_screen">Управление экраном</string><string name="phone_screen_on">Служба специальных возможностей включена</string><string name="phone_screen_off">Служба выключена: нажмите, чтобы настроить</string>
+    <string name="phone_rules">Правила по уведомлениям</string><string name="phone_rules_sub">Запуск агента при новом уведомлении</string>
+    <string name="phone_mcp">Коннектор MCP, безопасность</string><string name="phone_mcp_on">Сервер работает</string><string name="phone_mcp_off">Сервер остановлен</string>
+    <string name="phone_emergency">Аварийная остановка агента</string>
+    <string name="agents_builtin">Встроенный агент</string><string name="agents_not_set">Модель не выбрана</string><string name="agents_open_chat">Открыть чат</string><string name="agents_workspace">Агенты рабочей области</string>
+    <string name="agents_running">Агенты</string><string name="agents_accounts">Аккаунты</string><string name="agents_no_accounts">Дополнительных аккаунтов пока нет</string><string name="agents_manage">Управление аккаунтами</string>
+    <string name="env_terminal">Терминал</string><string name="env_terminal_sub">Сессии и пакеты</string>
+    <string name="env_workspace">Рабочая область</string><string name="env_workspace_sub">Файлы, рабочий стол, серверы, копии</string>
+    <string name="env_adb">ADB-консоль</string><string name="env_adb_sub">Отладка по Wi‑Fi</string>
+    <string name="env_web">Браузер</string><string name="env_web_sub">Встроенный браузер</string>
+    <string name="env_where">Где выполнять команды</string><string name="env_where_sub">Авто, Root, ADB или Termux: выбирается в меню чата</string>
+</resources>

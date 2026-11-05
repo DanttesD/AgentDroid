@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="nav_chat">Chat</string><string name="nav_agents">Agents</string><string name="nav_phone">Phone</string><string name="nav_env">Environment</string><string name="nav_settings">Settings</string>
+    <string name="phone_chk_screen">Screen</string><string name="phone_chk_overlay">Over apps</string><string name="phone_chk_mic">Microphone</string><string name="phone_chk_notif">Notifications</string>
+    <string name="phone_ready">Agent is ready</string><string name="phone_not_ready">Setup needed</string><string name="phone_count">%1$d of %2$d</string>
+    <string name="phone_assistant">Screen assistant</string><string name="phone_assistant_sub">Floating button, voice and text</string>
+    <string name="phone_screen">Screen control</string><string name="phone_screen_on">Accessibility service is on</string><string name="phone_screen_off">Accessibility service is off: tap to set up</string>
+    <string name="phone_rules">Notification rules</string><string name="phone_rules_sub">Run the agent when a notification arrives</string>
+    <string name="phone_mcp">MCP connector, security</string><string name="phone_mcp_on">Server is running</string><string name="phone_mcp_off">Server is stopped</string>
+    <string name="phone_emergency">Emergency stop</string>
+    <string name="agents_builtin">Built-in agent</string><string name="agents_not_set">Model is not set</string><string name="agents_open_chat">Open chat</string><string name="agents_workspace">Workspace agents</string>
+    <string name="agents_running">Agents</string><string name="agents_accounts">Accounts</string><string name="agents_no_accounts">No extra accounts yet</string><string name="agents_manage">Manage accounts</string>
+    <string name="env_terminal">Terminal</string><string name="env_terminal_sub">Sessions and packages</string>
+    <string name="env_workspace">Workspace</string><string name="env_workspace_sub">Files, desktop, servers, backups</string>
+    <string name="env_adb">ADB console</string><string name="env_adb_sub">Wi-Fi debugging</string>
+    <string name="env_web">Browser</string><string name="env_web_sub">Built-in browser</string>
+    <string name="env_where">Where commands run</string><string name="env_where_sub">Auto, Root, ADB or Termux: chosen in the chat menu</string>
+</resources>
