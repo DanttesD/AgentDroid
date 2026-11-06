@@ -55,21 +55,22 @@
     }
   }
   const randomId = () => Array.from(crypto.getRandomValues(new Uint8Array(10)), b => 'abcdefghijklmnopqrstuvwxyz0123456789'[b % 36]).join('');
-  const report = r => {
+  const svcByIp = {};
+  const report = (r, ip) => {
     try {
-      if (window.AgentNative && window.AgentNative.report) window.AgentNative.report(JSON.stringify({ score: r.netcoffeeScore, cc: r.netcoffeeCountryCode, org: r.asOrganization || r.company_name || '', hosting: r.is_datacenter === true, vpn: r.is_vpn === true, proxy: r.is_proxy === true }));
+      if (window.AgentNative && window.AgentNative.report) window.AgentNative.report(JSON.stringify({ score: r.netcoffeeScore, cc: r.netcoffeeCountryCode, org: r.asOrganization || r.company_name || '', service: svcByIp[ip] || '', hosting: r.is_datacenter === true, vpn: r.is_vpn === true, proxy: r.is_proxy === true }));
     } catch { /* the page works without the app */ }
     return r;
   };
   async function reputation(body) {
     const ip = String(body?.ip || '');
     const nc = body?.netcoffee;
-    if (nc && typeof nc === 'object' && Number.isInteger(Number(nc.trust_score))) return report(fromNetCoffee(nc, ip));
+    if (nc && typeof nc === 'object' && Number.isInteger(Number(nc.trust_score))) return report(fromNetCoffee(nc, ip), ip);
     try {
       const data = await getJson('https://ip.net.coffee/api/iprisk/' + encodeURIComponent(ip), 6000);
-      if (data && typeof data === 'object') return report(fromNetCoffee(data, ip));
+      if (data && typeof data === 'object') return report(fromNetCoffee(data, ip), ip);
     } catch { /* unknown below */ }
-    return report(unknown(ip));
+    return report(unknown(ip), ip);
   }
   async function dnsStart() {
     let session = null;
@@ -92,6 +93,12 @@
   window.fetch = async (input, init) => {
     let u;
     try { u = new URL(typeof input === 'string' ? input : input.url, location.href); } catch { return realFetch(input, init); }
+    if (/\/cdn-cgi\/trace$/.test(u.pathname) && u.origin !== location.origin) {
+      const res = await realFetch(input, init);
+      const key = u.hostname.includes('chatgpt') ? 'chatgpt' : u.hostname.includes('claude') ? 'claude' : '';
+      if (key) res.clone().text().then(t => { const m = /^ip=(.+)$/m.exec(t); if (m) svcByIp[m[1].trim()] = key; }).catch(() => { });
+      return res;
+    }
     if (u.origin !== location.origin || !u.pathname.startsWith('/api/')) return realFetch(input, init);
     try {
       if (u.pathname === '/api/reputation') return reply(await reputation(JSON.parse(init?.body || '{}')));

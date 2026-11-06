@@ -71,7 +71,7 @@ public final class NetCheckActivity extends Activity {
             while ((n = in.read(buf)) > 0) out.write(buf, 0, n);
             String base = CssTheme.remap(out.toString("UTF-8"), AppTheme.hue(this), th.dark);
             String s1 = hex(th.s1), line = hex(th.line);
-            themedCss = base + (th.dark ? ":root{color-scheme:dark}" : "") + ":root,body{background:" + hex(th.bg) + "!important;color:" + hex(th.on) + "}"
+            themedCss = base + (th.dark ? ":root{color-scheme:dark}" : "") + ".page-heading>div:first-child{display:none}:root,body{background:" + hex(th.bg) + "!important;color:" + hex(th.on) + "}"
                     + ".workspace{background:" + hex(th.bg) + "!important;border-color:" + line + "!important}"
                     + ".service-card,.panel,.history-wrap,.score-explanation,.advice-card,dialog{background:" + s1 + "!important;border-color:" + line + "!important}";
         } catch (IOException e) {
@@ -121,9 +121,23 @@ public final class NetCheckActivity extends Activity {
                 JSONObject o = new JSONObject(json);
                 int score = NetScore.total(o.isNull("score") ? -1 : o.optInt("score", -1), o.optString("cc", ""));
                 o.put("score", score);
-                o.put("ts", System.currentTimeMillis());
-                getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().putString("last", o.toString()).apply();
-                runOnUiThread(() -> showResult(o));
+                SharedPreferences sp = getSharedPreferences(PREFS, Context.MODE_PRIVATE);
+                JSONObject per = new JSONObject(sp.getString("per", "{}"));
+                per.put(o.optString("service", "").isEmpty() ? "any" : o.optString("service"), o);
+                JSONObject worst = null;
+                JSONObject names = new JSONObject();
+                java.util.Iterator<String> keys = per.keys();
+                while (keys.hasNext()) {
+                    String k = keys.next();
+                    JSONObject v = per.getJSONObject(k);
+                    if (!k.equals("any")) names.put(k, v.optInt("score", -1));
+                    if (worst == null || v.optInt("score", -1) < worst.optInt("score", -1)) worst = v;
+                }
+                JSONObject all = new JSONObject(worst.toString());
+                all.put("services", names);
+                all.put("ts", System.currentTimeMillis());
+                sp.edit().putString("per", per.toString()).putString("last", all.toString()).apply();
+                runOnUiThread(() -> showResult(all));
             } catch (Exception ignored) { }
         }
 
@@ -163,9 +177,10 @@ public final class NetCheckActivity extends Activity {
         TextView title = new TextView(this);
         title.setText(R.string.netcheck_title);
         title.setTextColor(th.on);
-        title.setTextSize(20);
+        title.setTextSize(18);
+        title.setSingleLine(true);
         bar.addView(title, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
-        bar.addView(ui.button(getString(R.string.browser_proxy_menu), Ui.Kind.TONAL, v -> BrowserProxy.showDialog(this, this::load)));
+        bar.addView(ui.button(getString(R.string.netcheck_proxy_short), Ui.Kind.TONAL, v -> BrowserProxy.showDialog(this, this::load)));
         bar.addView(ui.button(getString(R.string.netcheck_again), Ui.Kind.FILLED, v -> load()));
         root.addView(bar);
         LinearLayout card = ui.card();
@@ -211,10 +226,18 @@ public final class NetCheckActivity extends Activity {
         String org = o.optString("org", "");
         if (!org.isEmpty()) sub.append(sub.length() > 0 ? " \u00b7 " : "").append(org);
         sub.append(sub.length() > 0 ? " \u00b7 " : "").append(getString(o.optBoolean("hosting") ? R.string.netcheck_kind_hosting : R.string.netcheck_kind_plain));
+        JSONObject sv = o.optJSONObject("services");
+        if (sv != null && sv.length() > 1) {
+            StringBuilder t = new StringBuilder();
+            if (sv.has("chatgpt")) t.append("ChatGPT ").append(sv.optInt("chatgpt"));
+            if (sv.has("claude")) t.append(t.length() > 0 ? "  \u00b7  " : "").append("Claude ").append(sv.optInt("claude"));
+            sub.append("\n").append(t);
+        }
         subView.setText(sub);
     }
 
     private void load() {
+        getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().remove("per").apply();
         scoreView.setText("\u2026");
         scoreView.setTextColor(th.on2);
         tierView.setText(R.string.netcheck_checking);
