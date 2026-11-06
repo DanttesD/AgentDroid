@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="browser_proxy_menu">Прокси для браузера</string>
+    <string name="browser_proxy_title">Прокси для браузера</string>
+    <string name="browser_proxy_hint">Через этот прокси идёт только встроенный браузер, остальной телефон не затрагивается. Формат: host:port, http://host:port или socks5://host:port. Пусто — выключено. После сохранения перезагрузи открытые страницы.</string>
+    <string name="browser_proxy_addr">Адрес (host:port)</string>
+    <string name="browser_proxy_user">Логин (необязательно)</string>
+    <string name="browser_proxy_pass">Пароль (необязательно)</string>
+    <string name="browser_proxy_save">Сохранить</string>
+    <string name="browser_proxy_on">Прокси браузера включён</string>
+    <string name="browser_proxy_off">Прокси браузера выключен</string>
+    <string name="browser_proxy_unsupported">Эта версия WebView не поддерживает прокси; обнови Android System WebView.</string>
+</resources>

@@ -88,7 +88,11 @@ public final class BrowserHelper {
         w.setDownloadListener((url, ua, cd, mime, len) -> download(url, ua, cd, mime));
         CookieManager.getInstance().setAcceptCookie(true);
         CookieManager.getInstance().setAcceptThirdPartyCookies(w, true);
+        BrowserProxy.apply(activity);
         w.setWebViewClient(new WebViewClient() {
+            @Override public void onReceivedHttpAuthRequest(WebView v, android.webkit.HttpAuthHandler h, String host, String realm) {
+                if (!BrowserProxy.authenticate(activity, h, true)) super.onReceivedHttpAuthRequest(v, h, host, realm);
+            }
             @Override public void onPageFinished(WebView v, String url) {
                 if (urlListener != null) urlListener.onUrl(v, url);
             }

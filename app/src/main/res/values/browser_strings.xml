@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="browser_proxy_menu">Browser proxy</string>
+    <string name="browser_proxy_title">Browser proxy</string>
+    <string name="browser_proxy_hint">Only the built-in browser goes through this proxy. Format: host:port, http://host:port or socks5://host:port. Leave empty to turn off. Reload open pages after saving.</string>
+    <string name="browser_proxy_addr">Address (host:port)</string>
+    <string name="browser_proxy_user">Login (optional)</string>
+    <string name="browser_proxy_pass">Password (optional)</string>
+    <string name="browser_proxy_save">Save</string>
+    <string name="browser_proxy_on">Browser proxy is on</string>
+    <string name="browser_proxy_off">Browser proxy is off</string>
+    <string name="browser_proxy_unsupported">This WebView version does not support a proxy override; update Android System WebView.</string>
+</resources>
