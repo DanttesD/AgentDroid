@@ -2,7 +2,7 @@
 <resources>
     <string name="browser_proxy_menu">Proxy</string>
     <string name="browser_proxy_title">Proxy</string>
-    <string name="browser_proxy_hint">Used by the built-in browser and, if ticked, by requests to AI models. The rest of the phone and local addresses go direct. Format: host:port, http://host:port or socks5://host:port. Leave empty to turn off. Reload open pages after saving.</string>
+    <string name="browser_proxy_hint">Format: host:port, http://host:port or socks5://host:port. Leave empty to turn a proxy off. The two proxies are independent. Reload open pages after saving.</string>
     <string name="browser_proxy_addr">Address (host:port)</string>
     <string name="browser_proxy_user">Login (optional)</string>
     <string name="browser_proxy_pass">Password (optional)</string>
@@ -27,5 +27,8 @@
     <string name="phone_net_never">Not checked yet</string>
     <string name="phone_net_sub">Score %1$d · %2$s</string>
     <string name="netcheck_proxy_short">Proxy</string>
-    <string name="browser_proxy_ai">Also for AI requests (Claude, OpenAI…)</string>
+    <string name="browser_proxy_sec_browser">Browser proxy</string>
+    <string name="browser_proxy_sec_browser_hint">Only the built-in browser, the network check included.</string>
+    <string name="browser_proxy_sec_app">App proxy</string>
+    <string name="browser_proxy_sec_app_hint">Requests of the app itself to AI models (Claude, OpenAI, etc.). Local addresses go direct.</string>
 </resources>

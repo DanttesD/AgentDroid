@@ -2,7 +2,7 @@
 <resources>
     <string name="browser_proxy_menu">Прокси</string>
     <string name="browser_proxy_title">Прокси</string>
-    <string name="browser_proxy_hint">Используется встроенным браузером и, если отмечено, запросами к ИИ-моделям. Остальной телефон и локальные адреса идут напрямую. Формат: host:port, http://host:port или socks5://host:port. Пусто — выключено. После сохранения перезагрузи открытые страницы.</string>
+    <string name="browser_proxy_hint">Формат: host:port, http://host:port или socks5://host:port. Пусто — этот прокси выключен. Два прокси независимы. После сохранения перезагрузи открытые страницы.</string>
     <string name="browser_proxy_addr">Адрес (host:port)</string>
     <string name="browser_proxy_user">Логин (необязательно)</string>
     <string name="browser_proxy_pass">Пароль (необязательно)</string>
@@ -27,5 +27,8 @@
     <string name="phone_net_never">Ещё не проверялась</string>
     <string name="phone_net_sub">Балл %1$d · %2$s</string>
     <string name="netcheck_proxy_short">Прокси</string>
-    <string name="browser_proxy_ai">Также для запросов к ИИ (Claude, OpenAI…)</string>
+    <string name="browser_proxy_sec_browser">Прокси браузера</string>
+    <string name="browser_proxy_sec_browser_hint">Только встроенный браузер, включая проверку сети.</string>
+    <string name="browser_proxy_sec_app">Прокси приложения</string>
+    <string name="browser_proxy_sec_app_hint">Собственные запросы приложения к ИИ-моделям (Claude, OpenAI и др.). Локальные адреса идут напрямую.</string>
 </resources>

@@ -323,7 +323,7 @@ public class ChatActivity extends Activity {
         items.add(getString(R.string.agent_menu_assistant));
         items.add(getString(R.string.agent_menu_triggers));
         items.add(getString(R.string.agent_menu_appearance));
-        items.add(getString(R.string.browser_proxy_menu) + (BrowserProxy.enabled(this) ? "  ✓" : ""));
+        items.add(getString(R.string.browser_proxy_menu) + (BrowserProxy.anyEnabled(this) ? "  ✓" : ""));
         items.add(getString(R.string.netcheck_title));
         final int webStart = items.size();
         for (WebAccounts.Account a : accs) items.add(a.name + (a.url.isEmpty() ? "" : "  (" + hostOf(a.url) + ")"));
