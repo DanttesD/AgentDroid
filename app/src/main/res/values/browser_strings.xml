@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="browser_proxy_menu">Browser proxy</string>
-    <string name="browser_proxy_title">Browser proxy</string>
-    <string name="browser_proxy_hint">Only the built-in browser goes through this proxy. Format: host:port, http://host:port or socks5://host:port. Leave empty to turn off. Reload open pages after saving.</string>
+    <string name="browser_proxy_menu">Proxy</string>
+    <string name="browser_proxy_title">Proxy</string>
+    <string name="browser_proxy_hint">Used by the built-in browser and, if ticked, by requests to AI models. The rest of the phone and local addresses go direct. Format: host:port, http://host:port or socks5://host:port. Leave empty to turn off. Reload open pages after saving.</string>
     <string name="browser_proxy_addr">Address (host:port)</string>
     <string name="browser_proxy_user">Login (optional)</string>
     <string name="browser_proxy_pass">Password (optional)</string>
@@ -21,10 +21,11 @@
     <string name="netcheck_kind_plain">regular network</string>
     <string name="env_netcheck">Network check</string>
     <string name="env_netcheck_sub">Score and IP for AI</string>
-    <string name="env_proxy">Browser proxy</string>
-    <string name="env_proxy_sub">Your own exit IP</string>
+    <string name="env_proxy">Proxy</string>
+    <string name="env_proxy_sub">Browser and AI</string>
     <string name="phone_net">Network for AI</string>
     <string name="phone_net_never">Not checked yet</string>
     <string name="phone_net_sub">Score %1$d · %2$s</string>
     <string name="netcheck_proxy_short">Proxy</string>
+    <string name="browser_proxy_ai">Also for AI requests (Claude, OpenAI…)</string>
 </resources>

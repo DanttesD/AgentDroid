@@ -19,7 +19,10 @@ public final class AgentConfig {
     public AgentConfig(Context c) {
         prefs = c.getApplicationContext().getSharedPreferences("agentdroid_agent", Context.MODE_PRIVATE);
         secrets = new SecretStore(c);
+        appCtx = c.getApplicationContext();
     }
+
+    private final Context appCtx;
 
     public String provider() { return prefs.getString("provider", "anthropic"); }
     public String model() { return prefs.getString("model_" + provider(), defaultModel(provider())); }
@@ -54,6 +57,7 @@ public final class AgentConfig {
     }
 
     public ModelProvider build() {
+        BrowserProxy.syncAgent(appCtx);
         String p = provider();
         if (p.equals("anthropic")) return new AnthropicProvider(baseUrl(), apiKey(), model(), 8192);
         return new OpenAiProvider(p, baseUrl(), apiKey(), model());

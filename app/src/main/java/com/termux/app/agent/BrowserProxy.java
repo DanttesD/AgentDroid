@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.webkit.HttpAuthHandler;
 import android.webkit.WebView;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -43,8 +44,18 @@ public final class BrowserProxy {
 
     public static boolean enabled(Context c) { return !address(c).isEmpty(); }
 
+    public static boolean forAi(Context c) { return prefs(c).getBoolean("ai", true); }
+
+    /** Points the agent's model requests at the saved proxy (or direct when it is off or not meant for them). */
+    public static void syncAgent(Context c) {
+        SharedPreferences p = prefs(c);
+        boolean on = enabled(c) && forAi(c);
+        com.agentdroid.agent.NetConfig.set(on ? address(c) : "", p.getString("user", ""), p.getString("pass", ""));
+    }
+
     /** Applies the saved proxy (or clears it) for every WebView of the process. Safe to call repeatedly. */
     public static void apply(Context c) {
+        syncAgent(c);
         if (!supported()) return;
         try {
             String addr = address(c);
@@ -83,6 +94,10 @@ public final class BrowserProxy {
         final EditText user = field(a, a.getString(R.string.browser_proxy_user), prefs(a).getString("user", ""), false);
         final EditText pass = field(a, a.getString(R.string.browser_proxy_pass), prefs(a).getString("pass", ""), true);
         box.addView(addr); box.addView(user); box.addView(pass);
+        final CheckBox ai = new CheckBox(a);
+        ai.setText(R.string.browser_proxy_ai);
+        ai.setChecked(forAi(a));
+        box.addView(ai);
         if (!supported()) {
             TextView warn = new TextView(a);
             warn.setText(R.string.browser_proxy_unsupported);
@@ -92,7 +107,7 @@ public final class BrowserProxy {
                 .setPositiveButton(R.string.browser_proxy_save, (d, w) -> {
                     prefs(a).edit().putString("addr", normalize(addr.getText().toString()))
                             .putString("user", user.getText().toString().trim())
-                            .putString("pass", pass.getText().toString()).apply();
+                            .putString("pass", pass.getText().toString()).putBoolean("ai", ai.isChecked()).apply();
                     apply(a);
                     Toast.makeText(a, enabled(a) ? R.string.browser_proxy_on : R.string.browser_proxy_off, Toast.LENGTH_SHORT).show();
                     if (onSaved != null) onSaved.run();

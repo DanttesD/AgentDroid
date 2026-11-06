@@ -18,7 +18,9 @@ final class Http {
     interface EventSink { void onData(String data) throws IOException; }
 
     static void postSse(String url, Map<String, String> headers, String body, EventSink sink) throws IOException {
-        HttpURLConnection c = (HttpURLConnection) new URL(url).openConnection();
+        URL target = new URL(url);
+        java.net.Proxy via = NetConfig.proxyFor(target);
+        HttpURLConnection c = (HttpURLConnection) (via == null ? target.openConnection() : target.openConnection(via));
         c.setConnectTimeout(30_000);
         c.setReadTimeout(120_000);
         c.setRequestMethod("POST");
