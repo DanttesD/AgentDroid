@@ -66,7 +66,13 @@ public final class PhoneActivity extends TabActivity {
         screenRow.getChildAt(2).setClickable(false);
         LinearLayout rules = ui.iconRow(R.drawable.ic_bell, getString(R.string.phone_rules), getString(R.string.phone_rules_sub), ui.chevron(), v -> open(TriggersActivity.class));
         LinearLayout sec = ui.iconRow(R.drawable.ic_shield, getString(R.string.phone_security), getString(R.string.phone_security_sub), ui.chevron(), v -> open(McpActivity.class));
-        addRows(card, assistant, screenRow, rules, sec);
+        org.json.JSONObject net = NetCheckActivity.last(this);
+        int netScore = net == null ? -1 : net.optInt("score", -1);
+        TextView netChip = ui.statusChip(netScore < 0 ? "\u2014" : String.valueOf(netScore), netScore >= 75);
+        LinearLayout netRow = ui.iconRow(R.drawable.ic_globe, getString(R.string.phone_net),
+                netScore < 0 ? getString(R.string.phone_net_never) : getString(R.string.phone_net_sub, netScore, NetCheckActivity.tierText(this, netScore)),
+                netChip, v -> open(NetCheckActivity.class));
+        addRows(card, assistant, screenRow, rules, sec, netRow);
         c.addView(card, ui.gap(14));
 
         boolean mcp = McpHost.isRunning();

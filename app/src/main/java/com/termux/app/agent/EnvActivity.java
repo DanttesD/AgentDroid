@@ -55,7 +55,9 @@ public final class EnvActivity extends TabActivity {
             ui.tile(R.drawable.ic_desktop, getString(R.string.env_workspace), getString(R.string.env_workspace_sub), true, v -> openWorkspace("home")),
             ui.tile(R.drawable.ic_code, getString(R.string.env_adb), getString(R.string.env_adb_sub), false, v -> open(AdbConsoleActivity.class)),
             ui.tile(R.drawable.ic_server, getString(R.string.env_servers), getString(R.string.env_servers_sub), false, v -> openWorkspace("servers")),
-            ui.tile(R.drawable.ic_box, getString(R.string.env_commands), getString(R.string.env_commands_sub), false, v -> openWorkspace("commands"))};
+            ui.tile(R.drawable.ic_box, getString(R.string.env_commands), getString(R.string.env_commands_sub), false, v -> openWorkspace("commands")),
+            ui.tile(R.drawable.ic_shield, getString(R.string.env_netcheck), getString(R.string.env_netcheck_sub), true, v -> open(NetCheckActivity.class)),
+            ui.tile(R.drawable.ic_globe, getString(R.string.env_proxy), getString(R.string.env_proxy_sub), false, v -> BrowserProxy.showDialog(this, null))};
         LinearLayout grid = ui.column();
         for (int i = 0; i < tiles.length; i += 2) {
             LinearLayout line = new LinearLayout(this);

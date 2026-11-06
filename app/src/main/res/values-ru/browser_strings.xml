@@ -12,4 +12,18 @@
     <string name="browser_proxy_unsupported">Эта версия WebView не поддерживает прокси; обнови Android System WebView.</string>
     <string name="netcheck_title">Проверка сети</string>
     <string name="netcheck_again">Повторить</string>
+    <string name="netcheck_checking">Проверяю…</string>
+    <string name="netcheck_tier_low">Низкая вероятность бана</string>
+    <string name="netcheck_tier_mid">Средняя вероятность бана</string>
+    <string name="netcheck_tier_high">Высокая вероятность бана</string>
+    <string name="netcheck_tier_unknown">Нет данных</string>
+    <string name="netcheck_kind_hosting">адрес дата-центра</string>
+    <string name="netcheck_kind_plain">обычная сеть</string>
+    <string name="env_netcheck">Проверка сети</string>
+    <string name="env_netcheck_sub">Балл и IP для ИИ</string>
+    <string name="env_proxy">Прокси браузера</string>
+    <string name="env_proxy_sub">Свой выходной IP</string>
+    <string name="phone_net">Сеть для ИИ</string>
+    <string name="phone_net_never">Ещё не проверялась</string>
+    <string name="phone_net_sub">Балл %1$d · %2$s</string>
 </resources>

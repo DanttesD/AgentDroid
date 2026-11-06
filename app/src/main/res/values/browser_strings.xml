@@ -12,4 +12,18 @@
     <string name="browser_proxy_unsupported">This WebView version does not support a proxy override; update Android System WebView.</string>
     <string name="netcheck_title">Network check</string>
     <string name="netcheck_again">Run again</string>
+    <string name="netcheck_checking">Checking…</string>
+    <string name="netcheck_tier_low">Low chance of a ban</string>
+    <string name="netcheck_tier_mid">Medium chance of a ban</string>
+    <string name="netcheck_tier_high">High chance of a ban</string>
+    <string name="netcheck_tier_unknown">No data</string>
+    <string name="netcheck_kind_hosting">data-center address</string>
+    <string name="netcheck_kind_plain">regular network</string>
+    <string name="env_netcheck">Network check</string>
+    <string name="env_netcheck_sub">Score and IP for AI</string>
+    <string name="env_proxy">Browser proxy</string>
+    <string name="env_proxy_sub">Your own exit IP</string>
+    <string name="phone_net">Network for AI</string>
+    <string name="phone_net_never">Not checked yet</string>
+    <string name="phone_net_sub">Score %1$d · %2$s</string>
 </resources>
