@@ -238,3 +238,9 @@ CI run #3 (51 min, got much further: apt, bash, libbz2 etc. built) failed on `co
 ## Проверка сети (шаг 10)
 - NetCheckActivity + assets/netcheck.html: собственная проверка (IP/тип адреса, сервисы ИИ, WebRTC STUN, DNS, оценка и подсказки), работает в WebView через прокси браузера. Меню ⋮ → «Проверка сети».
 - Написана с нуля по видимому поведению (подход clean-room), код чужого сайта не копировался. Craft Anything в песочнице не запускался (нет доступа к сайту).
+
+## Проверка сети: пересборка из ai-trust-check (шаг 11)
+- assets/trustcheck: страница из архива ai-trust-check (пересборка Craft Anything, clean room). Оценка = trust_score от ip.net.coffee, как на оригинале; регионы вне списка и РФ/CN и т.д. дают 0.
+- shim.js заменяет Node-сервер внутри страницы: /api/reputation, /api/dns/*; /api/status отвечает 404, страница берёт статусы напрямую.
+- NetCheckActivity: WebViewAssetLoader отдаёт файлы по https://appassets.androidplatform.net/, работает через прокси браузера; мост AgentNative.get только для dnsleak.dev.
+- Старый assets/netcheck.html удалён. Проверено в headless-Chromium с подставленными ответами (оценка 55 для хостингового IP).

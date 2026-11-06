@@ -49,6 +49,11 @@ public final class BrowserHelper {
         this.urlListener = urlListener;
     }
 
+    private androidx.webkit.WebViewAssetLoader assetLoader;
+
+    /** Serves some https:// addresses from the app's own files (used by the built-in network check). */
+    public void setAssetLoader(androidx.webkit.WebViewAssetLoader loader) { this.assetLoader = loader; }
+
     public WebView create() { return create(null); }
 
     /** True when this device's WebView can keep several independent accounts (profiles) in one process. */
@@ -90,6 +95,13 @@ public final class BrowserHelper {
         CookieManager.getInstance().setAcceptThirdPartyCookies(w, true);
         BrowserProxy.apply(activity);
         w.setWebViewClient(new WebViewClient() {
+            @Override public android.webkit.WebResourceResponse shouldInterceptRequest(WebView v, android.webkit.WebResourceRequest r) {
+                if (assetLoader != null) {
+                    android.webkit.WebResourceResponse x = assetLoader.shouldInterceptRequest(r.getUrl());
+                    if (x != null) return x;
+                }
+                return super.shouldInterceptRequest(v, r);
+            }
             @Override public void onReceivedHttpAuthRequest(WebView v, android.webkit.HttpAuthHandler h, String host, String realm) {
                 if (!BrowserProxy.authenticate(activity, h, true)) super.onReceivedHttpAuthRequest(v, h, host, realm);
             }
