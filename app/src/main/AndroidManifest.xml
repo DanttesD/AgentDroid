@@ -85,6 +85,7 @@
             android:process=":web7" android:taskAffinity="com.agentdroid.web7"
             android:configChanges="orientation|screenSize|keyboardHidden" />
         <activity android:name=".app.agent.AccountsActivity" android:label="AgentDroid Accounts" android:exported="false" />
+        <activity android:name=".app.agent.NetCheckActivity" android:label="AgentDroid Net" android:exported="false" />
         <service android:name=".app.agent.McpService" android:exported="false" />
         <service android:name=".app.agent.AssistantOverlayService" android:exported="false" />
         <activity android:name=".app.agent.TriggersActivity" android:label="AgentDroid Rules" android:exported="false" />

@@ -10,4 +10,6 @@
     <string name="browser_proxy_on">Browser proxy is on</string>
     <string name="browser_proxy_off">Browser proxy is off</string>
     <string name="browser_proxy_unsupported">This WebView version does not support a proxy override; update Android System WebView.</string>
+    <string name="netcheck_title">Network check</string>
+    <string name="netcheck_again">Run again</string>
 </resources>

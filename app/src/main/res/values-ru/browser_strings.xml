@@ -10,4 +10,6 @@
     <string name="browser_proxy_on">Прокси браузера включён</string>
     <string name="browser_proxy_off">Прокси браузера выключен</string>
     <string name="browser_proxy_unsupported">Эта версия WebView не поддерживает прокси; обнови Android System WebView.</string>
+    <string name="netcheck_title">Проверка сети</string>
+    <string name="netcheck_again">Повторить</string>
 </resources>

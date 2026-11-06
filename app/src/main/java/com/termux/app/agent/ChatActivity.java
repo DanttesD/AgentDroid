@@ -324,6 +324,7 @@ public class ChatActivity extends Activity {
         items.add(getString(R.string.agent_menu_triggers));
         items.add(getString(R.string.agent_menu_appearance));
         items.add(getString(R.string.browser_proxy_menu) + (BrowserProxy.enabled(this) ? "  ✓" : ""));
+        items.add(getString(R.string.netcheck_title));
         final int webStart = items.size();
         for (WebAccounts.Account a : accs) items.add(a.name + (a.url.isEmpty() ? "" : "  (" + hostOf(a.url) + ")"));
         items.add(getString(R.string.agent_menu_web_add));
@@ -343,6 +344,7 @@ public class ChatActivity extends Activity {
             else if (which == 7) startActivity(new Intent(this, TriggersActivity.class));
             else if (which == 8) startActivity(new Intent(this, AppearanceActivity.class));
             else if (which == 9) BrowserProxy.showDialog(this, null);
+            else if (which == 10) startActivity(new Intent(this, NetCheckActivity.class));
             else if (which == addIndex) { WebAccounts.Account n = webAccounts.add(); pickService(n); }
             else if (which > addIndex) setWebMode(false);
             else openWebAccount(accs.get(which - webStart));

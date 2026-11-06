@@ -1,0 +1,76 @@
+<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+:root{--bg:%BG%;--s:%S%;--on:%ON%;--on2:%ON2%;--p:%P%;--ok:%OK%;--err:%ERR%;--warn:#e0a526;--line:%LINE%}
+*{box-sizing:border-box}body{margin:0;padding:14px;background:var(--bg);color:var(--on);font:15px/1.4 system-ui,sans-serif}
+.card{background:var(--s);border-radius:20px;padding:14px 16px;margin-bottom:12px}
+h2{margin:0 0 8px;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--on2);font-weight:600}
+.score{display:flex;align-items:center;gap:16px}.num{font-size:52px;font-weight:700;line-height:1}
+.row{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-top:1px solid var(--line)}.row:first-of-type{border-top:0}
+.row b{font-weight:500;text-align:right;word-break:break-word}.k{color:var(--on2)}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:7px;background:var(--on2)}
+.ok{background:var(--ok)}.bad{background:var(--err)}.warn{background:var(--warn)}
+.tip{padding:6px 0;color:var(--on)}.small{color:var(--on2);font-size:12px;margin-top:6px}
+</style></head><body>
+<div class="card"><h2>Оценка сети</h2><div class="score"><div class="num" id="num">…</div><div id="verdict" class="k">Идёт проверка</div></div>
+<div class="small">Оценка приложения, а не гарантия: у каждого сервиса свои правила. Параметры устройства (язык, часовой пояс) на неё не влияют.</div></div>
+<div class="card"><h2>IP и подключение</h2><div id="ip"></div></div>
+<div class="card"><h2>Доступность сервисов</h2><div id="svc"></div></div>
+<div class="card"><h2>WebRTC / UDP</h2><div id="rtc"></div></div>
+<div class="card"><h2>DNS</h2><div id="dns"></div></div>
+<div class="card"><h2>Что улучшить</h2><div id="tips"></div></div>
+<div class="card"><h2>Устройство (на балл не влияет)</h2><div id="dev"></div></div>
+<script>
+const $=id=>document.getElementById(id);
+const row=(k,v,c)=>`<div class="row"><span class="k">${k}</span><b>${c?'<i class="dot '+c+'"></i>':''}${v}</b></div>`;
+const to=(p,ms)=>Promise.race([p,new Promise((_,r)=>setTimeout(()=>r(new Error('timeout')),ms))]);
+const S={score:100,tips:[]};
+const cut=(n,why,tip)=>{S.score-=n;if(tip&&!S.tips.includes(tip))S.tips.push(tip)};
+async function getIp(){
+ try{const j=await to(fetch('https://api.ipapi.is/').then(r=>r.json()),9000);
+  return{ip:j.ip,cc:j.location&&j.location.country_code,country:j.location&&j.location.country,city:j.location&&j.location.city,
+   org:(j.company&&j.company.name)||'',asn:j.asn&&('AS'+j.asn.asn+' '+(j.asn.org||'')),type:(j.company&&j.company.type)||(j.asn&&j.asn.type)||'',
+   dc:!!j.is_datacenter,vpn:!!j.is_vpn,proxy:!!j.is_proxy,tor:!!j.is_tor,abuser:!!j.is_abuser}}catch(e){}
+ const j=await to(fetch('https://ipwho.is/').then(r=>r.json()),9000);
+ return{ip:j.ip,cc:j.country_code,country:j.country,city:j.city,org:j.connection&&j.connection.org,asn:j.connection&&('AS'+j.connection.asn+' '+(j.connection.isp||'')),type:j.connection&&j.connection.type||'',dc:/hosting|datacenter|cloud/i.test(j.connection&&j.connection.org||''),vpn:false,proxy:false,tor:false,abuser:false}}
+async function ipCheck(){
+ let r;try{r=await getIp()}catch(e){$('ip').innerHTML=row('Не удалось определить IP','нет ответа','bad');cut(20,'',"Нет доступа к сервису определения IP: проверь интернет и прокси.");return null}
+ let h=row('IP',r.ip)+row('Страна / город',(r.country||'?')+(r.city?', '+r.city:''))+row('Провайдер',r.asn||r.org||'?');
+ const kind=r.dc?'Дата-центр / хостинг':r.type==='isp'?'Домашний или мобильный':(r.type||'Не определён');
+ h+=row('Тип адреса',kind,r.dc?'bad':'ok');
+ if(r.vpn||r.proxy||r.tor||r.abuser)h+=row('Метки в базах',[r.vpn&&'VPN',r.proxy&&'прокси',r.tor&&'Tor',r.abuser&&'жалобы'].filter(Boolean).join(', '),'bad');
+ $('ip').innerHTML=h;
+ if(r.dc)cut(30,'',"Адрес принадлежит дата-центру: сервисы ИИ часто считают такой трафик подозрительным. Включи прокси с домашним или мобильным IP.");
+ if(r.vpn||r.proxy)cut(10,'',"IP числится в базах VPN/прокси: лучше другой адрес (резидентный, не из публичных списков).");
+ if(r.tor)cut(30,'',"IP из сети Tor: он почти везде блокируется.");
+ if(r.abuser)cut(10,'',"На этот IP есть жалобы: возьми другой адрес.");
+ return r}
+async function svcCheck(){
+ const list=[['Claude','https://claude.ai/favicon.ico'],['ChatGPT','https://chatgpt.com/favicon.ico'],['Anthropic API','https://api.anthropic.com/'],['OpenAI API','https://api.openai.com/']];
+ const res=await Promise.all(list.map(async([n,u])=>{const t=Date.now();try{await to(fetch(u,{mode:'no-cors',cache:'no-store'}),8000);return[n,true,Date.now()-t]}catch(e){return[n,false,0]}}));
+ $('svc').innerHTML=res.map(([n,ok,ms])=>row(n,ok?ms+' мс':'недоступен',ok?'ok':'bad')).join('');
+ res.forEach(([n,ok])=>{if(!ok)cut(8,'',n+' не отвечает с этого адреса: возможна блокировка по региону или IP.')})}
+async function rtcCheck(ip){
+ const found=new Set();
+ try{const pc=new RTCPeerConnection({iceServers:[{urls:'stun:stun.cloudflare.com:3478'}]});pc.createDataChannel('x');
+  pc.onicecandidate=e=>{if(e.candidate){const m=/ typ srflx/.test(e.candidate.candidate)&&e.candidate.candidate.split(' ')[4];if(m)found.add(m)}};
+  await pc.setLocalDescription(await pc.createOffer());
+  await to(new Promise(r=>{pc.onicegatheringstatechange=()=>{if(pc.iceGatheringState==='complete')r()}}),6000).catch(()=>{});pc.close()}catch(e){}
+ const a=[...found];
+ if(!a.length){$('rtc').innerHTML=row('Публичный адрес','не определён (UDP закрыт или не пропускается прокси)','warn');cut(3,'','WebRTC/UDP не отвечает: для обычных прокси это нормально, но часть сервисов может работать медленнее.');return}
+ const leak=ip&&a.some(x=>x!==ip.ip&&!x.includes(':'));
+ $('rtc').innerHTML=row('Публичный адрес (STUN)',a.join(', '),leak?'bad':'ok')+(leak?row('Вывод','адрес отличается от IP: возможна утечка настоящего адреса','bad'):row('Вывод','совпадает с IP','ok'));
+ if(leak)cut(15,'','WebRTC показывает адрес, отличный от IP браузера: используй прокси, пропускающий UDP, или отключи WebRTC на сайтах.')}
+async function dnsCheck(ip){
+ try{const id=Math.random().toString(36).slice(2,12);
+  const j=await to(fetch('https://'+id+'.edns.ip-api.com/json').then(r=>r.json()),8000);
+  const d=j.dns||j;const g=d.geo||'';const ip2=d.ip||'';
+  $('dns').innerHTML=row('Резолвер',(ip2||'?')+(g?' — '+g:''),'ok');
+  if(ip&&ip.country&&g&&!g.toLowerCase().includes(String(ip.country).toLowerCase())&&!(ip.cc&&g.includes(ip.cc))){$('dns').innerHTML+=row('Вывод','страна резолвера отличается от страны IP','warn');cut(4,'','DNS идёт из другой страны, чем IP. Используй DNS провайдера прокси.')}
+ }catch(e){$('dns').innerHTML=row('Проверка DNS','недоступна из этой сети','warn')}}
+function dev(){$('dev').innerHTML=row('Язык',navigator.language)+row('Часовой пояс',Intl.DateTimeFormat().resolvedOptions().timeZone)+row('User-Agent',navigator.userAgent)}
+(async()=>{dev();const ip=await ipCheck();await Promise.all([svcCheck(),rtcCheck(ip),dnsCheck(ip)]);
+ const sc=Math.max(0,Math.min(100,S.score));$('num').textContent=sc;
+ $('num').style.color=sc>=80?'var(--ok)':sc>=60?'var(--warn)':'var(--err)';
+ $('verdict').textContent=sc>=80?'Хорошо: сервисы не должны ругаться':sc>=60?'Средне: возможны проверки и капчи':'Плохо: сервисы, вероятно, будут ограничивать';
+ $('tips').innerHTML=S.tips.length?S.tips.map(t=>'<div class="tip">• '+t+'</div>').join(''):'<div class="tip">Замечаний нет.</div>'})();
+</script></body></html>
