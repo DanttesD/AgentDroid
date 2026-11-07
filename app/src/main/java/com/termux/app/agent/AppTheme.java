@@ -54,11 +54,33 @@ public final class AppTheme {
 
     /** Changes whenever the visible palette changes (settings, system dark mode, wallpaper hue). */
     public static String signature(Context c) {
-        return mode(c) + "/" + isDark(c) + "/" + amoled(c) + "/" + Math.round(hue(c));
+        return mode(c) + "/" + isDark(c) + "/" + amoled(c) + "/" + Math.round(hue(c)) + "/" + textScale(c) + "/" + com.termux.app.workspace.WorkspaceLanguage.code(c);
     }
 
-    /** Window background and system bars in the palette; call at the start of onCreate. */
+    /** Text scale chosen in Settings, on top of the system font size. */
+    public static final float[] TEXT_SCALES = {0.85f, 1f, 1.15f, 1.3f};
+
+    public static float textScale(Context c) {
+        float v = prefs(c).getFloat("text_scale", 1f);
+        for (float s : TEXT_SCALES) if (Math.abs(s - v) < 0.01f) return s;
+        return 1f;
+    }
+
+    public static void setTextScale(Context c, float v) { prefs(c).edit().putFloat("text_scale", v).apply(); }
+
+    /** Makes sp sizes follow the Settings text size (system font size times the chosen scale). */
+    @SuppressWarnings("deprecation")
+    public static void applyTextScale(Activity a) {
+        float base = android.provider.Settings.System.getFloat(a.getContentResolver(), android.provider.Settings.System.FONT_SCALE, 1f);
+        android.content.res.Configuration c = new android.content.res.Configuration(a.getResources().getConfiguration());
+        c.fontScale = base * textScale(a);
+        a.getResources().updateConfiguration(c, a.getResources().getDisplayMetrics());
+    }
+
+    /** Language, text size, window background and system bars; call at the start of onCreate. */
     public static ThemeColors apply(Activity a) {
+        com.termux.app.workspace.WorkspaceLanguage.apply(a);
+        applyTextScale(a);
         ThemeColors t = colors(a);
         a.getWindow().getDecorView().setBackgroundColor(t.bg);
         a.getWindow().setStatusBarColor(t.bg);

@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="browser_proxy_menu">Прокси</string>
     <string name="browser_proxy_title">Прокси</string>
     <string name="browser_proxy_hint">Формат: host:port, http://host:port или socks5://host:port. Пусто — этот прокси выключен. Два прокси независимы. После сохранения перезагрузи открытые страницы.</string>
     <string name="browser_proxy_addr">Адрес (host:port)</string>
@@ -19,10 +18,6 @@
     <string name="netcheck_tier_unknown">Нет данных</string>
     <string name="netcheck_kind_hosting">адрес дата-центра</string>
     <string name="netcheck_kind_plain">обычная сеть</string>
-    <string name="env_netcheck">Проверка сети</string>
-    <string name="env_netcheck_sub">Балл и IP для ИИ</string>
-    <string name="env_proxy">Прокси</string>
-    <string name="env_proxy_sub">Браузер и ИИ</string>
     <string name="phone_net">Сеть для ИИ</string>
     <string name="phone_net_never">Ещё не проверялась</string>
     <string name="phone_net_sub">Балл %1$d · %2$s</string>

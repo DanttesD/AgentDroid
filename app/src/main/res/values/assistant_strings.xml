@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="agent_menu_assistant">Voice assistant</string>
     <string name="assistant_title">AgentDroid assistant</string>
     <string name="assistant_hint">Say or type a task…</string>
     <string name="assistant_working">Working… (tap to stop)</string>
@@ -10,7 +9,6 @@
     <string name="assistant_no_a11y">The accessibility service is off, so I cannot read the screen.</string>
     <string name="assistant_no_speech">This phone has no speech recognition service.</string>
     <string name="assistant_mic_perm">Allow the microphone in the assistant settings.</string>
-    <string name="assistant_stopped">Stopped.</string>
     <string name="assistant_allow">Allow</string>
     <string name="assistant_deny">Deny</string>
     <string name="assistant_notif">AgentDroid assistant is on</string>

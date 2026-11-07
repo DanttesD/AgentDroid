@@ -5,18 +5,8 @@
     <string name="agent_hint">Message the agent…</string>
     <string name="agent_send">Send</string>
     <string name="agent_stop">Stop</string>
-    <string name="agent_intro">Pick a provider and API key in Settings, then write a task. Shell commands and file writes ask for your approval.</string>
-    <string name="agent_backend_pinned_missing">Pinned backend \'%1$s\' is not available</string>
+    <string name="agent_intro">Set the model and API key on the Agents tab, then write a task. Shell commands and file writes ask for your approval.</string>
     <string name="agent_backend_none">No backend available (enable root, local ADB or install Termux)</string>
-    <string name="agent_backend_line">Backend: %1$s (%2$s)</string>
-    <string name="agent_mode_pinned">pinned</string>
-    <string name="agent_mode_auto">auto</string>
-    <string name="agent_backend_auto_item">Automatic (first available)</string>
-    <string name="agent_backend_title">Where commands run</string>
-    <string name="agent_menu_backend">Where commands run</string>
-    <string name="agent_menu_terminal">Terminal</string>
-    <string name="agent_menu_adb">ADB console</string>
-    <string name="agent_menu_accounts">Accounts and sign-in</string>
     <string name="agent_provider_title">Model provider</string>
     <string name="agent_save">Save</string>
     <string name="agent_cancel">Cancel</string>
@@ -29,7 +19,6 @@
     <string name="agent_allow">Allow</string>
     <string name="agent_deny">Deny</string>
     <string name="agent_no_backend">No backend available. Choose one in the menu.</string>
-    <string name="agent_accounts_soon">Account sign-in is being built: official agent logins (Claude Code, Codex, Gemini CLI, OpenCode) in the built-in terminal and browser, several accounts per agent.</string>
     <string name="agent_provider_anthropic">Anthropic (Claude)</string>
     <string name="agent_provider_openai">OpenAI</string>
     <string name="agent_provider_deepseek">DeepSeek</string>
@@ -50,14 +39,10 @@
     <string name="mcp_open_terminal">Open terminal</string>
     <string name="mcp_copy_tunnel_cmd">Copy tunnel command</string>
     <string name="mcp_open_claude">Open claude.ai in the built-in browser</string>
-    <string name="agent_menu_mcp">External agents (MCP)</string>
-    <string name="agent_menu_browser">Browser</string>
     <string name="agent_browser_main">Main profile</string>
     <string name="agent_browser_profile">Profile %1$d</string>
     <string name="agent_browser_pick">Open in profile (long press to rename)</string>
     <string name="agent_browser_rename">Profile name</string>
-    <string name="agent_menu_mode_web">Mode: Claude in the browser</string>
-    <string name="agent_menu_mode_native">Mode: agent chat</string>
     <string name="agent_browser_attach">Attach</string>
     <string name="acc_title">Accounts and sign-in</string>
     <string name="acc_intro">Connect external agents under your own accounts. Sign-in happens on the service\'s own site (email, Google, etc.) in the built-in browser. Every account has its own browser profile and data folder, so you can keep several accounts of one agent.</string>
@@ -130,6 +115,5 @@
     <string name="mcp_boot_off">Start after reboot: off</string>
     <string name="mcp_boot_server">Start after reboot: server</string>
     <string name="mcp_boot_tunnel">Start after reboot: server and tunnel</string>
-    <string name="agent_menu_desktop">Desktop (X11)</string>
     <string name="agent_desktop_hint">In the terminal pick Termux or a Linux distribution, then tap Terminal → Switch to desktop.</string>
 </resources>

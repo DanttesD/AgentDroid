@@ -65,6 +65,16 @@ public final class BrowserHelper {
         }
     }
 
+    /** Forgets the sign-ins of a deleted web account. Best effort: a profile a live WebView still uses is kept until it is closed. */
+    public static void deleteProfile(String profile) {
+        if (profile == null || !profilesSupported()) return;
+        try {
+            androidx.webkit.ProfileStore.getInstance().deleteProfile(profile);
+        } catch (Throwable ignored) {
+            // in use or already gone
+        }
+    }
+
     /** @param profile WebView profile name (own cookies and storage), or null for the default profile. */
     public WebView create(final String profile) {
         final WebView w = new WebView(activity);

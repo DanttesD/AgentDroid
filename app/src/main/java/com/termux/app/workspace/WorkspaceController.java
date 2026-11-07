@@ -27,7 +27,6 @@ import android.widget.TextView;
 import com.termux.R;
 import com.termux.app.TermuxActivity;
 import com.termux.app.TermuxService;
-import com.termux.app.activities.SettingsActivity;
 import com.termux.shared.shell.TermuxSession;
 import com.termux.shared.termux.TermuxConstants;
 import com.termux.terminal.TerminalSession;
@@ -225,7 +224,13 @@ public final class WorkspaceController {
         codexHandler.postDelayed(codexPoll, 1000);
     }
     public void onStop(){geminiInputDispatch.cancel();activityStopped=true;activity.getTerminalView().setWorkspaceTerminalVisible(false);geminiLiveUi.syncPermissionVisibility();agentReceiptsUi.syncVisibility();if(transferBorder!=null)transferBorder.active(false);if(desktopSessionBar!=null)desktopSessionBar.working(false);codexHandler.removeCallbacks(activityPoll);if(activityLine!=null)activityLine.working(false);WorkspaceUpdates.background(activity);servers.pause();if(agentChatUi!=null)agentChatUi.sync();if(desktopUi!=null)desktopUi.sync();}
-    public void onResume(){activityStopped=false;updateDesktopProgramsBorder();activity.getTerminalView().setWorkspaceTerminalVisible(screen==Screen.TERMINAL);updateTransferBorder();codexHandler.removeCallbacks(activityPoll);codexHandler.post(activityPoll);servers.resume();if(agentChatUi!=null)agentChatUi.sync();if(desktopUi!=null)desktopUi.sync();WorkspaceUpdates.automatic(activity,()->{if(!closed)renderHeader();});}
+    public void onResume(){syncLanguage();activityStopped=false;updateDesktopProgramsBorder();activity.getTerminalView().setWorkspaceTerminalVisible(screen==Screen.TERMINAL);updateTransferBorder();codexHandler.removeCallbacks(activityPoll);codexHandler.post(activityPoll);servers.resume();if(agentChatUi!=null)agentChatUi.sync();if(desktopUi!=null)desktopUi.sync();WorkspaceUpdates.automatic(activity,()->{if(!closed)renderHeader();});}
+    private String appliedLanguage;
+    private String backLabel;
+    /** The screen that opened the workspace; the arrow in the header names it ("‹ Агенты"). Without a name it is the Environment tab. */
+    public void backLabel(String from){String label=from==null||from.isEmpty()?null:from;if(label==null?backLabel==null:label.equals(backLabel))return;backLabel=label;renderHeader();}
+    /** The language is chosen in Settings; when it changed while this screen was in the background, redraw the texts. */
+    private void syncLanguage(){String code=WorkspaceLanguage.code(activity);if(appliedLanguage!=null&&!appliedLanguage.equals(code)){WorkspaceLanguage.apply(activity);refreshLanguage();}appliedLanguage=code;}
     public void refreshLanguage() {
         terminalInput.setHint(WorkspaceText.tr("Введите команду…"));
         inputRow.getChildAt(0).setContentDescription(WorkspaceText.tr("Вставить сохранённую команду"));
@@ -297,6 +302,7 @@ public final class WorkspaceController {
     /** Opens one of the workspace screens by name (home, sessions, commands, terminal, servers); used by the app navigation. */
     public void openScreen(String name) {
         if (name == null) return;
+        if (name.startsWith("settings:")) { final String what = name.substring(9); activity.getWindow().getDecorView().post(() -> runSetting(what)); return; }
         try { show(Screen.valueOf(name.toUpperCase(java.util.Locale.ROOT)), false); } catch (IllegalArgumentException ignored) { }
     }
 
@@ -347,7 +353,8 @@ public final class WorkspaceController {
         if (navigation.getParent() != null) ((ViewGroup) navigation.getParent()).removeView(navigation);
         header.removeAllViews(); header.setPadding(dp(8), dp(4), dp(8), dp(4));
         LinearLayout top = row();
-        TextView name = text("AgentDroid", 17, Pal.TEXT); name.setTypeface(null, Typeface.BOLD_ITALIC);
+        TextView name = text("\u2039  " + (backLabel == null ? activity.getString(R.string.nav_env) : backLabel), 17, Pal.TEXT); name.setTypeface(null, Typeface.BOLD);
+        name.setMinHeight(dp(48)); name.setGravity(Gravity.CENTER_VERTICAL); name.setContentDescription(WorkspaceText.tr("Назад")); name.setOnClickListener(v -> activity.finish());
         name.setSingleLine(); name.setEllipsize(TextUtils.TruncateAt.END);
         LinearLayout brand = row();
         brand.addView(name, new LinearLayout.LayoutParams(0, -2, 1));
@@ -2121,18 +2128,18 @@ public final class WorkspaceController {
             heading.requestFocus();
         });picker.show();
     }
-    private void settingsRow(LinearLayout form,String label,Runnable action){TextView row=WorkspaceDialogs.action(activity,label,0);row.setOnClickListener(v->action.run());form.addView(row);}
-    private void globalSettings(){
-        LinearLayout form=column();int padding=dp(12);form.setPadding(padding,padding,padding,padding);
-        AlertDialog[] menu={null};
-        settingsRow(form,WorkspaceText.tr("Язык / Language"),()->{menu[0].dismiss();WorkspaceLanguage.showPicker(activity,this::refreshLanguage);});
-        form.addView(WorkspaceUpdates.menuRow(activity,()->{menu[0].dismiss();WorkspaceUpdates.check(activity);}));
-        settingsRow(form,WorkspaceBackupUi.label(activity),()->{menu[0].dismiss();WorkspaceBackupUi.show(activity,store,()->{refreshLanguage();},command->{WorkspaceStore.Session installation=new WorkspaceStore.Session();installation.name=WorkspaceLanguage.code(activity).equals("ru")?"Пакеты из бэкапа":"Backup packages";installation.environment="termux";installation.directory=TermuxConstants.TERMUX_HOME_DIR_PATH;installation.startup=command;launchNew(installation,true);});});
-        settingsRow(form,tr("Истории чатов","Chat histories"),()->{menu[0].dismiss();showChatHistories();});
-        settingsRow(form,WorkspaceErrorLibraryUi.label(activity),()->{menu[0].dismiss();WorkspaceErrorLibraryUi.show(activity,text->{WorkspaceStore.Command command=new WorkspaceStore.Command();command.command=text;insertCommand(command);});});
-        settingsRow(form,WorkspaceText.tr("Настройки приложения"),()->{menu[0].dismiss();activity.startActivity(new android.content.Intent(activity,SettingsActivity.class));});
-        settingsRow(form,WorkspaceStorageCleanup.label(activity),()->{menu[0].dismiss();new WorkspaceStorageCleanup(activity,store,this::cleanupScopeInUse,p->liveFor(p)!=null,()->WorkspaceBackupUi.showRestored(activity,store,this::refreshLanguage),()->showChatHistories(true),this::refreshLanguage).show();});
-        menu[0]=WorkspaceDialogs.builder(activity).setTitle(WorkspaceText.tr("Настройки приложения")).setView(formScroll(form)).setNegativeButton(WorkspaceText.tr("Закрыть"),null).create();menu[0].show();
+    /** The gear opens the single Settings screen of the app (appearance, language, updates, backups, about). */
+    private void globalSettings(){activity.startActivity(new android.content.Intent(activity,com.termux.app.agent.AppSettingsActivity.class));}
+    private void showBackup(){WorkspaceBackupUi.show(activity,store,()->{refreshLanguage();},command->{WorkspaceStore.Session installation=new WorkspaceStore.Session();installation.name=WorkspaceLanguage.code(activity).equals("ru")?"Пакеты из бэкапа":"Backup packages";installation.environment="termux";installation.directory=TermuxConstants.TERMUX_HOME_DIR_PATH;installation.startup=command;launchNew(installation,true);});}
+    private void showErrors(){WorkspaceErrorLibraryUi.show(activity,text->{WorkspaceStore.Command command=new WorkspaceStore.Command();command.command=text;insertCommand(command);});}
+    private void showStorage(){new WorkspaceStorageCleanup(activity,store,this::cleanupScopeInUse,p->liveFor(p)!=null,()->WorkspaceBackupUi.showRestored(activity,store,this::refreshLanguage),()->showChatHistories(true),this::refreshLanguage).show();}
+    /** Settings actions that need the workspace data (opened from the Settings and Environment screens). */
+    private void runSetting(String what){
+        if(closed)return;
+        if(what.equals("backup"))showBackup();
+        else if(what.equals("histories"))showChatHistories();
+        else if(what.equals("errors"))showErrors();
+        else if(what.equals("storage"))showStorage();
     }
     private void showChatHistories(){showChatHistories(false);}
     private void showChatHistories(boolean guarded){new WorkspaceChatHistories(activity,store,reader,e->{for(WorkspaceStore.Session p:store.sessions)if((p.environment.equals("codex")||p.aiAgent.equals("codex"))&&!p.claudeAgent&&!p.geminiAgent&&p.codexEnvironment.equals(e.environment)&&liveFor(p)!=null&&(p.codexThread.equals(e.id)||!p.codexChat.equals("id")))return true;return false;},()->{},guarded).show();}

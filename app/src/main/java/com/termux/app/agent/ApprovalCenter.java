@@ -33,6 +33,12 @@ public final class ApprovalCenter {
 
     private static volatile Presenter overlay;
 
+    /**
+     * A screen that can show the question inside its own content (the chat feed). Returns TRUE or FALSE once the user answered,
+     * or null when it cannot (web mode, or the user left the screen meanwhile).
+     */
+    public interface Inline { Boolean askInline(String description, boolean force); }
+
     public static void setOverlay(Presenter p) { overlay = p; }
 
     private ApprovalCenter() {}
@@ -69,6 +75,11 @@ public final class ApprovalCenter {
             final Activity a = visible.get();
             if (a != null && !a.isFinishing()) {
                 cancelNotification(appContext);
+                if (a instanceof Inline) {
+                    Boolean answer = ((Inline) a).askInline(description, force);
+                    if (answer != null) return answer;
+                    if (visible.get() != a) continue; // the user left that screen: ask again where he is now
+                }
                 return showDialog(a, description, force);
             }
             Presenter p = overlay;

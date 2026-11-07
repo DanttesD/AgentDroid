@@ -98,7 +98,7 @@
         <activity android:name=".app.agent.AgentsActivity" android:label="AgentDroid Agents" android:exported="false" />
         <activity android:name=".app.agent.PhoneActivity" android:label="AgentDroid Phone" android:exported="false" />
         <activity android:name=".app.agent.EnvActivity" android:label="AgentDroid Environment" android:exported="false" />
-        <activity android:name=".app.agent.AppearanceActivity" android:label="AgentDroid Appearance" android:exported="false" />
+        <activity android:name=".app.agent.AppSettingsActivity" android:label="AgentDroid Settings" android:exported="false" />
         <activity android:name=".app.agent.AssistantActivity" android:label="AgentDroid Assistant" android:exported="false" />
         <service android:name=".app.agent.AgentAccessibilityService" android:exported="false"
             android:label="AgentDroid"

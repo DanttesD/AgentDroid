@@ -198,15 +198,24 @@ public final class TermuxActivity extends Activity implements ServiceConnection 
         // Locale wrapping must not leave orientation/window bounds at launch values.
         // Keep the Activity and its existing sessions; no workspace/composer rebuild.
         com.termux.app.workspace.WorkspaceLanguage.configurationChanged(this,newConfig);
+        com.termux.app.agent.AppTheme.applyTextScale(this);
     }
 
     private String themeSig = "";
+
+    /** Handles the "agentdroid_screen" deep link; one-shot actions are consumed so a recreate does not repeat them. */
+    private void openWorkspaceScreen(Intent intent) {
+        mWorkspace.backLabel(intent.getStringExtra("agentdroid_from"));
+        String screen = intent.getStringExtra("agentdroid_screen");
+        if (screen != null && screen.startsWith("settings:")) intent.removeExtra("agentdroid_screen");
+        mWorkspace.openScreen(screen);
+    }
 
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         setIntent(intent);
-        if (mWorkspace != null) mWorkspace.openScreen(intent.getStringExtra("agentdroid_screen"));
+        if (mWorkspace != null) openWorkspaceScreen(intent);
     }
 
     @Override
@@ -228,6 +237,7 @@ public final class TermuxActivity extends Activity implements ServiceConnection 
         setActivityTheme();
 
         com.termux.app.workspace.WorkspaceLanguage.initialize(this);
+        com.termux.app.agent.AppTheme.applyTextScale(this);
         com.termux.app.workspace.Pal.init(this);
         themeSig = com.termux.app.agent.AppTheme.signature(this);
         super.onCreate(savedInstanceState);
@@ -273,7 +283,7 @@ public final class TermuxActivity extends Activity implements ServiceConnection 
         setToggleKeyboardView();
 
         mWorkspace = new com.termux.app.workspace.WorkspaceController(this);
-        mWorkspace.openScreen(getIntent().getStringExtra("agentdroid_screen"));
+        openWorkspaceScreen(getIntent());
 
         registerForContextMenu(mTerminalView);
 

@@ -5,18 +5,8 @@
     <string name="agent_hint">Напиши агенту…</string>
     <string name="agent_send">Отправить</string>
     <string name="agent_stop">Стоп</string>
-    <string name="agent_intro">Выбери провайдера и ключ в «Настройках», затем напиши задачу. Команды и запись файлов агент выполняет только с твоего разрешения.</string>
-    <string name="agent_backend_pinned_missing">Выбранный способ «%1$s» сейчас недоступен</string>
+    <string name="agent_intro">Модель и ключ API задаются на вкладке «Агенты». Напиши задачу: команды и запись файлов агент выполняет только с твоего разрешения.</string>
     <string name="agent_backend_none">Нет доступного способа выполнения (включи root, локальный ADB или установи Termux)</string>
-    <string name="agent_backend_line">Выполнение: %1$s (%2$s)</string>
-    <string name="agent_mode_pinned">выбрано</string>
-    <string name="agent_mode_auto">авто</string>
-    <string name="agent_backend_auto_item">Автоматически (первый доступный)</string>
-    <string name="agent_backend_title">Где выполнять команды</string>
-    <string name="agent_menu_backend">Где выполнять команды</string>
-    <string name="agent_menu_terminal">Терминал</string>
-    <string name="agent_menu_adb">Консоль ADB</string>
-    <string name="agent_menu_accounts">Аккаунты и вход</string>
     <string name="agent_provider_title">Провайдер модели</string>
     <string name="agent_save">Сохранить</string>
     <string name="agent_cancel">Отмена</string>
@@ -29,7 +19,6 @@
     <string name="agent_allow">Разрешить</string>
     <string name="agent_deny">Запретить</string>
     <string name="agent_no_backend">Нет доступного способа выполнения. Выбери его в меню.</string>
-    <string name="agent_accounts_soon">Вход через аккаунты в разработке: официальные входы агентов (Claude Code, Codex, Gemini CLI, OpenCode) во встроенном терминале и браузере, несколько аккаунтов на каждого агента.</string>
     <string name="agent_provider_anthropic">Anthropic (Claude)</string>
     <string name="agent_provider_openai">OpenAI</string>
     <string name="agent_provider_deepseek">DeepSeek</string>
@@ -50,14 +39,10 @@
     <string name="mcp_open_terminal">Открыть терминал</string>
     <string name="mcp_copy_tunnel_cmd">Скопировать команду туннеля</string>
     <string name="mcp_open_claude">Открыть claude.ai во встроенном браузере</string>
-    <string name="agent_menu_mcp">Внешние агенты (MCP)</string>
-    <string name="agent_menu_browser">Браузер</string>
     <string name="agent_browser_main">Основной профиль</string>
     <string name="agent_browser_profile">Профиль %1$d</string>
     <string name="agent_browser_pick">В каком профиле открыть (долгое нажатие — переименовать)</string>
     <string name="agent_browser_rename">Название профиля</string>
-    <string name="agent_menu_mode_web">Режим: Claude в браузере</string>
-    <string name="agent_menu_mode_native">Режим: чат агента</string>
     <string name="agent_browser_attach">Прикрепить</string>
     <string name="acc_title">Аккаунты и вход</string>
     <string name="acc_intro">Подключай внешних агентов под своими аккаунтами. Вход выполняется на сайте самого сервиса (почта, Google и т.д.) во встроенном браузере. У каждого аккаунта свой профиль браузера и своя папка данных, поэтому можно держать несколько аккаунтов одного агента.</string>
@@ -130,6 +115,5 @@
     <string name="mcp_boot_off">Автозапуск после перезагрузки: выкл</string>
     <string name="mcp_boot_server">Автозапуск после перезагрузки: сервер</string>
     <string name="mcp_boot_tunnel">Автозапуск после перезагрузки: сервер и туннель</string>
-    <string name="agent_menu_desktop">Рабочий стол (X11)</string>
     <string name="agent_desktop_hint">В терминале выберите Termux или дистрибутив Linux и нажмите «Терминал» → «Переключиться на рабочий стол».</string>
 </resources>

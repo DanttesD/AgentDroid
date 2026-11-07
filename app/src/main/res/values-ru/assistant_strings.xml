@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="agent_menu_assistant">Голосовой помощник</string>
     <string name="assistant_title">Помощник AgentDroid</string>
     <string name="assistant_hint">Скажите или напишите задачу…</string>
     <string name="assistant_working">Работаю… (нажмите, чтобы остановить)</string>
@@ -10,7 +9,6 @@
     <string name="assistant_no_a11y">Служба специальных возможностей выключена, экран читать не смогу.</string>
     <string name="assistant_no_speech">На телефоне нет службы распознавания речи.</string>
     <string name="assistant_mic_perm">Разрешите микрофон в настройках помощника.</string>
-    <string name="assistant_stopped">Остановлено.</string>
     <string name="assistant_allow">Разрешить</string>
     <string name="assistant_deny">Отклонить</string>
     <string name="assistant_notif">Помощник AgentDroid включён</string>

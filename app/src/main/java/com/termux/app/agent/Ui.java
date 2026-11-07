@@ -47,6 +47,16 @@ public final class Ui {
         return v;
     }
 
+    /** The header of a sub-screen: a back arrow and the title. */
+    public LinearLayout backHeader(CharSequence title, View.OnClickListener back) {
+        LinearLayout head = new LinearLayout(ctx);
+        head.setGravity(Gravity.CENTER_VERTICAL);
+        head.setPadding(dp(8), dp(24), dp(16), dp(4));
+        head.addView(iconButton(com.termux.R.drawable.ic_back, t.on, ctx.getString(com.termux.R.string.settings_back), back));
+        head.addView(text(title, 24, t.on, true));
+        return head;
+    }
+
     /** A tappable round icon button 48dp wide. */
     public android.widget.FrameLayout iconButton(int res, int color, CharSequence desc, View.OnClickListener l) {
         android.widget.FrameLayout f = new android.widget.FrameLayout(ctx);

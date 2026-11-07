@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="agent_menu_triggers">Notification rules</string>
     <string name="trig_title">Notification rules</string>
     <string name="trig_info">When a notification matches a rule, the agent does the task you wrote. In "Ask" mode you get a notification with a Run button; "Auto" runs at once. Sending, paying and deleting still ask for confirmation. The notification text is treated as data, not as instructions.</string>
     <string name="trig_access">Notification access: %1$s</string>

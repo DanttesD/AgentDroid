@@ -46,6 +46,7 @@ final class WorkspaceUpdates {
     static boolean autoEnabled(Activity a){return prefs(a).getBoolean("automatic",true);}
     static void autoEnabled(Activity a,boolean enabled){prefs(a).edit().putBoolean("automatic",enabled).apply();}
     static boolean available(Activity a){return prefs(a).getLong("availableCode",0)>com.termux.BuildConfig.VERSION_CODE;}
+    static String availableName(Activity a){return prefs(a).getString("availableName","");}
     static String menuLabel(Activity a){return label(a)+(available(a)?" · "+prefs(a).getString("availableName",""):"");}
     static android.widget.LinearLayout menuRow(Activity a,Runnable manual){
         android.widget.LinearLayout row=new android.widget.LinearLayout(a);row.setGravity(android.view.Gravity.CENTER_VERTICAL);

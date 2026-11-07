@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="agent_menu_appearance">Внешний вид</string>
-    <string name="appearance_title">Внешний вид</string>
-    <string name="appearance_theme">Тема</string>
     <string name="appearance_system">Системная</string>
     <string name="appearance_dark">Тёмная</string>
     <string name="appearance_light">Светлая</string>
@@ -14,10 +11,4 @@
     <string name="appearance_accent">Акцент без Material You</string>
     <string name="appearance_accent_you">Material You включён: акцент следует за обоями. Выбор цвета здесь его выключит</string>
     <string name="appearance_accent_sub">Для старых телефонов или когда Material You выключен</string>
-    <string name="appearance_preview">Предпросмотр</string>
-    <string name="appearance_preview_title">Агент готов</string>
-    <string name="appearance_preview_body">Поверхности, текст и кнопки в выбранных цветах.</string>
-    <string name="appearance_run">Запустить</string>
-    <string name="appearance_add">Добавить</string>
-    <string name="appearance_stop">Стоп</string>
 </resources>

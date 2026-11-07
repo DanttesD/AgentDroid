@@ -6,14 +6,11 @@
     <string name="phone_assistant">Помощник поверх экрана</string><string name="phone_assistant_sub">Плавающая кнопка, голос и текст</string>
     <string name="phone_screen">Управление экраном</string><string name="phone_screen_on">Служба специальных возможностей включена</string><string name="phone_screen_off">Служба выключена: нажмите, чтобы настроить</string>
     <string name="phone_rules">Правила по уведомлениям</string><string name="phone_rules_sub">Запуск агента при новом уведомлении</string>
-    <string name="phone_mcp">Коннектор MCP, безопасность</string><string name="phone_mcp_on">Сервер работает</string><string name="phone_mcp_off">Сервер остановлен</string>
+<string name="phone_mcp_off">Сервер остановлен</string>
     <string name="phone_emergency">Аварийная остановка агента</string>
-    <string name="agents_builtin">Встроенный агент</string><string name="agents_not_set">Модель не выбрана</string><string name="agents_open_chat">Открыть чат</string><string name="agents_workspace">Агенты рабочей области</string>
-    <string name="agents_running">Агенты</string><string name="agents_accounts">Аккаунты</string><string name="agents_no_accounts">Дополнительных аккаунтов пока нет</string><string name="agents_manage">Управление аккаунтами</string>
-    <string name="env_terminal">Терминал</string><string name="env_terminal_sub">Командная строка</string>
-    <string name="env_workspace">Рабочая область</string><string name="env_workspace_sub">Файлы, рабочий стол, серверы, копии</string>
+<string name="agents_not_set">Модель не выбрана</string>    <string name="agents_running">Агенты</string><string name="agents_accounts">Аккаунты</string><string name="agents_no_accounts">Дополнительных аккаунтов пока нет</string>    <string name="env_terminal">Терминал</string><string name="env_terminal_sub">Командная строка</string>
+    <string name="env_workspace">Рабочая область</string><string name="env_workspace_sub">Журнал команд и пресеты запуска</string>
     <string name="env_adb">ADB-консоль</string><string name="env_adb_sub">Отладка по Wi‑Fi</string>
-    <string name="env_web">Браузер</string><string name="env_web_sub">Встроенный браузер</string>
     <string name="env_where">Где выполнять команды</string><string name="env_where_sub">Выбранный способ используют все команды агента</string>
     <string name="chip_screen">Экран</string><string name="chip_tunnel_on">Туннель вкл.</string><string name="chip_tunnel_off">Туннель выкл.</string><string name="tool_done">готово</string><string name="tool_failed">ошибка</string>
     <string name="env_auto">Авто</string><string name="env_sessions">Сессии</string><string name="env_sessions_sub">Открытые сессии</string><string name="env_servers">Серверы</string><string name="env_servers_sub">SSH и расписания</string><string name="env_commands">Команды</string><string name="env_commands_sub">Сохранённые команды</string>

@@ -5,10 +5,8 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -17,99 +15,72 @@ import android.widget.Toast;
 import com.termux.R;
 import com.termux.app.TermuxActivity;
 
-/** Controls the MCP server that lets claude.ai, Claude Code, Codex, OpenCode… use the phone. */
+/**
+ * Two screens in one class, chosen by the extra "section": the connector that lets claude.ai, Claude Code, Codex, OpenCode…
+ * use the phone (server, address, tunnel), and the safety settings of screen control (confirmations, accessibility, blocked apps, log).
+ */
 public class McpActivity extends Activity {
     private TextView status;
     private TextView local;
     private TextView tunnel;
+    private TextView a11yState;
+    private TextView tunnelState;
+    private TextView tunnelButton;
+    private final Runnable tick = this::refresh;
 
     private com.agentdroid.agent.ThemeColors th;
-
     private String themeSig = "";
+    private boolean security;
 
     @Override protected void onCreate(Bundle b) {
         super.onCreate(b);
         th = AppTheme.apply(this);
         themeSig = AppTheme.signature(this);
-        ScrollView sv = new ScrollView(this);
-        sv.setBackgroundColor(th.bg);
-        LinearLayout root = new LinearLayout(this);
-        root.setOrientation(LinearLayout.VERTICAL);
-        int p = dp(14);
-        root.setPadding(p, dp(30), p, p);
-        sv.addView(root);
+        security = "security".equals(getIntent().getStringExtra("section"));
+        setTitle(security ? R.string.mcp_title_security : R.string.mcp_title_connector);
 
         final Ui ui = new Ui(this);
-        LinearLayout cur = root;
-        TextView title = tv(getString(R.string.mcp_title), 26, th.on);
-        title.setTypeface(android.graphics.Typeface.DEFAULT_BOLD);
-        root.addView(title);
-        root.addView(tv(getString(R.string.mcp_intro), 14, th.on2));
-        cur = ui.card();
-        root.addView(cur, ui.gap(14));
-        cur.addView(ui.text(getString(R.string.mcp_card_server), 16, th.on, true));
-        status = tv("", 15, th.p);
-        cur.addView(status);
+        LinearLayout root = ui.column();
+        root.setBackgroundColor(th.bg);
+        root.addView(ui.backHeader(getString(security ? R.string.mcp_title_security : R.string.mcp_title_connector), v -> finish()),
+                new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        LinearLayout col = ui.column();
+        col.setPadding(dp(16), dp(8), dp(16), dp(24));
+        if (security) securityCard(ui, col); else connectorCards(ui, col);
+        root.addView(col);
+        ScrollView sv = new ScrollView(this);
+        sv.setBackgroundColor(th.bg);
+        sv.addView(root);
+        setContentView(sv);
+    }
 
+    /** Server, address with the tunnel, and the cloudflared way for claude.ai. */
+    private void connectorCards(Ui ui, LinearLayout col) {
+        col.addView(tv(getString(R.string.mcp_intro), 14, th.on2));
+
+        LinearLayout server = ui.card();
+        col.addView(server, ui.gap(14));
+        server.addView(ui.text(getString(R.string.mcp_card_server), 16, th.on, true));
+        status = tv("", 15, th.p);
+        server.addView(status);
         TextView start = btn(getString(R.string.mcp_start));
         start.setOnClickListener(v -> { McpService.start(this); v.postDelayed(this::refresh, 800); });
         TextView stop = btn(getString(R.string.mcp_stop));
         stop.setOnClickListener(v -> { McpService.stop(this); v.postDelayed(this::refresh, 500); });
-        final TextView approval = btn("");
-        approval.setOnClickListener(v -> {
-            ApprovalCenter.setMode(this, (ApprovalCenter.mode(this) + 1) % 3);
-            approval.setText(approvalLabel());
-        });
-        approval.setText(approvalLabel());
-        cur.addView(approval);
-        cur.addView(start);
-        cur.addView(stop);
+        server.addView(start);
+        server.addView(stop);
 
-        final TextView stopAgent = btn("");
-        stopAgent.setOnClickListener(v -> {
-            if (McpHost.isRunning()) startService(new Intent(this, McpService.class).setAction(McpService.ACTION_PAUSE));
-            else ActionGuard.setPaused(!ActionGuard.isPaused());
-            v.postDelayed(() -> stopAgent.setText(stopLabel()), 300);
-        });
-        stopAgent.setText(stopLabel());
-        cur.addView(stopAgent);
-
-        cur = ui.card();
-        root.addView(cur, ui.gap(14));
-        cur.addView(ui.text(getString(R.string.mcp_security_title), 16, th.on, true));
-        a11yState = tv("", 14, th.p);
-        cur.addView(a11yState);
-        TextView a11y = btn(getString(R.string.mcp_a11y_open));
-        a11y.setOnClickListener(v -> startActivity(new Intent(android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS)));
-        cur.addView(a11y);
-        TextView a11yAuto = btn(getString(R.string.mcp_a11y_auto));
-        a11yAuto.setOnClickListener(v -> enableA11yViaShell());
-        cur.addView(a11yAuto);
-        TextView awake = btn(getString(R.string.mcp_keepalive));
-        awake.setOnClickListener(v -> keepAliveViaShell());
-        cur.addView(awake);
-        TextView blocked = btn(getString(R.string.mcp_blocked_apps));
-        blocked.setOnClickListener(v -> editBlocked());
-        cur.addView(blocked);
-        TextView logBtn = btn(getString(R.string.mcp_action_log));
-        logBtn.setOnClickListener(v -> showLog());
-        cur.addView(logBtn);
-        final TextView boot = btn("");
-        boot.setOnClickListener(v -> { BootReceiver.setMode(this, (BootReceiver.mode(this) + 1) % 3); boot.setText(bootLabel()); });
-        boot.setText(bootLabel());
-        cur.addView(boot);
-
-        cur = ui.card();
-        root.addView(cur, ui.gap(14));
-        cur.addView(ui.text(getString(R.string.mcp_card_address), 16, th.on, true));
+        LinearLayout address = ui.card();
+        col.addView(address, ui.gap(14));
+        address.addView(ui.text(getString(R.string.mcp_card_address), 16, th.on, true));
         local = tv("", 13, th.on);
-        cur.addView(local);
+        address.addView(local);
         TextView copy = btn(getString(R.string.mcp_copy));
         copy.setOnClickListener(v -> copy(McpHost.localUrl(this)));
-        cur.addView(copy);
+        address.addView(copy);
         TextView renew = btn(getString(R.string.mcp_new_token));
         renew.setOnClickListener(v -> { McpHost.newToken(this); McpService.stop(this); v.postDelayed(this::refresh, 500); });
-        cur.addView(renew);
+        address.addView(renew);
 
         tunnelState = tv("", 14, th.p);
         final TextView tunBtn = btn("");
@@ -124,40 +95,86 @@ public class McpActivity extends Activity {
             if (TunnelManager.url().isEmpty()) toast(R.string.mcp_no_public);
             else copy(TunnelManager.url() + "/mcp/" + McpHost.token(this));
         });
-        cur.addView(tunBtn);
-        cur.addView(tunnelState);
+        address.addView(tunBtn);
+        address.addView(tunnelState);
         TextView ngrokSetup = btn(getString(R.string.mcp_ngrok_setup));
         ngrokSetup.setOnClickListener(v -> askNgrok());
         TextView ngrokInstall = btn(getString(R.string.mcp_ngrok_install));
         ngrokInstall.setOnClickListener(v -> TermuxSessions.run(this, "ngrok", TunnelManager.ngrokInstallScript(), BrowserPicker.SLOTS[0]));
         TextView ngrokSite = btn(getString(R.string.mcp_ngrok_site));
         ngrokSite.setOnClickListener(v -> BrowserPicker.show(this, "https://dashboard.ngrok.com/get-started/your-authtoken"));
-        cur.addView(tv(getString(R.string.mcp_ngrok_hint), 13, th.on2));
-        cur.addView(ngrokSite);
-        cur.addView(ngrokInstall);
-        cur.addView(ngrokSetup);
-        cur.addView(copyPublic);
+        address.addView(tv(getString(R.string.mcp_ngrok_hint), 13, th.on2));
+        address.addView(ngrokSite);
+        address.addView(ngrokInstall);
+        address.addView(ngrokSetup);
+        address.addView(copyPublic);
 
-        cur = ui.card();
-        root.addView(cur, ui.gap(14));
-        cur.addView(ui.text(getString(R.string.mcp_tunnel_title), 16, th.on, true));
+        LinearLayout cloudflared = ui.card();
+        col.addView(cloudflared, ui.gap(14));
+        cloudflared.addView(ui.text(getString(R.string.mcp_tunnel_title), 16, th.on, true));
         tunnel = tv("", 13, th.on2);
-        cur.addView(tunnel);
+        cloudflared.addView(tunnel);
         TextView term = btn(getString(R.string.mcp_open_terminal));
-        term.setOnClickListener(v -> startActivity(new Intent(this, TermuxActivity.class)));
-        cur.addView(term);
+        term.setOnClickListener(v -> startActivity(new Intent(this, TermuxActivity.class)
+                .putExtra("agentdroid_from", getString(security ? R.string.mcp_title_security : R.string.mcp_title_connector))
+                .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)));
+        cloudflared.addView(term);
         TextView cmd = btn(getString(R.string.mcp_copy_tunnel_cmd));
         cmd.setOnClickListener(v -> copy("pkg install -y cloudflared && cloudflared tunnel --url http://127.0.0.1:" + McpHost.port(this)));
-        cur.addView(cmd);
+        cloudflared.addView(cmd);
         TextView claude = btn(getString(R.string.mcp_open_claude));
         claude.setOnClickListener(v -> BrowserPicker.show(this, "https://claude.ai"));
-        cur.addView(claude);
-        setContentView(sv);
+        cloudflared.addView(claude);
     }
 
-    @Override protected void onResume() { super.onResume(); if (!themeSig.equals(AppTheme.signature(this))) { recreate(); return; } ApprovalCenter.onResume(this); refresh(); }
+    /** How much the agent may do on its own and what it may touch. The emergency stop lives on the Phone tab. */
+    private void securityCard(Ui ui, LinearLayout col) {
+        LinearLayout card = ui.card();
+        col.addView(card);
+        card.addView(ui.text(getString(R.string.mcp_security_title), 16, th.on, true));
+        a11yState = tv("", 14, th.p);
+        card.addView(a11yState);
 
-    @Override protected void onPause() { if (tunnelState != null) tunnelState.removeCallbacks(tick); ApprovalCenter.onPause(this); super.onPause(); }
+        final TextView approval = btn("");
+        approval.setOnClickListener(v -> {
+            ApprovalCenter.setMode(this, (ApprovalCenter.mode(this) + 1) % 3);
+            approval.setText(approvalLabel());
+        });
+        approval.setText(approvalLabel());
+        card.addView(approval);
+        TextView a11y = btn(getString(R.string.mcp_a11y_open));
+        a11y.setOnClickListener(v -> startActivity(new Intent(android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS)));
+        card.addView(a11y);
+        TextView a11yAuto = btn(getString(R.string.mcp_a11y_auto));
+        a11yAuto.setOnClickListener(v -> enableA11yViaShell());
+        card.addView(a11yAuto);
+        TextView awake = btn(getString(R.string.mcp_keepalive));
+        awake.setOnClickListener(v -> keepAliveViaShell());
+        card.addView(awake);
+        TextView blocked = btn(getString(R.string.mcp_blocked_apps));
+        blocked.setOnClickListener(v -> editBlocked());
+        card.addView(blocked);
+        TextView logBtn = btn(getString(R.string.mcp_action_log));
+        logBtn.setOnClickListener(v -> showLog());
+        card.addView(logBtn);
+        final TextView boot = btn("");
+        boot.setOnClickListener(v -> { BootReceiver.setMode(this, (BootReceiver.mode(this) + 1) % 3); boot.setText(bootLabel()); });
+        boot.setText(bootLabel());
+        card.addView(boot);
+    }
+
+    @Override protected void onResume() {
+        super.onResume();
+        if (!themeSig.equals(AppTheme.signature(this))) { recreate(); return; }
+        ApprovalCenter.onResume(this);
+        refresh();
+    }
+
+    @Override protected void onPause() {
+        if (tunnelState != null) tunnelState.removeCallbacks(tick);
+        ApprovalCenter.onPause(this);
+        super.onPause();
+    }
 
     private String approvalLabel() {
         int m = ApprovalCenter.mode(this);
@@ -187,10 +204,6 @@ public class McpActivity extends Activity {
                 })
                 .setNegativeButton(R.string.agent_cancel, null).show();
     }
-
-    private TextView a11yState;
-
-    private String stopLabel() { return getString(ActionGuard.isPaused() ? R.string.mcp_resume : R.string.mcp_stop_now); }
 
     private String bootLabel() {
         int m = BootReceiver.mode(this);
@@ -262,30 +275,30 @@ public class McpActivity extends Activity {
                 .setNeutralButton(R.string.mcp_log_clear, (d, w) -> ActionGuard.clearLog(this)).show();
     }
 
-    private TextView tunnelState;
-    private TextView tunnelButton;
-    private final Runnable tick = this::refresh;
-
     private void toast(int res) { android.widget.Toast.makeText(this, res, android.widget.Toast.LENGTH_SHORT).show(); }
 
     private void refresh() {
-        tunnelButton.setText(TunnelManager.isRunning() ? R.string.mcp_tunnel_stop : R.string.mcp_tunnel_start);
-        String st;
-        if (!TunnelManager.error().isEmpty()) st = getString(R.string.mcp_tunnel_err, TunnelManager.error());
-        else if (!TunnelManager.isRunning()) st = getString(R.string.mcp_tunnel_off) + (TunnelManager.ngrokConfigured(this)
-                ? "\n" + getString(TunnelManager.ngrokInstalled() ? R.string.mcp_ngrok_ready : R.string.mcp_ngrok_need_install, TunnelManager.ngrokDomain(this))
-                : "");
-        else if (TunnelManager.isConnected()) st = getString(R.string.mcp_tunnel_ok, TunnelManager.url())
-                + (TunnelManager.note().isEmpty() ? "" : "\n" + getString(R.string.mcp_tunnel_fallback, TunnelManager.note()));
-        else st = getString(R.string.mcp_tunnel_wait);
-        tunnelState.setText(st);
-        tunnelState.removeCallbacks(tick);
-        if (TunnelManager.isRunning()) tunnelState.postDelayed(tick, 1500);
+        if (tunnelButton != null && tunnelState != null) {
+            tunnelButton.setText(TunnelManager.isRunning() ? R.string.mcp_tunnel_stop : R.string.mcp_tunnel_start);
+            String st;
+            if (!TunnelManager.error().isEmpty()) st = getString(R.string.mcp_tunnel_err, TunnelManager.error());
+            else if (!TunnelManager.isRunning()) st = getString(R.string.mcp_tunnel_off) + (TunnelManager.ngrokConfigured(this)
+                    ? "\n" + getString(TunnelManager.ngrokInstalled() ? R.string.mcp_ngrok_ready : R.string.mcp_ngrok_need_install, TunnelManager.ngrokDomain(this))
+                    : "");
+            else if (TunnelManager.isConnected()) st = getString(R.string.mcp_tunnel_ok, TunnelManager.url())
+                    + (TunnelManager.note().isEmpty() ? "" : "\n" + getString(R.string.mcp_tunnel_fallback, TunnelManager.note()));
+            else st = getString(R.string.mcp_tunnel_wait);
+            tunnelState.setText(st);
+            tunnelState.removeCallbacks(tick);
+            if (TunnelManager.isRunning()) tunnelState.postDelayed(tick, 1500);
+        }
         if (a11yState != null) a11yState.setText(getString(AgentAccessibilityService.isRunning() ? R.string.mcp_a11y_on : R.string.mcp_a11y_off));
-        boolean on = McpHost.isRunning();
-        status.setText(on ? getString(R.string.mcp_status_on, McpHost.port(this)) : getString(R.string.mcp_status_off));
-        local.setText(getString(R.string.mcp_local_url, McpHost.localUrl(this)));
-        tunnel.setText(getString(R.string.mcp_tunnel_text, McpHost.port(this), "/mcp/" + McpHost.token(this)));
+        if (status != null) {
+            boolean on = McpHost.isRunning();
+            status.setText(on ? getString(R.string.mcp_status_on, McpHost.port(this)) : getString(R.string.mcp_status_off));
+        }
+        if (local != null) local.setText(getString(R.string.mcp_local_url, McpHost.localUrl(this)));
+        if (tunnel != null) tunnel.setText(getString(R.string.mcp_tunnel_text, McpHost.port(this), "/mcp/" + McpHost.token(this)));
     }
 
     private void copy(String s) {

@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="browser_proxy_menu">Proxy</string>
     <string name="browser_proxy_title">Proxy</string>
     <string name="browser_proxy_hint">Format: host:port, http://host:port or socks5://host:port. Leave empty to turn a proxy off. The two proxies are independent. Reload open pages after saving.</string>
     <string name="browser_proxy_addr">Address (host:port)</string>
@@ -19,10 +18,6 @@
     <string name="netcheck_tier_unknown">No data</string>
     <string name="netcheck_kind_hosting">data-center address</string>
     <string name="netcheck_kind_plain">regular network</string>
-    <string name="env_netcheck">Network check</string>
-    <string name="env_netcheck_sub">Score and IP for AI</string>
-    <string name="env_proxy">Proxy</string>
-    <string name="env_proxy_sub">Browser and AI</string>
     <string name="phone_net">Network for AI</string>
     <string name="phone_net_never">Not checked yet</string>
     <string name="phone_net_sub">Score %1$d · %2$s</string>

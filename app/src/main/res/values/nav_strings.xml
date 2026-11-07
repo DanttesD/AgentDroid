@@ -6,14 +6,11 @@
     <string name="phone_assistant">Screen assistant</string><string name="phone_assistant_sub">Floating button, voice and text</string>
     <string name="phone_screen">Screen control</string><string name="phone_screen_on">Accessibility service is on</string><string name="phone_screen_off">Accessibility service is off: tap to set up</string>
     <string name="phone_rules">Notification rules</string><string name="phone_rules_sub">Run the agent when a notification arrives</string>
-    <string name="phone_mcp">MCP connector, security</string><string name="phone_mcp_on">Server is running</string><string name="phone_mcp_off">Server is stopped</string>
+<string name="phone_mcp_off">Server is stopped</string>
     <string name="phone_emergency">Emergency stop</string>
-    <string name="agents_builtin">Built-in agent</string><string name="agents_not_set">Model is not set</string><string name="agents_open_chat">Open chat</string><string name="agents_workspace">Workspace agents</string>
-    <string name="agents_running">Agents</string><string name="agents_accounts">Accounts</string><string name="agents_no_accounts">No extra accounts yet</string><string name="agents_manage">Manage accounts</string>
-    <string name="env_terminal">Terminal</string><string name="env_terminal_sub">Command line</string>
-    <string name="env_workspace">Workspace</string><string name="env_workspace_sub">Files, desktop, servers, backups</string>
+<string name="agents_not_set">Model is not set</string>    <string name="agents_running">Agents</string><string name="agents_accounts">Accounts</string><string name="agents_no_accounts">No extra accounts yet</string>    <string name="env_terminal">Terminal</string><string name="env_terminal_sub">Command line</string>
+    <string name="env_workspace">Workspace</string><string name="env_workspace_sub">Command journal and launch presets</string>
     <string name="env_adb">ADB console</string><string name="env_adb_sub">Wi-Fi debugging</string>
-    <string name="env_web">Browser</string><string name="env_web_sub">Built-in browser</string>
     <string name="env_where">Where commands run</string><string name="env_where_sub">The agent uses the chosen mode for every command</string>
     <string name="chip_screen">Screen</string><string name="chip_tunnel_on">Tunnel on</string><string name="chip_tunnel_off">Tunnel off</string><string name="tool_done">done</string><string name="tool_failed">failed</string>
     <string name="env_auto">Auto</string><string name="env_sessions">Sessions</string><string name="env_sessions_sub">Open sessions</string><string name="env_servers">Servers</string><string name="env_servers_sub">SSH and schedules</string><string name="env_commands">Commands</string><string name="env_commands_sub">Saved commands</string>

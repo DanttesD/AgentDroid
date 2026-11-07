@@ -38,7 +38,7 @@ public abstract class TabActivity extends Activity {
         TextView title = ui.title(getString(titleRes()));
         head.addView(title, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
         head.addView(ui.iconButton(R.drawable.ic_gear, ui.t.on, getString(R.string.nav_settings),
-                v -> startActivity(new Intent(this, AppearanceActivity.class))));
+                v -> startActivity(new Intent(this, AppSettingsActivity.class))));
         root.addView(head);
 
         ScrollView sv = new ScrollView(this);
@@ -62,8 +62,14 @@ public abstract class TabActivity extends Activity {
 
     @Override protected void onResume() {
         super.onResume();
+        ApprovalCenter.onResume(this);
         if (!themeSig.equals(AppTheme.signature(this))) { recreate(); return; }
         refresh();
+    }
+
+    @Override protected void onPause() {
+        ApprovalCenter.onPause(this);
+        super.onPause();
     }
 
     protected void refresh() {
@@ -93,6 +99,7 @@ public abstract class TabActivity extends Activity {
     protected void openWorkspace(String screen) {
         Intent i = new Intent(this, com.termux.app.TermuxActivity.class);
         if (screen != null) i.putExtra("agentdroid_screen", screen);
+        i.putExtra("agentdroid_from", getString(titleRes()));
         i.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         startActivity(i);
     }
