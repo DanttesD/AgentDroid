@@ -1,9 +1,22 @@
 plugins {
     id 'java-library'
+    // The version comes from the buildscript classpath of the root project (Kotlin Gradle plugin 1.7.22).
+    id 'org.jetbrains.kotlin.jvm'
 }
 
 sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
+
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+    kotlinOptions {
+        jvmTarget = '1.8'
+        // -Xjvm-default=all: default methods of Kotlin interfaces are real Java default methods, so Java classes
+        //   (the app) that implement them keep working without DefaultImpls bridges.
+        // -Xno-*-assertions: the Java code this module replaces accepted null silently; keep that behaviour for
+        //   Java callers instead of throwing at the module boundary.
+        freeCompilerArgs += ['-Xjvm-default=all', '-Xno-param-assertions', '-Xno-call-assertions', '-Xno-receiver-assertions']
+    }
+}
 
 dependencies {
     testImplementation 'junit:junit:4.13.2'
