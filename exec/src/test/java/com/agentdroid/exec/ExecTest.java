@@ -35,6 +35,32 @@ public class ExecTest {
         assertEquals(nasty, r.stdout());
     }
 
+    @Test public void quoteOfNullThrowsNullPointerExceptionNamedValue() {
+        try {
+            ShellQuote.quote(null);
+            fail("expected NullPointerException");
+        } catch (NullPointerException e) {
+            assertEquals("value", e.getMessage());
+        }
+    }
+
+    @Test public void emptyOrNullCommandIsRejectedWithTheSameMessage() {
+        for (String command : new String[] {null, ""}) {
+            try {
+                ExecRequest.of(command);
+                fail("expected IllegalArgumentException");
+            } catch (IllegalArgumentException e) {
+                assertEquals("command is empty", e.getMessage());
+            }
+            try {
+                ExecRequest.builder(command);
+                fail("expected IllegalArgumentException");
+            } catch (IllegalArgumentException e) {
+                assertEquals("command is empty", e.getMessage());
+            }
+        }
+    }
+
     @Test public void exitCodeStdoutAndStderrAreSeparated() throws Exception {
         ExecResult r = sh.exec(ExecRequest.of("echo out; echo err 1>&2; exit 3"));
         assertEquals(3, r.exitCode());

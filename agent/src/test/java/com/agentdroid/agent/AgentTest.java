@@ -136,6 +136,27 @@ public class AgentTest {
         assertTrue(second.contains("\"system\":\"sys\""));
     }
 
+    /** A tool call without a name (malformed stream) reaches the listener with a null name and is answered as an unknown tool. */
+    @Test public void anthropicToolUseWithoutNameIsAnUnknownTool() throws Exception {
+        String base = serve("/v1/messages",
+            sse("{\"type\":\"content_block_start\",\"index\":0,\"content_block\":{\"type\":\"tool_use\",\"id\":\"tu1\",\"input\":{}}}",
+                "{\"type\":\"message_delta\",\"delta\":{\"stop_reason\":\"tool_use\"}}"),
+            sse("{\"type\":\"content_block_start\",\"index\":0,\"content_block\":{\"type\":\"text\",\"text\":\"\"}}",
+                "{\"type\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"text_delta\",\"text\":\"done\"}}",
+                "{\"type\":\"message_delta\",\"delta\":{\"stop_reason\":\"end_turn\"}}"));
+        final List<String> names = new ArrayList<>();
+        final List<String> results = new ArrayList<>();
+        AgentLoop loop = new AgentLoop(new AnthropicProvider(base, "AK", "claude-x", 100), Tools.standard(new FakeBackend(), "/w"),
+            (c, d) -> { fail("an unknown tool must not ask for approval"); return false; }, "sys", 5);
+        String answer = loop.send("go", new StreamListener() {
+            @Override public void onToolCall(ToolCall call) { names.add(String.valueOf(call.name)); }
+            @Override public void onToolResult(ToolCall call, String result, boolean error) { results.add(result + "/" + error); }
+        });
+        assertEquals("done", answer);
+        assertEquals(Collections.singletonList("null"), names);
+        assertEquals(Collections.singletonList("unknown tool: null/true"), results);
+    }
+
     @Test public void deniedApprovalIsReportedToModel() throws Exception {
         String base = serve("/chat/completions",
             sse("{\"choices\":[{\"delta\":{\"tool_calls\":[{\"index\":0,\"id\":\"c1\",\"function\":{\"name\":\"shell\",\"arguments\":\"{\\\"command\\\":\\\"rm -rf x\\\"}\"}}]}}]}"),

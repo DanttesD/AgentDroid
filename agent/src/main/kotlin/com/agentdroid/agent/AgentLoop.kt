@@ -56,6 +56,8 @@ class AgentLoop(
                 listener.onToolCall(call)
                 var result: String
                 var error = false
+                // A call without a name (malformed stream) matches no tool and is answered with "unknown tool: null";
+                // below, a found tool implies a non-null name.
                 val tool = tools[call.name]
                 if (cancelled) {
                     result = "cancelled by user"
@@ -68,7 +70,7 @@ class AgentLoop(
                     val g = guardRef
                     if (g != null) {
                         try {
-                            g.before(call.name, call.args, tool.describe(call.args))
+                            g.before(call.name!!, call.args, tool.describe(call.args))
                         } catch (e: SecurityException) {
                             refused = "refused: " + e.message
                         }
@@ -92,7 +94,7 @@ class AgentLoop(
                     }
                     if (g != null) {
                         try {
-                            g.after(call.name, call.args, result, error)
+                            g.after(call.name!!, call.args, result, error)
                         } catch (ignored: RuntimeException) {
                         }
                     }
@@ -100,7 +102,7 @@ class AgentLoop(
                 if (result.length > MAX_RESULT_CHARS) {
                     result = result.substring(0, MAX_RESULT_CHARS) + "\n...[truncated " + (result.length - MAX_RESULT_CHARS) + " chars]"
                 }
-                val hint = if (tool == null) null else stuck.record(call.name, Json.stringify(call.args), result, error)
+                val hint = if (tool == null) null else stuck.record(call.name!!, Json.stringify(call.args), result, error)
                 if (hint != null) result = result + "\n[hint] " + hint
                 listener.onToolResult(call, result, error)
                 history.add(Message.toolResult(call.id, call.name, result, error))

@@ -6,7 +6,11 @@ object ShellQuote {
 
     /** Wraps a value in single quotes so a POSIX shell treats it literally. */
     @JvmStatic
-    fun quote(value: String): String = "'" + value.replace("'", "'\\''") + "'"
+    fun quote(value: String?): String {
+        // The Java original threw this explicitly; keep the same exception for Java callers.
+        if (value == null) throw NullPointerException("value")
+        return "'" + value.replace("'", "'\\''") + "'"
+    }
 
     /** True for names that are safe to use as an environment variable name. */
     @JvmStatic

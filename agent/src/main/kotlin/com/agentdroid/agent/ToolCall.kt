@@ -4,6 +4,6 @@ package com.agentdroid.agent
 @JvmSuppressWildcards
 class ToolCall(
     @JvmField val id: String?,
-    @JvmField val name: String,
+    @JvmField val name: String?,
     @JvmField val args: Map<String, Any?>,
 )

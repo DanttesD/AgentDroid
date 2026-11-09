@@ -33,7 +33,7 @@ class ExecRequest private constructor(
         return sb.toString()
     }
 
-    class Builder internal constructor(command: String) {
+    class Builder internal constructor(command: String?) {
         private val command: String
         private var workingDir: String? = null
         private val env = LinkedHashMap<String, String>()
@@ -41,7 +41,7 @@ class ExecRequest private constructor(
         private var timeoutMs: Long = DEFAULT_TIMEOUT_MS
 
         init {
-            require(command.isNotEmpty()) { "command is empty" }
+            require(command != null && command.isNotEmpty()) { "command is empty" }
             this.command = command
         }
 
@@ -74,9 +74,9 @@ class ExecRequest private constructor(
         const val DEFAULT_TIMEOUT_MS: Long = 120_000L
 
         @JvmStatic
-        fun builder(command: String): Builder = Builder(command)
+        fun builder(command: String?): Builder = Builder(command)
 
         @JvmStatic
-        fun of(command: String): ExecRequest = builder(command).build()
+        fun of(command: String?): ExecRequest = builder(command).build()
     }
 }

@@ -103,7 +103,7 @@ class AnthropicProvider(
         for (b in blocks.values) {
             val raw = b.args.toString()
             val args: Map<String, Any?> = if (raw.jtrim().isEmpty()) LinkedHashMap() else Json.parseObject(raw)
-            out.add(ToolCall(b.id, b.name ?: "", args))
+            out.add(ToolCall(b.id, b.name, args))
         }
         return Reply(text.toString(), out, stop)
     }
