@@ -1,0 +1,239 @@
+apply plugin: 'com.android.library'
+// The version comes from the buildscript classpath of the root project (Kotlin Gradle plugin 1.7.22).
+apply plugin: 'org.jetbrains.kotlin.android'
+apply plugin: 'maven-publish'
+
+// ---------------------------------------------------------------------------------------------------------------------
+// libtermux.so (the JNI part of the terminal: pty, fork/exec, waitpid) is written in Rust (src/main/rust).
+// The former C implementation (src/main/jni/termux.c) stays as the fallback and for build-local-arm64.sh.
+//
+//   -PterminalNative=auto   (default) every ABI is built from Rust; if that is impossible (no rustc, no Rust target and
+//                           no rustup, linker error) the C source is compiled instead and a warning says why
+//   -PterminalNative=rust   Rust only: any problem fails the build
+//   -PterminalNative=c      C only: rustc is not needed
+//   -PterminalNativeAbis=arm64-v8a,x86_64   build only these ABIs (default: all four)
+//
+// A libtermux.so that already lies in src/main/jniLibs/<abi>/ (build-local-arm64.sh puts it there) switches the task
+// off completely, exactly as such a library did with the former ndkBuild step.
+// ---------------------------------------------------------------------------------------------------------------------
+def terminalNativeDir = new File(buildDir, 'terminalNative/jniLibs')
+
+android {
+    compileSdkVersion project.properties.compileSdkVersion.toInteger()
+    ndkVersion = System.getenv("JITPACK_NDK_VERSION") ?: project.properties.ndkVersion
+
+    defaultConfig {
+        minSdkVersion project.properties.minSdkVersion.toInteger()
+        targetSdkVersion project.properties.targetSdkVersion.toInteger()
+
+        ndk {
+            abiFilters 'x86', 'x86_64', 'armeabi-v7a', 'arm64-v8a'
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    sourceSets {
+        main {
+            // libtermux.so for every ABI is produced by the buildTerminalNative task below.
+            jniLibs.srcDir terminalNativeDir
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = '1.8'
+        // -Xjvm-default=all: default methods of Kotlin interfaces are real Java default methods, so the Java classes
+        //   of terminal-view, termux-shared and the app that implement them keep working without DefaultImpls bridges.
+        // -Xno-*-assertions: the Java code this module replaces accepted null silently; keep that behaviour for
+        //   Java callers instead of throwing at the module boundary.
+        freeCompilerArgs += ['-Xjvm-default=all', '-Xno-param-assertions', '-Xno-call-assertions', '-Xno-receiver-assertions']
+    }
+
+    testOptions {
+        unitTests.returnDefaultValues = true
+    }
+}
+
+tasks.withType(Test) {
+    testLogging {
+        events "started", "passed", "skipped", "failed"
+    }
+}
+
+dependencies {
+    testImplementation 'junit:junit:4.13.2'
+}
+
+tasks.register('buildTerminalNative') {
+    group = 'build'
+    description = 'Builds libtermux.so for every ABI: Rust (src/main/rust), with src/main/jni/termux.c as the fallback.'
+
+    // ABI name -> Rust target and the prefix of the NDK clang wrapper
+    def abis = [
+            'arm64-v8a'  : [rust: 'aarch64-linux-android',   clang: 'aarch64-linux-android'],
+            'armeabi-v7a': [rust: 'armv7-linux-androideabi', clang: 'armv7a-linux-androideabi'],
+            'x86'        : [rust: 'i686-linux-android',      clang: 'i686-linux-android'],
+            'x86_64'     : [rust: 'x86_64-linux-android',    clang: 'x86_64-linux-android'],
+    ]
+    def mode = (project.findProperty('terminalNative') ?: 'auto').toString().trim()
+    def wantedAbis = (project.findProperty('terminalNativeAbis') ?: abis.keySet().join(',')).toString().split(',')*.trim().findAll { it }
+    def prebuilt = fileTree('src/main/jniLibs') { include '*/libtermux.so' }
+
+    inputs.files(fileTree('src/main/rust') { include '**/*.rs' }, file('src/main/jni/termux.c'))
+    inputs.property('mode', mode)
+    inputs.property('abis', wantedAbis)
+    outputs.dir(terminalNativeDir)
+    onlyIf { prebuilt.isEmpty() }
+
+    doLast {
+        if (!(mode in ['auto', 'rust', 'c'])) throw new GradleException("-PterminalNative must be auto, rust or c, not '$mode'")
+        def unknown = wantedAbis.findAll { !abis.containsKey(it) }
+        if (unknown) throw new GradleException("-PterminalNativeAbis: unknown ABI ${unknown} (known: ${abis.keySet()})")
+
+        def os = org.gradle.internal.os.OperatingSystem.current()
+        def hostTag = os.isMacOsX() ? 'darwin-x86_64' : (os.isWindows() ? 'windows-x86_64' : 'linux-x86_64')
+        def wrapperSuffix = os.isWindows() ? '.cmd' : ''
+        def api = project.properties.minSdkVersion.toInteger()
+        def jniSymbols = ['createSubprocess', 'setPtyWindowSize', 'setPtyUTF8Mode', 'waitFor', 'close']
+                .collect { 'Java_com_termux_terminal_JNI_' + it }
+
+        // NDKs: the one the project pins (ndkVersion) for the C code, the newest installed one for linking Rust.
+        def versionKey = { String name -> name.split('\\.').collect { it.isInteger() ? it.toInteger() : 0 } }
+        def newerFirst = { File a, File b ->
+            def x = versionKey(a.name), y = versionKey(b.name)
+            for (int i = 0; i < Math.max(x.size(), y.size()); i++) {
+                int p = i < x.size() ? x[i] : 0, q = i < y.size() ? y[i] : 0
+                if (p != q) return q <=> p
+            }
+            return 0
+        }
+        def pinnedNdk = android.ndkDirectory
+        def installedNdks = (new File(android.sdkDirectory, 'ndk').listFiles() ?: new File[0]).findAll { it.isDirectory() }.sort(false, newerFirst)
+        def clangFor = { List<File> ndks, String prefix ->
+            for (File ndk : ndks) {
+                def f = new File(ndk, "toolchains/llvm/prebuilt/${hostTag}/bin/${prefix}${api}-clang${wrapperSuffix}")
+                if (f.isFile()) return f
+            }
+            return null
+        }
+
+        def run = { List<String> cmd ->
+            def log = new ByteArrayOutputStream()
+            try {
+                def result = project.exec {
+                    commandLine cmd.collect { it.toString() }
+                    workingDir projectDir
+                    standardOutput = log
+                    errorOutput = log
+                    ignoreExitValue = true
+                }
+                return [code: result.exitValue, text: log.toString('UTF-8')]
+            } catch (Exception e) {
+                return [code: -1, text: "${cmd[0]}: ${e.message}"]
+            }
+        }
+        def tail = { String text -> text.trim().readLines().takeRight(25).join('\n') }
+
+        def checkExports = { File lib ->
+            if (!lib.isFile() || lib.length() == 0) throw new GradleException("${lib} was not produced")
+            def text = new String(lib.bytes, 'ISO-8859-1')
+            def missing = jniSymbols.findAll { !text.contains(it) }
+            if (missing) throw new GradleException("${lib.name} does not export ${missing}")
+        }
+
+        def buildRust = { String abi, Map t, File out ->
+            if (run(['rustc', '--version']).code != 0) {
+                // not on PATH: the usual rustup location
+                throw new GradleException('rustc was not found on PATH')
+            }
+            def libdir = run(['rustc', '--print', 'target-libdir', '--target', t.rust]).text.trim()
+            def hasCore = { new File(libdir).listFiles()?.any { it.name.startsWith('libcore-') && it.name.endsWith('.rlib') } }
+            if (!hasCore()) {
+                def r = run(['rustup', 'target', 'add', t.rust])
+                if (r.code != 0 || !hasCore()) throw new GradleException("the Rust target ${t.rust} is not installed and 'rustup target add' failed:\n${tail(r.text)}")
+            }
+            def linker = clangFor(installedNdks + [pinnedNdk], t.clang)
+            if (linker == null) throw new GradleException("no NDK clang wrapper ${t.clang}${api}-clang in ${installedNdks + [pinnedNdk]}")
+            def r = run(['rustc', '--edition', '2021', '--crate-type', 'cdylib', '--crate-name', 'termux', '--target', t.rust,
+                         '-C', 'opt-level=s', '-C', 'panic=abort', '-C', 'strip=symbols',
+                         "--remap-path-prefix=${projectDir}=terminal-emulator",
+                         '-C', "linker=${linker}", '-C', 'link-arg=-fuse-ld=lld',
+                         '-C', 'link-arg=-Wl,--gc-sections', '-C', 'link-arg=-Wl,-z,max-page-size=16384',
+                         '-C', 'link-arg=-Wl,-soname,libtermux.so',
+                         '-o', out.absolutePath, 'src/main/rust/lib.rs'])
+            if (r.code != 0) throw new GradleException("rustc failed for ${t.rust}:\n${tail(r.text)}")
+        }
+
+        def buildC = { String abi, Map t, File out ->
+            def cc = clangFor([pinnedNdk] + installedNdks, t.clang)
+            if (cc == null) throw new GradleException("no NDK clang wrapper ${t.clang}${api}-clang in ${[pinnedNdk] + installedNdks}")
+            def r = run([cc.absolutePath, '-shared', '-fPIC', '-std=c11', '-Wall', '-Wextra', '-Werror', '-Os', '-fno-stack-protector',
+                         '-ffunction-sections', '-fdata-sections',
+                         '-Wl,--gc-sections', '-Wl,--no-undefined', '-Wl,-z,noexecstack', '-Wl,-z,relro', '-Wl,-z,now',
+                         '-Wl,-z,max-page-size=16384', '-Wl,-soname,libtermux.so',
+                         '-o', out.absolutePath, 'src/main/jni/termux.c'])
+            if (r.code != 0) throw new GradleException("clang failed for ${abi}:\n${tail(r.text)}")
+        }
+
+        project.delete(terminalNativeDir)
+        wantedAbis.each { abi ->
+            def t = abis[abi]
+            def out = new File(terminalNativeDir, "${abi}/libtermux.so")
+            out.parentFile.mkdirs()
+            def how = null, why = null
+            if (mode != 'c') {
+                try {
+                    buildRust(abi, t, out)
+                    checkExports(out)
+                    how = 'Rust'
+                } catch (GradleException e) {
+                    out.delete()
+                    if (mode == 'rust') throw new GradleException("terminal-emulator [${abi}]: the Rust build failed: ${e.message}", e)
+                    why = e.message
+                }
+            }
+            if (how == null) {
+                buildC(abi, t, out)
+                checkExports(out)
+                how = 'C'
+            }
+            if (why != null) logger.warn("WARNING terminal-emulator [${abi}]: libtermux.so was built from the C source because the Rust build failed: ${why}")
+            logger.lifecycle("terminal-emulator [${abi}]: libtermux.so built from ${how} (${out.length()} bytes)")
+        }
+    }
+}
+
+// Every task that collects the jniLibs source directories needs the libraries first.
+tasks.matching { it.name ==~ /merge.*JniLibFolders/ }.configureEach { dependsOn 'buildTerminalNative' }
+
+task sourceJar(type: Jar) {
+    // Kotlin sources live in src/main/kotlin; a Set keeps the directory once even if the Kotlin plugin also lists it
+    // among the Java source directories.
+    from android.sourceSets.main.java.srcDirs + [file('src/main/kotlin')]
+    classifier "sources"
+}
+
+afterEvaluate {
+    publishing {
+        publications {
+            // Creates a Maven publication called "release".
+            release(MavenPublication) {
+                from components.release
+                groupId = 'com.termux'
+                artifactId = 'terminal-emulator'
+                version = '0.118.0'
+                artifact(sourceJar)
+            }
+        }
+    }
+}

@@ -21,11 +21,9 @@ mkdir -p $V/out $V/cwd
 case "${1:-}" in
 libs)
   mkdir -p $V/lib_c $V/lib_rs $V/inc $V/tools_out
-  # Android's own jni.h from the NDK sysroot (only this header; the libc headers come from the Termux clang)
-  JH=$(ls $W/sdk/ndk/*/toolchains/llvm/prebuilt/*/sysroot/usr/include/jni.h | head -1)
-  echo "jni.h: $JH"; cp "$JH" $V/inc/jni.h
+  echo "jni.h used for the C baseline: $(echo '#include <jni.h>' | clang -E -H -x c - 2>&1 >/dev/null | head -1)"
   clang --version | head -1
-  clang -shared -fPIC -std=c11 -Wall -Wextra -Werror -Os -fno-stack-protector -I$V/inc \
+  clang -shared -fPIC -std=c11 -Wall -Wextra -Werror -Os -fno-stack-protector \
       $V/terminal-emulator/src/main/jni/termux.c -o $V/lib_c/libtermux.so && echo "C lib ok"
   rustc --version
   rustc $RUSTFLAGS_COMMON $RUSTSRC/lib.rs -o $V/lib_rs/libtermux.so && echo "Rust lib ok"

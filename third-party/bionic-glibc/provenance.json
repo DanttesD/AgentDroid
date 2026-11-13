@@ -1,0 +1,66 @@
+{
+  "name": "Bionic for glibc (Experimental)",
+  "scope": "six ordinary glibc desktops (Ubuntu, Debian, Fedora, Arch, openSUSE, Void), separate runtime/driver caches; no vendor drivers bundled",
+  "libhybris": {
+    "url": "https://github.com/taowen/libhybris",
+    "commit": "07dfa88569d60f00e34a9f127ccae2fcc0730618",
+    "patch": "libhybris.patch"
+  },
+  "wsi": {
+    "url": "https://github.com/xMeM/vulkan-wsi-layer",
+    "commit": "d5624d42d8b2debbd910ad25662a05c751eb38b7",
+    "patch": "wsi.patch"
+  },
+  "icd": {
+    "source": "x11/src/bridge/bionic-icd.c",
+    "sha256": "338c34fed7e1108d08afefacbc5d958974af0893f900223026d9a32a7876b700",
+    "libraryFlags": [
+      "NODELETE"
+    ],
+    "nativeBufferImport": "Qualcomm proprietary driver only; exact BGRA UNORM AHardwareBuffer format, queried import memory type/size/usage"
+  },
+  "androidHeaders": {
+    "url": "https://github.com/Halium/android-headers",
+    "commit": "2c6ac3dcc4f8db593dd69906b0ec22822abfed91"
+  },
+  "mesa": {
+    "url": "https://archive.mesa3d.org/mesa-26.2.5.tar.xz",
+    "sha256": "794b3d1729075dae7ebd47c7283b7ca0cdb5dec668f7f11cc0a5d82f6138a0a5",
+    "sourceChanges": [],
+    "compatibilitySource": "x11/src/bridge/mesa-libm-compat.c",
+    "compatibilitySourceSHA256": "0c3c02c2c7580441d4385567e46e547cd2907716bbcc884b2b01286f05cafd74",
+    "galliumDrivers": [
+      "zink"
+    ],
+    "vulkanDrivers": [],
+    "llvm": false,
+    "scope": "private library path for selected glibc Bionic-for-glibc desktop only; no installed library replacement"
+  },
+  "references": [
+    "https://github.com/wmww/tawc/blob/main/notes/gpu-strategy.md",
+    "https://github.com/kde-yyds/android-vulkan-bridge"
+  ],
+  "bundle": {
+    "file": "ubuntu-arm64-runtime.zip",
+    "bytes": 6103917,
+    "sha256": "e05b6abb19916e007330e19566b8833f10505133505d786bee127a71f1e4aa1d",
+    "files": {
+      "bionic-icd.json": "239b6c2b697244da93695e98f1a34cc53f7cb533d31b41be710e902b1ad72f18",
+      "libVkLayer_window_system_integration.so": "acbdf178a5d4421610d0f2cd9e275c7506236ddf99cc3ac282eb551b97b41511",
+      "libhybris-common.so.1": "001658b3514e038b12abc0ae70240c059fb6bd64235da72f6de228ab78e43f37",
+      "libjobs-bionic.so": "63e7c04cff0e1966382ac7d68ebc0d4fb10b0b0b6f269082d37ef43b1d5dc2d7",
+      "linker/q.so": "3f7f01e8ce80da36484cc69b236c3af872f0dcb2e687bbb1c475b8b47406e398",
+      "share/vulkan/implicit_layer.d/jobs-bionic.json": "fea96385d9898ec40a812c84929526a09f95f9d2016703c97c45044436524adc",
+      "mesa/libGLX_mesa.so.0": "447bed95fcbe296b1dc33b9125698e42829f73745ed1aaf2f7928bdcf210d853",
+      "mesa/libEGL_mesa.so.0": "0f81645a2587faf5824b268f807ef6b421fae3c75b34518ea1ee5971369f4c11",
+      "mesa/libgallium-26.2.5.so": "31ef0caec0651eb46f1c9069dafd2234aa303749264400d9b5dede564278ecdc"
+    }
+  },
+  "requirements": {
+    "arch": "aarch64",
+    "libc": "glibc >= 2.38",
+    "cxx": "GLIBCXX_3.4.32",
+    "android": "API >= 29; Android 16/API 36 tested"
+  },
+  "evidence": "docs/fork/BIONIC_GLIBC.md"
+}

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="browser_proxy_title">Прокси</string>
+    <string name="browser_proxy_hint">Формат: host:port, http://host:port или socks5://host:port. Пусто — этот прокси выключен. Два прокси независимы. После сохранения перезагрузи открытые страницы.</string>
+    <string name="browser_proxy_addr">Адрес (host:port)</string>
+    <string name="browser_proxy_user">Логин (необязательно)</string>
+    <string name="browser_proxy_pass">Пароль (необязательно)</string>
+    <string name="browser_proxy_save">Сохранить</string>
+    <string name="browser_proxy_on">Прокси браузера включён</string>
+    <string name="browser_proxy_off">Прокси браузера выключен</string>
+    <string name="browser_proxy_unsupported">Эта версия WebView не поддерживает прокси; обнови Android System WebView.</string>
+    <string name="netcheck_title">Проверка сети</string>
+    <string name="netcheck_again">Повторить</string>
+    <string name="netcheck_checking">Проверяю…</string>
+    <string name="netcheck_tier_low">Низкая вероятность бана</string>
+    <string name="netcheck_tier_mid">Средняя вероятность бана</string>
+    <string name="netcheck_tier_high">Высокая вероятность бана</string>
+    <string name="netcheck_tier_unknown">Нет данных</string>
+    <string name="netcheck_kind_hosting">адрес дата-центра</string>
+    <string name="netcheck_kind_plain">обычная сеть</string>
+    <string name="phone_net">Сеть для ИИ</string>
+    <string name="phone_net_never">Ещё не проверялась</string>
+    <string name="phone_net_sub">Балл %1$d · %2$s</string>
+    <string name="netcheck_proxy_short">Прокси</string>
+    <string name="browser_proxy_sec_browser">Прокси браузера</string>
+    <string name="browser_proxy_sec_browser_hint">Только встроенный браузер, включая проверку сети.</string>
+    <string name="browser_proxy_sec_app">Прокси приложения</string>
+    <string name="browser_proxy_sec_app_hint">Собственные запросы приложения к ИИ-моделям (Claude, OpenAI и др.). Локальные адреса идут напрямую.</string>
+</resources>

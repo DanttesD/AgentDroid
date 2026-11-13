@@ -1,0 +1,12 @@
+name: Release publication notes
+# Upstream automation generated differently signed APKs and could delete releases.
+# Official fork APKs are verified and uploaded manually using the persistent local key.
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  instructions:
+    runs-on: ubuntu-22.04
+    steps:
+      - run: echo 'Publish a locally signed APK with matching source tag and SHA256SUMS. CI artifacts use independent test keys.'

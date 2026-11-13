@@ -1,0 +1,258 @@
+name: Build bootstrap (com.agentdroid)
+
+# Builds the Termux bootstrap for our package name from the pinned termux-packages
+# commit (see bootstrap/fork.env). Takes a long time (compiles packages), run on demand.
+on:
+  workflow_dispatch:
+    inputs:
+      heavy_packages:
+        description: "Very heavy packages to compile in this run (space separated, e.g. clang). Needs ~3 h; the result stays in the build cache and in the apt repository"
+        required: false
+        default: ""
+      extra_packages:
+        description: "Extra packages baked into the bootstrap (space separated); empty = bootstrap/fork.env"
+        required: false
+        default: ""
+
+permissions:
+  contents: write   # create the release with the archive
+  pages: write      # publish the apt repository
+  id-token: write
+
+concurrency:
+  group: bootstrap
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    steps:
+      - name: Checkout fork
+        uses: actions/checkout@v4
+
+      - name: Load settings
+        run: |
+          set -a; . bootstrap/fork.env; set +a
+          extra="${{ github.event.inputs.extra_packages }}"
+          echo "TERMUX_PACKAGES_REF=$TERMUX_PACKAGES_REF" >> "$GITHUB_ENV"
+          echo "EXTRA=${extra:-$AGENTDROID_BOOTSTRAP_EXTRA}" >> "$GITHUB_ENV"
+
+      - name: Free disk space
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL
+          df -h /
+
+      - name: Fetch termux-packages at the pinned commit
+        run: |
+          git init termux-packages
+          git -C termux-packages remote add origin https://github.com/termux/termux-packages.git
+          git -C termux-packages fetch --depth 1 origin "$TERMUX_PACKAGES_REF"
+          git -C termux-packages checkout FETCH_HEAD
+
+      - name: Configure for our package name
+        run: bootstrap/configure-termux-packages.sh termux-packages
+
+      # The whole build can exceed the 6 hour job limit. /data (installed dependencies and
+      # "already built" markers) and output/ (finished .deb files) are cached, so a re-run
+      # continues where the previous run stopped instead of starting from zero.
+      - name: Prepare host /data for the build container
+        run: |
+          sudo mkdir -p /data/data
+          sudo chown -R "$(id -u):$(id -g)" /data
+          # run-docker.sh -m mounts $HOME/.termux-build; if it is missing Docker creates it
+          # owned by root and the build user in the container gets "Permission denied".
+          mkdir -p "$HOME/.termux-build"
+          chmod -R a+rwX /data "$HOME/.termux-build"
+
+      - name: Restore build cache
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            /data/data/.built-packages
+            /data/data/com.agentdroid
+            termux-packages/output
+          key: termux-build-v2-${{ github.run_id }}
+          restore-keys: termux-build-v2-
+
+      - name: Build bootstrap archive (aarch64)
+        working-directory: termux-packages
+        run: |
+          set -o pipefail
+          sudo chmod -R a+rwX /data "$HOME/.termux-build" termux-packages 2>/dev/null || true
+          # leave time for saving the cache: stop the build after 5h15m (re-run to continue)
+          timeout 315m ./scripts/run-docker.sh -m ./scripts/build-bootstraps.sh \
+            --architectures aarch64 ${EXTRA:+--add "$(echo $EXTRA | tr ' ' ',')"} 2>&1 | tee ../build.log
+
+
+      - name: Report the end of the build log
+        if: failure()
+        run: |
+          for f in build.log packages-build.log; do
+            [ -f "$f" ] || continue
+            msg=$(tail -n 60 "$f" | cut -c1-300 | sed 's/\x1b\[[0-9;]*[A-Za-z]//g' | sed ':a;N;$!ba;s/%/%25/g;s/\r/%0D/g;s/\n/%0A/g')
+            echo "::error title=End of $f::$msg"
+          done
+
+      - name: Verify the archive uses our prefix and not com.termux
+        working-directory: termux-packages
+        run: |
+          if [ ! -f output/bootstrap-aarch64.zip ]; then
+            found=$(find . /home/builder -maxdepth 3 -name 'bootstrap-*.zip' 2>/dev/null | head -5)
+            tail60=$(tail -n 60 ../build.log | cut -c1-250 | sed 's/\x1b\[[0-9;]*[A-Za-z]//g')
+            msg=$(printf 'bootstrap-aarch64.zip not found. other zips: [%s]\n---\n%s' "$found" "$tail60" | sed ':a;N;$!ba;s/%/%25/g;s/\r/%0D/g;s/\n/%0A/g')
+            echo "::error title=no bootstrap zip::$msg"
+            exit 1
+          fi
+          rm -rf /tmp/bs && mkdir /tmp/bs && unzip -q output/bootstrap-aarch64.zip -d /tmp/bs
+          ls -la output/bootstrap-aarch64.zip
+          # headers/docs and shell comment lines (# ...) may mention the old path; they are not used at runtime
+          bad=$(grep -rIl "/data/data/com.termux/" /tmp/bs 2>/dev/null | sed 's|^/tmp/bs/||' | grep -Ev '^(include|share/(doc|man|info|fish|bash-completion|zsh))/|/completions/|\.dist-info/' | while read -r f; do grep -a "/data/data/com.termux/" "/tmp/bs/$f" | grep -qvE '^[[:space:]]*#' && echo "$f"; done | head -20 || true)
+          ign=$(grep -rIl "/data/data/com.termux/" /tmp/bs 2>/dev/null | sed 's|^/tmp/bs/||' | grep -Ecv '^$' || true)
+          echo "files mentioning old path in total (headers/docs are ignored): $ign"
+          good=$(grep -rIl "/data/data/com.agentdroid/files/usr" /tmp/bs 2>/dev/null | wc -l || true)
+          echo "files mentioning our prefix: $good"
+          if [ -n "$bad" ]; then
+            echo "files still mentioning /data/data/com.termux/:"; echo "$bad"
+            ex=$(echo "$bad" | head -5 | while read -r f; do printf '%s: ' "$f"; grep -m1 -a "/data/data/com.termux/" "/tmp/bs/$f" | cut -c1-160; done)
+            msg=$(printf 'good=%s\n%s\n---\n%s' "$good" "$bad" "$ex" | sed ':a;N;$!ba;s/%/%25/g;s/\r/%0D/g;s/\n/%0A/g')
+            echo "::error title=archive still references com.termux::$msg"
+            exit 1
+          fi
+          if [ "$good" -eq 0 ]; then
+            echo "::error title=archive does not reference our prefix::no file mentions /data/data/com.agentdroid/files/usr"
+            exit 1
+          fi
+          ( cd output && sha256sum bootstrap-aarch64.zip ) | tee ../bootstrap-aarch64.zip.sha256
+
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag="bootstrap-$(date +%Y.%m.%d)-${GITHUB_RUN_NUMBER}"
+          # GitHub sometimes answers HTTP 500 here; retry, and finish an interrupted release instead of failing.
+          for attempt in 1 2 3 4; do
+            if gh release view "$tag" >/dev/null 2>&1; then
+              gh release upload "$tag" termux-packages/output/bootstrap-aarch64.zip bootstrap-aarch64.zip.sha256 --clobber && break
+            else
+              gh release create "$tag" termux-packages/output/bootstrap-aarch64.zip bootstrap-aarch64.zip.sha256 \
+                --title "Bootstrap $tag" --notes "Built from termux-packages $TERMUX_PACKAGES_REF for com.agentdroid" && break
+            fi
+            echo "release attempt $attempt failed, retrying"; sleep $((attempt*20))
+            [ "$attempt" -lt 4 ] || { echo "::warning title=Release::could not publish the bootstrap release; the apt repository is still published"; break; }
+          done
+          sha=$(cut -d' ' -f1 bootstrap-aarch64.zip.sha256)
+          {
+            echo "### Put this into bootstrap/bootstrap.properties"
+            echo '```'
+            echo "url.aarch64=https://github.com/${GITHUB_REPOSITORY}/releases/download/$tag/bootstrap-aarch64.zip"
+            echo "sha256.aarch64=$sha"
+            echo '```'
+          } | tee -a "$GITHUB_STEP_SUMMARY"
+
+      - name: Build extra packages for the apt repository
+        working-directory: termux-packages
+        run: |
+          set -o pipefail
+          pkgs=$(../bootstrap/resolve-package-names.sh . < ../bootstrap/packages.list | tr '\n' ' ')
+          [ -n "$pkgs" ] || exit 0
+          echo "building: $pkgs"
+          sudo chmod -R a+rwX /data "$HOME/.termux-build" . 2>/dev/null || true
+          timeout 200m ./scripts/run-docker.sh -m ./build-package.sh -a aarch64 $pkgs 2>&1 | tee ../packages-build.log
+
+      - name: Build optional graphics packages (VirGL)
+        working-directory: termux-packages
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          pkgs=$(../bootstrap/resolve-package-names.sh . < ../bootstrap/packages-optional.list | tr '\n' ' ')
+          [ -n "$pkgs" ] || exit 0
+          echo "building optional: $pkgs"
+          sudo chmod -R a+rwX /data "$HOME/.termux-build" . 2>/dev/null || true
+          timeout 100m ./scripts/run-docker.sh -m ./build-package.sh -a aarch64 $pkgs 2>&1 | tee ../packages-optional-build.log
+
+      - name: Build heavy packages (clang etc.)
+        if: ${{ github.event.inputs.heavy_packages != '' }}
+        working-directory: termux-packages
+        continue-on-error: true
+        env:
+          HEAVY: ${{ github.event.inputs.heavy_packages }}
+        run: |
+          set -o pipefail
+          printf '%s\n' $HEAVY > ../heavy.list
+          pkgs=$(../bootstrap/resolve-package-names.sh . < ../heavy.list | tr '\n' ' ')
+          [ -n "$pkgs" ] || exit 0
+          echo "building heavy: $pkgs"
+          sudo chmod -R a+rwX /data "$HOME/.termux-build" . 2>/dev/null || true
+          # one LLVM build does not resume (its build directory is not cached), so give it nearly all remaining job time
+          timeout 280m ./scripts/run-docker.sh -m ./build-package.sh -a aarch64 $pkgs 2>&1 | tee ../packages-heavy-build.log
+
+      - name: Make build files readable for caching
+        if: always()
+        run: sudo chmod -R a+rX /data termux-packages/output 2>/dev/null || true
+
+      - name: Save build cache
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            /data/data/.built-packages
+            /data/data/com.agentdroid
+            termux-packages/output
+          key: termux-build-v2-${{ github.run_id }}
+
+      - name: Collect .deb files
+        run: |
+          mkdir -p debs
+          # upload-artifact refuses ':' in file names (the epoch of e.g. ca-certificates-java_1:2026...);
+          # Debian repositories spell it %3a in pool file names, so do the same
+          for f in termux-packages/output/*.deb; do
+            b=$(basename "$f"); cp "$f" "debs/${b//:/%3a}"
+          done
+          ls debs | wc -l
+
+      - name: Keep the debs and logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: debs-${{ github.run_number }}
+          path: |
+            debs/*.deb
+            build.log
+            packages-build.log
+            packages-optional-build.log
+            packages-heavy-build.log
+          if-no-files-found: warn
+
+      - name: Hand the debs to the publish job
+        uses: actions/upload-artifact@v4
+        with:
+          name: debs
+          path: debs/*.deb
+          retention-days: 3
+
+  publish-apt:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: debs
+          path: debs
+      - name: Build the signed repository
+        env:
+          GPG_PRIVATE_KEY: ${{ secrets.APT_GPG_PRIVATE_KEY }}
+        run: |
+          test -n "$GPG_PRIVATE_KEY" || { echo "secret APT_GPG_PRIVATE_KEY is not set" >&2; exit 1; }
+          sudo apt-get install -y dpkg-dev >/dev/null
+          bootstrap/make-apt-repo.sh debs site/apt
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+      - id: deploy
+        uses: actions/deploy-pages@v4

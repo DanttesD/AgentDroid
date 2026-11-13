@@ -1,0 +1,27 @@
+name: Cache probe
+# A 1-minute check of whether the Actions cache can be saved and restored right now
+# (the bootstrap build needs it; GitHub sometimes blocks it with "Egress is over the account limit").
+on:
+  workflow_dispatch:
+jobs:
+  save:
+    runs-on: ubuntu-latest
+    steps:
+      - run: mkdir probe && head -c 20000000 /dev/urandom > probe/data.bin
+      - uses: actions/cache/save@v4
+        with:
+          path: probe
+          key: probe-${{ github.run_id }}
+  restore:
+    needs: save
+    runs-on: ubuntu-latest
+    steps:
+      - id: r
+        uses: actions/cache/restore@v4
+        with:
+          path: probe
+          key: probe-${{ github.run_id }}
+          fail-on-cache-miss: true
+      - run: |
+          ls -la probe
+          echo "::notice title=CACHE PROBE::save and restore both worked"

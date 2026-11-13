@@ -1,0 +1,7 @@
+# Heavy optional packages (VirGL renderer for the X11 desktop). They are built after the main list with
+# continue-on-error and a time limit, so a failure or a timeout never blocks publishing the apt repository.
+# mesa is NOT built: it pulls in LLVM (10 000+ targets, longer than the job limit); VirGL on the host works through ANGLE without it.
+# A re-run continues from the build cache, so angle-android (built from Chromium sources) may need two runs.
+libc++
+angle-android
+virglrenderer-android
