@@ -119,12 +119,17 @@ tasks.register('buildTerminalNative') {
         }
         def pinnedNdk = android.ndkDirectory
         def installedNdks = (new File(android.sdkDirectory, 'ndk').listFiles() ?: new File[0]).findAll { it.isDirectory() }.sort(false, newerFirst)
+        def rustNdks = (installedNdks + [pinnedNdk]).unique()   // newest first
+        def cNdks = ([pinnedNdk] + installedNdks).unique()      // the pinned one first
         def clangFor = { List<File> ndks, String prefix ->
             for (File ndk : ndks) {
                 def f = new File(ndk, "toolchains/llvm/prebuilt/${hostTag}/bin/${prefix}${api}-clang${wrapperSuffix}")
                 if (f.isFile()) return f
             }
             return null
+        }
+        def noClang = { List<File> ndks, String prefix ->
+            new GradleException("no NDK clang wrapper ${prefix}${api}-clang in the NDKs ${ndks*.name} (SDK: ${android.sdkDirectory})")
         }
 
         def run = { List<String> cmd ->
@@ -152,18 +157,15 @@ tasks.register('buildTerminalNative') {
         }
 
         def buildRust = { String abi, Map t, File out ->
-            if (run(['rustc', '--version']).code != 0) {
-                // not on PATH: the usual rustup location
-                throw new GradleException('rustc was not found on PATH')
-            }
+            if (run(['rustc', '--version']).code != 0) throw new GradleException('rustc was not found on PATH')
             def libdir = run(['rustc', '--print', 'target-libdir', '--target', t.rust]).text.trim()
             def hasCore = { new File(libdir).listFiles()?.any { it.name.startsWith('libcore-') && it.name.endsWith('.rlib') } }
             if (!hasCore()) {
                 def r = run(['rustup', 'target', 'add', t.rust])
                 if (r.code != 0 || !hasCore()) throw new GradleException("the Rust target ${t.rust} is not installed and 'rustup target add' failed:\n${tail(r.text)}")
             }
-            def linker = clangFor(installedNdks + [pinnedNdk], t.clang)
-            if (linker == null) throw new GradleException("no NDK clang wrapper ${t.clang}${api}-clang in ${installedNdks + [pinnedNdk]}")
+            def linker = clangFor(rustNdks, t.clang)
+            if (linker == null) throw noClang(rustNdks, t.clang)
             def r = run(['rustc', '--edition', '2021', '--crate-type', 'cdylib', '--crate-name', 'termux', '--target', t.rust,
                          '-C', 'opt-level=s', '-C', 'panic=abort', '-C', 'strip=symbols',
                          "--remap-path-prefix=${projectDir}=terminal-emulator",
@@ -175,8 +177,8 @@ tasks.register('buildTerminalNative') {
         }
 
         def buildC = { String abi, Map t, File out ->
-            def cc = clangFor([pinnedNdk] + installedNdks, t.clang)
-            if (cc == null) throw new GradleException("no NDK clang wrapper ${t.clang}${api}-clang in ${[pinnedNdk] + installedNdks}")
+            def cc = clangFor(cNdks, t.clang)
+            if (cc == null) throw noClang(cNdks, t.clang)
             def r = run([cc.absolutePath, '-shared', '-fPIC', '-std=c11', '-Wall', '-Wextra', '-Werror', '-Os', '-fno-stack-protector',
                          '-ffunction-sections', '-fdata-sections',
                          '-Wl,--gc-sections', '-Wl,--no-undefined', '-Wl,-z,noexecstack', '-Wl,-z,relro', '-Wl,-z,now',
@@ -207,7 +209,7 @@ tasks.register('buildTerminalNative') {
                 checkExports(out)
                 how = 'C'
             }
-            if (why != null) logger.warn("WARNING terminal-emulator [${abi}]: libtermux.so was built from the C source because the Rust build failed: ${why}")
+            if (why != null) logger.warn("WARNING terminal-emulator [${abi}]: libtermux.so was built from the C source because the Rust build failed: ${why.readLines().findAll { it.trim() }.take(8).join('\n    ')}")
             logger.lifecycle("terminal-emulator [${abi}]: libtermux.so built from ${how} (${out.length()} bytes)")
         }
     }
