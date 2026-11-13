@@ -15,6 +15,10 @@ public class JniH {
     static String TOOLS = System.getProperty("jnih.tools", ".");
     static final String CWD = System.getProperty("jnih.cwd", "/tmp");
     static final String[] ENV = {"PATH=/usr/bin:/bin:/data/data/com.termux/files/usr/bin", "TERM=xterm"};
+    // host-specific paths (overridable for Android, where there is no /usr/bin/env, /etc/passwd or /tmp)
+    static final String ENVBIN = System.getProperty("jnih.env", "/usr/bin/env");
+    static final String A_FILE = System.getProperty("jnih.file", "/etc/passwd");
+    static final String A_DIR = System.getProperty("jnih.dir", "/tmp");
     static final boolean RUST_ONLY_CASES = Boolean.getBoolean("jnih.rust");
 
     static FileDescriptor fdObject(int fd) throws Exception {
@@ -151,13 +155,13 @@ public class JniH {
             int[] st = new int[1];
             report("j03_args_one_sh", p, finish(p, 20000, st).replaceAll("^[#$] ", "PROMPT "), st[0]);
         } catch (Throwable t) { out.println("j03 HARNESS-EXC " + t); }
-        run("j04_env_null", "/usr/bin/env", CWD, new String[]{"env"}, null, 24, 80, 8, 16, null);
-        run("j04b_env_empty", "/usr/bin/env", CWD, new String[]{"env"}, new String[0], 24, 80, 8, 16, null);
-        run("j05_env_values", "/usr/bin/env", CWD, new String[]{"env"}, new String[]{"A=1", "B=two words", "C=", "=x", "D", "E=a=b", "A=override"}, 24, 80, 8, 16, null);
+        run("j04_env_null", ENVBIN, CWD, new String[]{"env"}, null, 24, 80, 8, 16, null);
+        run("j04b_env_empty", ENVBIN, CWD, new String[]{"env"}, new String[0], 24, 80, 8, 16, null);
+        run("j05_env_values", ENVBIN, CWD, new String[]{"env"}, new String[]{"A=1", "B=two words", "C=", "=x", "D", "E=a=b", "A=override"}, 24, 80, 8, 16, null);
         run("j06_cwd_bad", "/bin/sh", "/nonexistent/dir", new String[]{"sh", "-c", "echo still-runs"}, ENV, 24, 80, 8, 16, null);
-        run("j06b_cwd_file", "/bin/sh", "/etc/passwd", new String[]{"sh", "-c", "echo still-runs"}, ENV, 24, 80, 8, 16, null);
+        run("j06b_cwd_file", "/bin/sh", A_FILE, new String[]{"sh", "-c", "echo still-runs"}, ENV, 24, 80, 8, 16, null);
         run("j07_cmd_bad", "/nonexistent/prog", CWD, new String[]{"prog"}, ENV, 24, 80, 8, 16, null);
-        run("j07b_cmd_dir", "/tmp", CWD, new String[]{"x"}, ENV, 24, 80, 8, 16, null);
+        run("j07b_cmd_dir", A_DIR, CWD, new String[]{"x"}, ENV, 24, 80, 8, 16, null);
         run("j07c_cmd_search_path", "sh", CWD, new String[]{"sh", "-c", "echo found-through-PATH?"}, ENV, 24, 80, 8, 16, null);
         sh("j08_fds_closed", "ls /proc/self/fd | tr '\\n' ' '");
         run("j09_winsize_flags", "/bin/sh", CWD, new String[]{"sh", "-c", TOOLS + "/winsz; stty size; stty -a | tr ' ' '\\n' | grep -E '^-?(iutf8|ixon|ixoff)$' | tr '\\n' ' '"}, ENV, 24, 80, 8, 16, null);
@@ -177,7 +181,7 @@ public class JniH {
         for (String sig : new String[]{"KILL", "TERM", "SEGV", "HUP", "ABRT", "INT"}) sh("j12_sig_" + sig, "kill -" + sig + " $$; sleep 5");
         // modified UTF-8: NUL and supplementary characters
         run("j13_mutf8", "/bin/sh", CWD, new String[]{"sh", "-c", "printf '%s' \"$1\" | od -An -tx1; printf '%s' \"$2\" | od -An -tx1; printf '%s' \"$3\" | od -An -tx1", "sh", "a\u0000b", "😀", "é€"}, ENV, 24, 80, 8, 16, null);
-        run("j13b_mutf8_env", "/usr/bin/env", CWD, new String[]{"env"}, new String[]{"X=é€😀"}, 24, 80, 8, 16, null);
+        run("j13b_mutf8_env", ENVBIN, CWD, new String[]{"env"}, new String[]{"X=é€😀"}, 24, 80, 8, 16, null);
         // many and large arguments / environment entries (more than 512 local references)
         {
             String[] args = new String[3003];
