@@ -1,0 +1,8 @@
+// B3 verification (not part of the product): the Kotlin port of terminal-view (:terminal-view) next to the Java original of the
+// same module (:tv-java), both on top of the Kotlin terminal-emulator.
+// The other modules need CMake/ndk-build models that the phone's stub NDK cannot provide.
+def S = '/data/local/tmp/agentdroid-verify/src'
+include ':terminal-emulator', ':terminal-view', ':tv-java'
+project(':terminal-emulator').projectDir = new File("$S/terminal-emulator")
+project(':terminal-view').projectDir = new File("$S/terminal-view")
+project(':tv-java').projectDir = new File("$S/b3v/tv-java")

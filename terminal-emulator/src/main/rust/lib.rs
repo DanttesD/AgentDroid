@@ -2,7 +2,7 @@
 //!
 //! Rust port of `src/main/jni/termux.c`. The crate is `no_std` and has no dependencies: it needs only `core`, `alloc`
 //! and the C library of the platform, so a bare `rustc` can build it for every Android target (no Cargo, no crates.io,
-//! no `libstd`, no unwinder). See the `buildRustJni` task in `build.gradle`.
+//! no `libstd`, no unwinder). See the `buildTerminalNative` task in `terminal-emulator/build.gradle`.
 #![no_std]
 #![deny(unsafe_op_in_unsafe_fn)]
 
