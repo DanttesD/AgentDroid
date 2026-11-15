@@ -44,10 +44,10 @@ allprojects {
 }
 
 // ---- unit tests (Robolectric) for both variants of terminal-view, same test sources -------------------------------------
-// -ProboVersion=<x>   Robolectric version (default 4.4 = the version of the app module)
+// -ProboVersion=<x>   Robolectric version (default 4.11.1: 4.4, the version of the app module, does not run on JDK 17)
 // -PtraceDir=<dir>    where the differential tests write their traces
 def W = '/data/local/tmp/agentdroid-verify'
-def roboVersion = (findProperty('roboVersion') ?: '4.4').toString()
+def roboVersion = (findProperty('roboVersion') ?: '4.11.1').toString()
 def traceDir = (findProperty('traceDir') ?: "$W/b3/out").toString()
 
 ['terminal-view', 'tv-java'].each { name ->
@@ -74,6 +74,8 @@ def traceDir = (findProperty('traceDir') ?: "$W/b3/out").toString()
                 ]
                 systemProperty 'tv.variant', name
                 systemProperty 'tv.trace.dir', traceDir
+                // The phone JVM (aarch64, bionic) has no Conscrypt native library; the tests do not use TLS.
+                systemProperty 'robolectric.conscryptMode', 'OFF'
                 systemProperty 'user.home', "$W/b3/test-home"
                 systemProperty 'maven.repo.local', "$W/b3/m2"
                 systemProperty 'robolectric.dependency.repo.url', 'https://repo.maven.apache.org/maven2'

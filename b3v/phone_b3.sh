@@ -1,7 +1,7 @@
 #!/data/data/com.termux/files/usr/bin/bash
 # B3 verification on the phone, isolated in /data/local/tmp/agentdroid-verify (nothing of Termux Job's is touched).
 #   usage: phone_b3.sh <stage...>      stages: setup | compile | shape | tests | all
-#   env:   ROBO=<version>  (Robolectric, default 4.4)    TESTS=<gradle test filter, optional>
+#   env:   ROBO=<version>  (Robolectric, default 4.11.1)    TESTS=<gradle test filter, optional>
 set -u
 W=/data/local/tmp/agentdroid-verify
 export PATH=/data/data/com.termux/files/usr/bin:/system/bin:$PATH
@@ -26,7 +26,7 @@ gr() {   # gr <logfile> <gradle args...>
     ( cd "$B/agp" && $W/gradle-7.6.4/bin/gradle --no-daemon --console=plain --max-workers=2 --stacktrace \
         -Pkotlin.compiler.execution.strategy=in-process \
         -Pandroid.aapt2FromMavenOverride=$W/aapt2/aapt2 \
-        -ProboVersion="${ROBO:-4.4}" -PtraceDir="$OUT" \
+        -ProboVersion="${ROBO:-4.11.1}" -PtraceDir="$OUT" \
         "$@" ) > "$lf" 2>&1
     local rc=$?
     log "gradle rc=$rc  ($lf; free $(free_gb) GB)"
@@ -63,7 +63,7 @@ stage_shape() {
 }
 
 stage_tests() {
-    log "tests (Robolectric ${ROBO:-4.4}) for both variants"
+    log "tests (Robolectric ${ROBO:-4.11.1}) for both variants"
     rm -rf "$SRC/terminal-view/build/test-results" "$SRC/b3v/tv-java/build/test-results"
     gr "$OUT/tests.log" --continue :terminal-view:testDebugUnitTest :tv-java:testDebugUnitTest ${TESTS:+--tests "$TESTS"}
     local rc=$?
