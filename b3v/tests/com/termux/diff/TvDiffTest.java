@@ -22,6 +22,7 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.accessibility.AccessibilityManager;
+import android.view.autofill.AutofillManager;
 import android.view.autofill.AutofillValue;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
@@ -49,6 +50,8 @@ import org.robolectric.android.controller.ActivityController;
 import org.robolectric.annotation.Config;
 import org.robolectric.annotation.Implementation;
 import org.robolectric.annotation.Implements;
+import org.robolectric.shadows.ShadowLooper;
+import org.robolectric.shadows.ShadowSystemClock;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -182,6 +185,7 @@ public class TvDiffTest {
                 if (n.equals("equals")) return proxy == a[0];
                 return tag;
             }
+            if (out.size() > 300000) throw new IllegalStateException("trace overflow");
             StringBuilder sb = new StringBuilder("  ").append(tag).append('.').append(n).append('(');
             if (a != null) for (int i = 0; i < a.length; i++) { if (i > 0) sb.append(", "); sb.append(fmt(a[i])); }
             out.add(sb.append(')').toString());
@@ -358,7 +362,19 @@ public class TvDiffTest {
             emu.append(b, b.length);
         }
 
-        void tick(long ms) { Shadows.shadowOf(Looper.getMainLooper()).idleFor(ms, TimeUnit.MILLISECONDS); }
+        /**
+         * Advances the virtual clock in 1 ms steps and runs the due tasks one at a time. Looper.idleFor() would spin forever on the
+         * fling runnable, which re-posts itself without delay and only finishes when the clock moves on.
+         */
+        void tick(long ms) {
+            ShadowLooper sl = Shadows.shadowOf(Looper.getMainLooper());
+            long end = SystemClock.uptimeMillis() + ms;
+            while (SystemClock.uptimeMillis() < end) {
+                if (!sl.isIdle()) sl.runOneTask();
+                ShadowSystemClock.advanceBy(1, TimeUnit.MILLISECONDS);
+            }
+            for (int i = 0; i < 16 && !sl.isIdle(); i++) sl.runOneTask();
+        }
     }
 
     private final List<Env> envs = new ArrayList<>();
@@ -384,6 +400,8 @@ public class TvDiffTest {
         e.ac = Robolectric.buildActivity(Activity.class).setup().visible();
         e.act = e.ac.get();
         e.view = new TerminalView(e.act, null);
+        e.view.setFocusable(true);              // the real layout declares focusable + focusableInTouchMode
+        e.view.setFocusableInTouchMode(true);
         e.view.setTextSize(16);
         fixRenderer(e.view.mRenderer);
         e.clientRec = new Rec(trace, "client");
@@ -1058,6 +1076,8 @@ public class TvDiffTest {
         e.feed("hello world foo_bar baz\r\n中文 mixed 😀 text here\r\n  indented   spaces  \r\nlast line of text\r\n");
         for (int i = 0; i < 30; i++) e.feed("history line number " + i + "\r\n");
         e.view.onScreenUpdated();
+        t("view state: focusable=" + e.view.isFocusable() + " touchFocusable=" + e.view.isFocusableInTouchMode() + " inTouchMode=" + e.view.isInTouchMode()
+                + " shown=" + e.view.isShown() + " attached=" + e.view.isAttachedToWindow() + " size=" + e.view.getWidth() + "x" + e.view.getHeight());
         float[][] starts = {{20, 30}, {100, 50}, {3, 3}, {300, 150}, {0, 0}, {45, 100}, {500, 500}};
         for (float[] s : starts) {
             t("=== selection start at " + Arrays.toString(s) + " top=" + e.view.getTopRow());
@@ -1176,7 +1196,7 @@ public class TvDiffTest {
         for (int c : new int[]{-1, 0, 1, 39, 79, 200}) t("getPointX(" + c + ")=" + e.view.getPointX(c));
         e.view.setTopRow(-7);
         for (int r : new int[]{-10, -7, -1, 0, 1, 23, 40}) t("getPointY(" + r + ")=" + e.view.getPointY(r));
-        e.view.setTextSize(20);
+        step("setTextSize", () -> e.view.setTextSize(20));
         t("after setTextSize(20): renderer font=" + e.view.mRenderer.getFontWidth() + "x" + e.view.mRenderer.getFontLineSpacing() + " jni=" + NativePty.calls);
         fixRenderer(e.view.mRenderer);
         step("typeface", () -> e.view.setTypeface(Typeface.SERIF));
@@ -1247,6 +1267,9 @@ public class TvDiffTest {
 
     @Test public void autofill() throws Exception {
         Env e = newEnv(40, 10, false, false, false);
+        AutofillManager afm = e.act.getSystemService(AutofillManager.class);
+        t("autofill manager available=" + (afm != null));
+        if (afm != null) Shadows.shadowOf(afm).setEnabled(true);
         t("type=" + e.view.getAutofillType() + " importance=" + e.view.getImportantForAutofill() + " hints=" + fmt(e.view.getAutofillHints()) + " value=" + fmt(e.view.getAutofillValue()));
         t("enabled=" + e.view.isAutoFillEnabled() + " manager=" + (e.view.getAutoFillManagerService() != null));
         step("user", () -> e.view.requestAutoFillUsername());
