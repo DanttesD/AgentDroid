@@ -393,11 +393,14 @@ public class TvDiffTest {
         setField(r, "mFontLineSpacing", 16);
         setField(r, "mFontAscent", -13);
         setField(r, "mFontLineSpacingAndAscent", 3);
+        Paint old = (Paint) getField(r, "mTextPaint");
+        FixedPaint fp = new FixedPaint();
+        fp.setTextSize(old.getTextSize());
+        fp.setTypeface(old.getTypeface());
+        fp.setAntiAlias(true);
+        setField(r, "mTextPaint", fp);
         float[] m = (float[]) getField(r, "asciiMeasures");
-        Arrays.fill(m, 8f);
-        m['W'] = 9f;
-        m['i'] = 5f;
-        m['m'] = 12f;
+        for (int i = 0; i < m.length; i++) m[i] = FixedPaint.width((char) i);
     }
 
     private Env newEnv(int cols, int rows, boolean stable, boolean preserve, boolean accessibility) throws Exception {
@@ -486,6 +489,35 @@ public class TvDiffTest {
         @Override public void scale(float sx, float sy) { t("  scale " + sx + "," + sy); }
     }
 
+    /** A Paint with deterministic text measurement: the real Paint of Robolectric does not measure text. */
+    private static final class FixedPaint extends Paint {
+        static float width(char c) {
+            switch (c) {
+                case 'W': return 9f;
+                case 'i': return 5f;
+                case 'm': return 12f;
+                case 'M': return 8.1f;
+                case 'w': return 8.05f;
+                case '\u4e2d': case '\u6587': return 16f;   // CJK: two cells
+                case '\u00e9': return 7.9f;                 // a letter a little narrower than a cell
+                case '\u0301': return 0f;                    // combining acute accent
+                default: return 8f;
+            }
+        }
+
+        @Override public float measureText(char[] text, int index, int count) {
+            float w = 0f;
+            for (int i = index; i < index + count; i++) w += width(text[i]);
+            return w;
+        }
+
+        @Override public float measureText(String text) { return measureText(text.toCharArray(), 0, text.length()); }
+
+        @Override public float measureText(String text, int start, int end) { return measureText(text.toCharArray(), start, end - start); }
+
+        @Override public float measureText(CharSequence text, int start, int end) { return measureText(text.toString().toCharArray(), start, end - start); }
+    }
+
     private static String pp(Paint p) {
         return "paint{color=" + Integer.toHexString(p.getColor()) + ",bold=" + p.isFakeBoldText() + ",ul=" + p.isUnderlineText()
                 + ",skew=" + p.getTextSkewX() + ",strike=" + p.isStrikeThruText() + ",size=" + p.getTextSize() + "}";
@@ -504,8 +536,12 @@ public class TvDiffTest {
             @Override public void onBell() { }
             @Override public void onColorsChanged() { }
         };
-        TerminalEmulator em = new TerminalEmulator(out, 24, 8, 8, 16, 50, sc);
+        TerminalEmulator em = new TerminalEmulator(out, 24, 14, 8, 16, 100, sc);
         String[] feeds = {
+                "hist A\r\n",
+                "hist B WWww mmmm\r\n",
+                "WwMmiii Mmmmm MMMMW iiiii\r\n",
+                "caf\u00e9 e\u0301 \u00e9\u00e9\u00e9 \u4e2d\u6587 W\u4e2d\r\n",
                 "plain text line WiMi\r\n",
                 "\u001b[1mBOLD\u001b[0m \u001b[2mdim\u001b[0m \u001b[3mital\u001b[0m \u001b[4munder\u001b[0m \u001b[5mblink\u001b[0m \u001b[7minv\u001b[0m \u001b[8mhid\u001b[0m \u001b[9mstrike\u001b[0m\r\n",
                 "\u001b[31mred\u001b[1;32mbgreen\u001b[0;94mhiblue\u001b[0m \u001b[38;5;200mc200\u001b[48;5;17mbg17\u001b[0m \u001b[1;31mbold-red\u001b[0m\r\n",
