@@ -231,6 +231,15 @@ public class TvDiffTest {
 
     private interface Body { void run() throws Exception; }
 
+    /** The selected text of the view, or the class of the exception the call threw (reading past the screen throws in the emulator). */
+    private String sel(Env e) {
+        try { return fmt(e.view.getSelectedText()); } catch (Throwable ex) { return "EXC:" + ex.getClass().getName(); }
+    }
+
+    private String stored(Env e) {
+        try { return fmt(e.view.getStoredSelectedText()); } catch (Throwable ex) { return "EXC:" + ex.getClass().getName(); }
+    }
+
     /** Runs a step and records an exception as its class name only (messages of NPEs differ between Java and Kotlin). */
     private void step(String label, Body b) {
         try { b.run(); }
@@ -930,7 +939,7 @@ public class TvDiffTest {
             step("longpress", () -> {
                 t("DOWN -> " + e.view.onTouchEvent(me(t2, t2, MotionEvent.ACTION_DOWN, 90, 80)));
                 e.tick(1200);
-                t("  after long press selecting=" + e.view.isSelectingText() + " selected=" + fmt(e.view.getSelectedText()) + " out=" + e.drain());
+                t("  after long press selecting=" + e.view.isSelectingText() + " selected=" + sel(e) + " out=" + e.drain());
                 t("MOVE -> " + e.view.onTouchEvent(me(t2, t2 + 1300, MotionEvent.ACTION_MOVE, 100, 90)));
                 t("UP -> " + e.view.onTouchEvent(me(t2, t2 + 1400, MotionEvent.ACTION_UP, 100, 90)) + " selecting=" + e.view.isSelectingText());
                 e.tick(600);
@@ -1083,7 +1092,7 @@ public class TvDiffTest {
             t("=== selection start at " + Arrays.toString(s) + " top=" + e.view.getTopRow());
             e.callbacks.clear();
             step("start", () -> e.view.startTextSelectionMode(me(1, 1, MotionEvent.ACTION_DOWN, s[0], s[1])));
-            t("  selecting=" + e.view.isSelectingText() + " selected=" + fmt(e.view.getSelectedText()) + " stored=" + fmt(e.view.getStoredSelectedText()));
+            t("  selecting=" + e.view.isSelectingText() + " selected=" + sel(e) + " stored=" + stored(e));
             int[] selectors = new int[4];
             step("selectors", () -> {
                 Object c = getField(e.view, "mTextSelectionCursorController");
@@ -1108,7 +1117,7 @@ public class TvDiffTest {
                     int[] sl = new int[4];
                     callAny(c, "getSelectors", (Object) sl);
                     t("  updatePosition(" + (i % 2 == 0 ? "start" : "end") + "," + moves[i][0] + "," + moves[i][1] + ") -> " + fmt(r) + " selectors=" + Arrays.toString(sl)
-                            + " selected=" + fmt(e.view.getSelectedText()) + " startDragged=" + callAny(c, "isSelectionStartDragged") + " endDragged=" + callAny(c, "isSelectionEndDragged"));
+                            + " selected=" + sel(e) + " startDragged=" + callAny(c, "isSelectionStartDragged") + " endDragged=" + callAny(c, "isSelectionEndDragged"));
                 }
             });
             // scroll output while selecting
@@ -1116,7 +1125,7 @@ public class TvDiffTest {
                 for (int i = 0; i < 3; i++) {
                     e.feed("new output " + i + "\r\n");
                     e.view.onScreenUpdated();
-                    t("  after output " + i + " selecting=" + e.view.isSelectingText() + " top=" + e.view.getTopRow() + " selected=" + fmt(e.view.getSelectedText()));
+                    t("  after output " + i + " selecting=" + e.view.isSelectingText() + " top=" + e.view.getTopRow() + " selected=" + sel(e));
                 }
             });
             // action items
@@ -1135,8 +1144,8 @@ public class TvDiffTest {
                 if (target == null) target = newItem(id, "synthetic");
                 final MenuItem tgt = target;
                 step("click", () -> t("  onActionItemClicked(" + id + ") -> " + cb.onActionItemClicked(mode, tgt)));
-                t("  after click selecting=" + e.view.isSelectingText() + " stored=" + fmt(e.view.getStoredSelectedText()));
-                step("closed", () -> { e.view.onContextMenuClosed(null); t("  after context menu closed stored=" + fmt(e.view.getStoredSelectedText())); });
+                t("  after click selecting=" + e.view.isSelectingText() + " stored=" + stored(e));
+                step("closed", () -> { e.view.onContextMenuClosed(null); t("  after context menu closed stored=" + stored(e)); });
                 step("destroy", () -> { cb.onDestroyActionMode(mode); t("  after onDestroyActionMode selecting=" + e.view.isSelectingText()); });
             }
             step("stop", () -> { e.view.stopTextSelectionMode(); t("  after stop selecting=" + e.view.isSelectingText()); });
