@@ -464,7 +464,7 @@ open class SharedProperties {
         fun getDefaultIfNotInMap(key: String?, map: BiMap<*, *>, inputValue: Any?, defaultOutputValue: Any, logErrorOnInvalidValue: Boolean, logTag: String): Any {
             val outputValue: Any? = map.get(inputValue)
             if (outputValue == null) {
-                val defaultInputValue: Any? = map.inverse().get(defaultOutputValue)
+                val defaultInputValue: Any? = map.inverse().get(defaultOutputValue as Any?)
                 if (defaultInputValue == null) {
                     Logger.logError(LOG_TAG, "The default output value \"" + defaultOutputValue + "\" for the key \"" + key + "\" does not exist as a value in the BiMap passed to getDefaultIfNotInMap(): " + map.values)
                 }

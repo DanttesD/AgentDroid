@@ -46,6 +46,15 @@ stage_compile() {
     return $rc
 }
 
+stage_kt() {
+    log "compileDebugKotlin of the Kotlin port only"
+    gr "$OUT/kt.log" :termux-shared:compileDebugKotlin
+    local rc=$?
+    grep -E "^e: |BUILD|FAILED|What went wrong" "$OUT/kt.log" | sed "s#$SRC/##" | cut -c1-300 | head -60
+    grep -cE "^w: " "$OUT/kt.log" | sed 's/^/kotlin warnings: /'
+    return $rc
+}
+
 stage_shape() {
     local JP=$W/jdk17/bin/javap
     local KT=$SRC/termux-shared/build/intermediates/aar_main_jar/debug/classes.jar
@@ -64,6 +73,7 @@ for s in "$@"; do
     case "$s" in
         setup) stage_setup ;;
         compile) stage_compile ;;
+        kt) stage_kt ;;
         shape) stage_shape ;;
         all) stage_setup; stage_compile && stage_shape ;;
         *) echo "unknown stage $s" ;;

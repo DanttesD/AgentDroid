@@ -198,7 +198,7 @@ object ViewUtils {
         } else {
             windowMetrics = windowManager.getMaximumWindowMetrics()
         }
-        return Point(windowMetrics.getBounds().width(), windowMetrics.getBounds().height())
+        return Point(windowMetrics.bounds.width(), windowMetrics.bounds.height())
     }
 
     /** Convert [Rect] to [String].*/

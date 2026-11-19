@@ -139,7 +139,7 @@ open class ReportActivity : AppCompatActivity() {
         recyclerView!!.setAdapter(adapter)
 
         generateReportActivityMarkdownString()
-        adapter.setMarkdown(markwon, mReportActivityMarkdownString)
+        adapter.setMarkdown(markwon, mReportActivityMarkdownString!!)
         adapter.notifyDataSetChanged()
     }
 
