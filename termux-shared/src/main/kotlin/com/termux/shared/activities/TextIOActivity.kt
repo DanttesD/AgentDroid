@@ -130,7 +130,7 @@ open class TextIOActivity : AppCompatActivity() {
             mTextIOText!!.setHorizontallyScrolling(true)
         } else {
             // Remove mTextIOHorizontalScrollView and add mTextIOText in its place
-            val parent: ViewGroup? = mTextIOHorizontalScrollView!!.getParent() as ViewGroup
+            val parent: ViewGroup? = mTextIOHorizontalScrollView!!.getParent() as ViewGroup?
             if (parent != null && parent.indexOfChild(mTextIOText) < 0) {
                 val params: ViewGroup.LayoutParams = mTextIOHorizontalScrollView!!.getLayoutParams()
                 val index: Int = parent.indexOfChild(mTextIOHorizontalScrollView)
