@@ -60,7 +60,7 @@ object NotificationUtils {
      * @return Returns the [Notification.Builder].
      **/
     @JvmStatic
-    fun geNotificationBuilder(context: Context?, channelId: String, priority: Int, title: CharSequence, notificationText: CharSequence, notificationBigText: CharSequence, contentIntent: PendingIntent, deleteIntent: PendingIntent, notificationMode: Int): Notification.Builder? {
+    fun geNotificationBuilder(context: Context?, channelId: String?, priority: Int, title: CharSequence?, notificationText: CharSequence?, notificationBigText: CharSequence?, contentIntent: PendingIntent?, deleteIntent: PendingIntent?, notificationMode: Int): Notification.Builder? {
         if (context == null) {
             return null
         }

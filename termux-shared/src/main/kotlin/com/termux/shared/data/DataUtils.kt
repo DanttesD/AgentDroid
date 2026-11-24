@@ -120,7 +120,7 @@ object DataUtils {
      * @return Returns `value` if it is not `null`, otherwise returns `def`.
      **/
     @JvmStatic
-    fun getStringFromInteger(value: Int?, def: String): String {
+    fun getStringFromInteger(value: Int?, def: String?): String? {
         return if (value == null) def else java.lang.String.valueOf(value)
     }
 

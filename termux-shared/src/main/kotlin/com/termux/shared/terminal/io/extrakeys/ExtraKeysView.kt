@@ -163,7 +163,7 @@ class ExtraKeysView : GridLayout {
     }
 
     /** Set [.mExtraKeysViewClient].*/
-    fun setExtraKeysViewClient(extraKeysViewClient: IExtraKeysView) {
+    fun setExtraKeysViewClient(extraKeysViewClient: IExtraKeysView?) {
         mExtraKeysViewClient = extraKeysViewClient
     }
 

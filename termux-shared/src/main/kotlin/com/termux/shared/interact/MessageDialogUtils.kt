@@ -23,7 +23,7 @@ object MessageDialogUtils {
      * @param onDismiss The [DialogInterface.OnDismissListener] to run when dialog is dismissed.
      **/
     @JvmStatic
-    fun showMessage(context: Context, titleText: String, messageText: String, onDismiss: DialogInterface.OnDismissListener) {
+    fun showMessage(context: Context, titleText: String, messageText: String, onDismiss: DialogInterface.OnDismissListener?) {
         showMessage(context, titleText, messageText, null, null, null, null, onDismiss)
     }
 

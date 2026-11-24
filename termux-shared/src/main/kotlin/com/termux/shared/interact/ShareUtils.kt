@@ -83,13 +83,13 @@ object ShareUtils {
 
     /** Wrapper for [.copyTextToClipboard] with `null` `clipDataLabel` and `toastString`.*/
     @JvmStatic
-    fun copyTextToClipboard(context: Context, text: String) {
+    fun copyTextToClipboard(context: Context, text: String?) {
         copyTextToClipboard(context, null, text, null)
     }
 
     /** Wrapper for [.copyTextToClipboard] with `null` `clipDataLabel`.*/
     @JvmStatic
-    fun copyTextToClipboard(context: Context, text: String, toastString: String?) {
+    fun copyTextToClipboard(context: Context, text: String?, toastString: String?) {
         copyTextToClipboard(context, null, text, toastString)
     }
 

@@ -121,7 +121,7 @@ open class ExecutionCommand {
         this.id = id
     }
 
-    constructor(id: Int?, executable: String, arguments: Array<String?>?, stdin: String?, workingDirectory: String?, inBackground: Boolean, isFailsafe: Boolean) {
+    constructor(id: Int?, executable: String?, arguments: Array<String?>?, stdin: String?, workingDirectory: String?, inBackground: Boolean, isFailsafe: Boolean) {
         this.id = id
         this.executable = executable
         this.arguments = arguments

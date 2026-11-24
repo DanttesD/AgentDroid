@@ -100,7 +100,7 @@ open class TermuxAppSharedPreferences {
         return SharedPreferenceUtils.getString(mSharedPreferences, TermuxPreferenceConstants.TERMUX_APP.KEY_CURRENT_SESSION, null, true)
     }
 
-    open fun setCurrentSession(value: String) {
+    open fun setCurrentSession(value: String?) {
         SharedPreferenceUtils.setString(mSharedPreferences, TermuxPreferenceConstants.TERMUX_APP.KEY_CURRENT_SESSION, value, false)
     }
 
