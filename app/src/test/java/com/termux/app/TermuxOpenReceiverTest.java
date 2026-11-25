@@ -24,9 +24,9 @@ public class TermuxOpenReceiverTest {
     File root, storage, properties; Provider provider; Locale original;
     static class Provider extends TermuxOpenReceiver.ContentProvider {
         File[] roots, readOnly; String error;
-        @Override File[] allowedRoots(){return roots;}
-        @Override File[] readOnlyFiles(){return readOnly;}
-        @Override String externalAppsPolicyError(){return error;}
+        @Override public File[] allowedRoots(){return roots;}
+        @Override public File[] readOnlyFiles(){return readOnly;}
+        @Override public String externalAppsPolicyError(){return error;}
     }
     @Before public void setup()throws Exception{
         ProviderTestOs.reset();
