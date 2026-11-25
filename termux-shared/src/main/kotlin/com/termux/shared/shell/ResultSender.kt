@@ -38,7 +38,7 @@ object ResultSender {
      * @return Returns the [Error] if failed to send the result, otherwise `null`.
      **/
     @JvmStatic
-    fun sendCommandResultData(context: Context?, logTag: String, label: String, resultConfig: ResultConfig?, resultData: ResultData?, logStdoutAndStderr: Boolean): Error? {
+    fun sendCommandResultData(context: Context?, logTag: String?, label: String, resultConfig: ResultConfig?, resultData: ResultData?, logStdoutAndStderr: Boolean): Error? {
         if (context == null || resultConfig == null || resultData == null) {
             return FunctionErrno.ERRNO_NULL_OR_EMPTY_PARAMETERS.getError("context, resultConfig or resultData", "sendCommandResultData")
         }

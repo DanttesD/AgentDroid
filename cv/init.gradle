@@ -1,0 +1,44 @@
+// Stage C verification (not part of the product): test configuration for :app on the phone, applied with --init-script.
+//   -Pcv.robo=<version>   Robolectric (default 4.11.1: 4.4, the version of the app module, does not run on JDK 17)
+//   -Pcv.m2=<dir>         local Maven repository with the Robolectric android-all jars
+//   -Pcv.home=<dir>       user.home of the test JVMs
+// WorkspaceDesktopUiTest and WorkspaceIconButtonTest do not compile against the Java original either (cannot find
+// symbol, see build3.log of the first verification run); they are left out of the compilation for BOTH variants.
+def robo = (gradle.startParameter.projectProperties['cv.robo'] ?: '4.11.1')
+def m2 = gradle.startParameter.projectProperties['cv.m2']
+def home = gradle.startParameter.projectProperties['cv.home']
+gradle.afterProject { p ->
+    if (p.path != ':app') return
+    p.dependencies.add('testImplementation', "org.robolectric:robolectric:${robo}")
+    p.tasks.withType(JavaCompile).configureEach { t ->
+        if (t.name.contains('UnitTest')) {
+            t.exclude '**/WorkspaceDesktopUiTest.java', '**/WorkspaceIconButtonTest.java'
+        }
+    }
+    p.android.testOptions.unitTests.all { t ->
+        t.jvmArgs += [
+            '--add-opens=java.base/java.lang=ALL-UNNAMED',
+            '--add-opens=java.base/java.lang.reflect=ALL-UNNAMED',
+            '--add-opens=java.base/java.io=ALL-UNNAMED',
+            '--add-opens=java.base/java.net=ALL-UNNAMED',
+            '--add-opens=java.base/java.nio=ALL-UNNAMED',
+            '--add-opens=java.base/java.security=ALL-UNNAMED',
+            '--add-opens=java.base/java.text=ALL-UNNAMED',
+            '--add-opens=java.base/java.util=ALL-UNNAMED',
+            '--add-opens=java.base/java.util.concurrent=ALL-UNNAMED',
+            '--add-opens=java.base/sun.nio.ch=ALL-UNNAMED',
+            '--add-opens=java.base/jdk.internal.misc=ALL-UNNAMED',
+            '--add-opens=java.base/sun.security.x509=ALL-UNNAMED',
+            '--add-opens=java.base/sun.security.util=ALL-UNNAMED',
+        ]
+        // the phone JVM (aarch64, bionic) has no Conscrypt native library; the tests do not use TLS
+        t.systemProperty 'robolectric.conscryptMode', 'OFF'
+        if (home) t.systemProperty 'user.home', home
+        if (m2) t.systemProperty 'maven.repo.local', m2
+        t.testLogging {
+            events 'passed', 'skipped', 'failed'
+            exceptionFormat 'full'
+            showStackTraces true
+        }
+    }
+}

@@ -21,7 +21,7 @@ open class TermuxSession {
     private val mTermuxSessionClient: TermuxSessionClient?
     private val mSetStdoutOnExit: Boolean
 
-    private constructor(terminalSession: TerminalSession, executionCommand: ExecutionCommand, termuxSessionClient: TermuxSessionClient, setStdoutOnExit: Boolean) {
+    private constructor(terminalSession: TerminalSession, executionCommand: ExecutionCommand, termuxSessionClient: TermuxSessionClient?, setStdoutOnExit: Boolean) {
         this.mTerminalSession = terminalSession
         this.mExecutionCommand = executionCommand
         this.mTermuxSessionClient = termuxSessionClient
@@ -151,7 +151,7 @@ open class TermuxSession {
          * @return Returns the [TermuxSession]. This will be `null` if failed to start the execution command.
          **/
         @JvmStatic
-        fun execute(context: Context, executionCommand: ExecutionCommand, terminalSessionClient: TerminalSessionClient, termuxSessionClient: TermuxSessionClient, shellEnvironmentClient: ShellEnvironmentClient, sessionName: String?, setStdoutOnExit: Boolean): TermuxSession? {
+        fun execute(context: Context, executionCommand: ExecutionCommand, terminalSessionClient: TerminalSessionClient, termuxSessionClient: TermuxSessionClient?, shellEnvironmentClient: ShellEnvironmentClient, sessionName: String?, setStdoutOnExit: Boolean): TermuxSession? {
             if (executionCommand.workingDirectory == null || executionCommand.workingDirectory!!.isEmpty()) {
                 executionCommand.workingDirectory = shellEnvironmentClient.getDefaultWorkingDirectoryPath()
             }

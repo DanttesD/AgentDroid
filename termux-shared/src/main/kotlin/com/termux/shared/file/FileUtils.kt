@@ -281,7 +281,7 @@ object FileUtils {
      * @return Returns the [FileType] of file.
      **/
     @JvmStatic
-    fun getFileType(filePath: String, followLinks: Boolean): FileType {
+    fun getFileType(filePath: String?, followLinks: Boolean): FileType {
         return FileTypes.getFileType(filePath, followLinks)
     }
 

@@ -13,7 +13,7 @@ open class ReportInfo : Serializable {
     /** The user action that was being processed for which the report was generated.*/
     @JvmField val userAction: String
     /** The internal app component that sent the report.*/
-    @JvmField val sender: String
+    @JvmField val sender: String?
     /** The report title.*/
     @JvmField val reportTitle: String?
     /** The markdown report text prefix. Will not be part of copy and share operations, etc.*/
@@ -34,7 +34,7 @@ open class ReportInfo : Serializable {
     /** The path for the report file to save if user selects menu_item_save_report_to_file.*/
     @JvmField val reportSaveFilePath: String?
 
-    constructor(userAction: String, sender: String, reportTitle: String, reportStringPrefix: String, reportString: String, reportStringSuffix: String, addReportInfoHeaderToMarkdown: Boolean, reportSaveFileLabel: String, reportSaveFilePath: String) {
+    constructor(userAction: String, sender: String?, reportTitle: String?, reportStringPrefix: String?, reportString: String, reportStringSuffix: String?, addReportInfoHeaderToMarkdown: Boolean, reportSaveFileLabel: String, reportSaveFilePath: String?) {
         this.userAction = userAction
         this.sender = sender
         this.reportTitle = reportTitle

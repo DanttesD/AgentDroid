@@ -254,7 +254,7 @@ open class SharedProperties {
          * @return Returns the [String] object. This will be `null` if key is not found.
          **/
         @JvmStatic
-        fun getProperty(context: Context, propertiesFile: File, key: String, def: String?): String? {
+        fun getProperty(context: Context?, propertiesFile: File?, key: String, def: String?): String? {
             return getDefaultIfNull(getDefaultIfNull(getPropertiesFromFile(context, propertiesFile), Properties())!!.get(key), def) as String?
         }
 
@@ -270,7 +270,7 @@ open class SharedProperties {
          * [SharedPropertiesParser.getInternalPropertyValueFromValue].
          **/
         @JvmStatic
-        fun getInternalProperty(context: Context, propertiesFile: File, key: String, sharedPropertiesParser: SharedPropertiesParser): Any? {
+        fun getInternalProperty(context: Context, propertiesFile: File?, key: String, sharedPropertiesParser: SharedPropertiesParser): Any? {
             val value: String? = getDefaultIfNull(getPropertiesFromFile(context, propertiesFile), Properties())!!.get(key) as String?
 
             // Call the {@link SharedPropertiesParser#getInternalPropertyValueFromValue(Context,String,String)}
@@ -292,7 +292,7 @@ open class SharedProperties {
          * `false` will be returned.
          **/
         @JvmStatic
-        fun isPropertyValueTrue(context: Context, propertiesFile: File, key: String, logErrorOnInvalidValue: Boolean): Boolean {
+        fun isPropertyValueTrue(context: Context?, propertiesFile: File?, key: String, logErrorOnInvalidValue: Boolean): Boolean {
             return getBooleanValueForStringValue(key, getProperty(context, propertiesFile, key, null), false, logErrorOnInvalidValue, LOG_TAG)
         }
 
@@ -310,7 +310,7 @@ open class SharedProperties {
          * `true` will be returned.
          **/
         @JvmStatic
-        fun isPropertyValueFalse(context: Context, propertiesFile: File, key: String, logErrorOnInvalidValue: Boolean): Boolean {
+        fun isPropertyValueFalse(context: Context?, propertiesFile: File?, key: String, logErrorOnInvalidValue: Boolean): Boolean {
             return getInvertedBooleanValueForStringValue(key, getProperty(context, propertiesFile, key, null), true, logErrorOnInvalidValue, LOG_TAG)
         }
 

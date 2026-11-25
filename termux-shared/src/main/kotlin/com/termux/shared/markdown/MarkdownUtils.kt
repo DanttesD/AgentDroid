@@ -148,6 +148,10 @@ object MarkdownUtils {
         return Markwon.builder(context).usePlugin(LinkifyPlugin.create(Linkify.EMAIL_ADDRESSES or Linkify.WEB_URLS)).usePlugin(object : AbstractMarkwonPlugin() {
             override fun configureVisitor(builder: MarkwonVisitor.Builder) {
                 builder.on(FencedCodeBlock::class.java, MarkwonVisitor.NodeVisitor<FencedCodeBlock> { visitor, fencedCodeBlock ->
+                    // we actually won't be applying code spans here, as our custom xml view will
+                    // draw background and apply mono typeface
+                    //
+                    // NB the `trim` operation on literal (as code will have a new line at the end)
                     val code: CharSequence = visitor.configuration().syntaxHighlight().highlight(fencedCodeBlock.getInfo(), (fencedCodeBlock.getLiteral() as java.lang.String).trim())
                     visitor.builder().append(code)
                 })

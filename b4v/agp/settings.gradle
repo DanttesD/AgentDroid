@@ -1,9 +1,0 @@
-// B4 verification (not part of the product): the Kotlin port of termux-shared (:termux-shared) next to the Java original of the
-// same module (:ts-java), both on top of the Kotlin terminal-view / terminal-emulator.
-// The other modules need CMake/ndk-build models that the phone's stub NDK cannot provide.
-def S = '/data/local/tmp/agentdroid-verify/src'
-include ':terminal-emulator', ':terminal-view', ':termux-shared', ':ts-java'
-project(':terminal-emulator').projectDir = new File("$S/terminal-emulator")
-project(':terminal-view').projectDir = new File("$S/terminal-view")
-project(':termux-shared').projectDir = new File("$S/termux-shared")
-project(':ts-java').projectDir = new File("$S/b4v/ts-java")

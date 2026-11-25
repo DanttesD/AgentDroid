@@ -12,10 +12,10 @@ abstract class TermuxSharedProperties {
 
     @JvmField protected val mContext: Context
     @JvmField protected val mLabel: String
-    @JvmField protected val mPropertiesFile: File
+    @JvmField protected val mPropertiesFile: File?
     @JvmField protected val mSharedProperties: SharedProperties
 
-    constructor(context: Context, label: String, propertiesFile: File, propertiesList: MutableSet<String>, sharedPropertiesParser: SharedPropertiesParser) {
+    constructor(context: Context, label: String, propertiesFile: File?, propertiesList: MutableSet<String>, sharedPropertiesParser: SharedPropertiesParser) {
         mContext = context
         mLabel = label
         mPropertiesFile = propertiesFile
@@ -286,7 +286,7 @@ abstract class TermuxSharedProperties {
          * the object stored against the key is `null`.
          **/
         @JvmStatic
-        fun getInternalPropertyValue(context: Context, propertiesFile: File, key: String, sharedPropertiesParser: SharedPropertiesParser): Any? {
+        fun getInternalPropertyValue(context: Context, propertiesFile: File?, key: String, sharedPropertiesParser: SharedPropertiesParser): Any? {
             return SharedProperties.getInternalProperty(context, propertiesFile, key, sharedPropertiesParser)
         }
 

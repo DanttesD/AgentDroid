@@ -1,6 +1,8 @@
 plugins {
     id "com.android.application"
 }
+// The version comes from the buildscript classpath of the root project (Kotlin Gradle plugin 1.7.22).
+apply plugin: 'org.jetbrains.kotlin.android'
 
 android {
     compileSdkVersion project.properties.compileSdkVersion.toInteger()
@@ -108,6 +110,15 @@ android {
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = '1.8'
+        // -Xjvm-default=all: interface methods with bodies are real Java default methods, so the Java classes
+        //   (the tests, the x11 module) that implement them keep working without DefaultImpls bridges.
+        // -Xno-*-assertions: the Java code this module replaces accepted null silently; keep that behaviour for
+        //   Java callers instead of throwing at the module boundary.
+        freeCompilerArgs += ['-Xjvm-default=all', '-Xno-param-assertions', '-Xno-call-assertions', '-Xno-receiver-assertions']
     }
 
     externalNativeBuild {

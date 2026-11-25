@@ -113,7 +113,7 @@ object TermuxFileUtils {
      * @return Returns the `canonical path`.
      **/
     @JvmStatic
-    fun getCanonicalPath(path: String?, prefixForNonAbsolutePath: String, expandPath: Boolean): String? {
+    fun getCanonicalPath(path: String?, prefixForNonAbsolutePath: String?, expandPath: Boolean): String? {
         var path = path
         if (path == null) {
             path = ""
