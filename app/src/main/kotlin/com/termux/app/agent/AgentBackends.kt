@@ -26,7 +26,7 @@ object AgentBackends {
             override fun run(script: String, timeoutMs: Long): ShellTransport.Output {
                 try {
                     val r: AgentAdb.ShellResult = adb.shell("127.0.0.1", LOCAL_ADB_PORT, script)
-                    return ShellTransport.Output(r.getExitCode(), r.getOutput())
+                    return ShellTransport.Output(r.exitCode, r.output)
                 } catch (e: Exception) {
                     throw IOException(e.message, e)
                 }

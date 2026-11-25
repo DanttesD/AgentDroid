@@ -128,7 +128,7 @@ open class AdbConsoleActivity : Activity() {
 
     private fun shell(cmd: String) {
         val r: AgentAdb.ShellResult = adb!!.shell(text(host), Integer.parseInt(text(connectPort)), cmd)
-        log("exit=" + r.getExitCode() + "\n" + r.getOutput())
+        log("exit=" + r.exitCode + "\n" + r.output)
     }
 
     private fun interface Task {
