@@ -133,8 +133,8 @@ class WorkspaceServers : AutoCloseable {
             val id: String = entry.key.substring(3)
             val state: ServerTransferPresentation = if (upload) uploads.presentation else downloads.presentation
             val row: LinearLayout = entry.value
-            val label: TextView = row.getChildAt(0) as TextView
-            val bar: ProgressBar = row.getChildAt(1) as ProgressBar
+            val label: TextView? = row.getChildAt(0) as TextView?
+            val bar: ProgressBar? = row.getChildAt(1) as ProgressBar?
             val active: Boolean = state.belongs(id)
             val visibility: Int = if (active) View.VISIBLE else View.GONE
             if (row.getVisibility() != visibility) {
@@ -142,10 +142,10 @@ class WorkspaceServers : AutoCloseable {
             }
             if (active) {
                 val value: String = (if (upload) t("Загрузка на сервер", "Uploading to server") else t("Скачивание с сервера", "Downloading from server")) + "\n" + state.text()
-                if (!(value as java.lang.String).contentEquals(label.getText())) {
+                if (!(value as java.lang.String).contentEquals(label!!.getText())) {
                     label.setText(value)
                 }
-                bar.setIndeterminate(state.indeterminate())
+                bar!!.setIndeterminate(state.indeterminate())
                 if (!state.indeterminate()) {
                     bar.setProgress(state.progress())
                 }

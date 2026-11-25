@@ -13,8 +13,8 @@ class AdaptiveWorkspaceLayout : ScrollView {
     }
 
     protected override fun measureChildWithMargins(child: View, parentWidthSpec: Int, widthUsed: Int, parentHeightSpec: Int, heightUsed: Int) {
-        val params: ViewGroup.MarginLayoutParams = child.getLayoutParams() as ViewGroup.MarginLayoutParams
-        if (params.height >= 0) {
+        val params: ViewGroup.MarginLayoutParams? = child.getLayoutParams() as ViewGroup.MarginLayoutParams?
+        if (params!!.height >= 0) {
             val widthSpec: Int = ViewGroup.getChildMeasureSpec(parentWidthSpec, getPaddingLeft() + getPaddingRight() + params.leftMargin + params.rightMargin + widthUsed, params.width)
             child.measure(widthSpec, View.MeasureSpec.makeMeasureSpec(params.height, View.MeasureSpec.EXACTLY))
         } else {
@@ -24,8 +24,8 @@ class AdaptiveWorkspaceLayout : ScrollView {
 
     protected override fun onMeasure(widthSpec: Int, heightSpec: Int) {
         if (getChildCount() > 0 && View.MeasureSpec.getMode(heightSpec) != View.MeasureSpec.UNSPECIFIED) {
-            val body: LinearLayout = getChildAt(0) as LinearLayout
-            val width: Int = Math.max(0, View.MeasureSpec.getSize(widthSpec) - getPaddingLeft() - getPaddingRight() - body.getPaddingLeft() - body.getPaddingRight())
+            val body: LinearLayout? = getChildAt(0) as LinearLayout?
+            val width: Int = Math.max(0, View.MeasureSpec.getSize(widthSpec) - getPaddingLeft() - getPaddingRight() - body!!.getPaddingLeft() - body.getPaddingRight())
             var minimum: Int = body.getPaddingTop() + body.getPaddingBottom()
             val panelHeight: Int = Math.round(160 * getResources().getDisplayMetrics().density * Math.max(1f, getResources().getConfiguration().fontScale))
             var i = 0
@@ -35,8 +35,8 @@ class AdaptiveWorkspaceLayout : ScrollView {
                     i++
                     continue
                 }
-                val params: LinearLayout.LayoutParams = child.getLayoutParams() as LinearLayout.LayoutParams
-                minimum += params.topMargin + params.bottomMargin
+                val params: LinearLayout.LayoutParams? = child.getLayoutParams() as LinearLayout.LayoutParams?
+                minimum += params!!.topMargin + params.bottomMargin
                 if (params.weight > 0) {
                     minimum += panelHeight
                 } else {

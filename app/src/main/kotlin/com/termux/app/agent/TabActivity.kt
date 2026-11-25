@@ -124,7 +124,7 @@ abstract class TabActivity : Activity() {
     }
 
     protected open fun copy(text: String) {
-        val cm: ClipboardManager? = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        val cm: ClipboardManager? = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager?
         if (cm != null) {
             cm.setPrimaryClip(ClipData.newPlainText("agentdroid", text))
         }

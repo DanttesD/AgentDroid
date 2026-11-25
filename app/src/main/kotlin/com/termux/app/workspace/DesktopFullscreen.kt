@@ -115,7 +115,7 @@ class DesktopFullscreen {
 
     private fun enter() {
         moving = true
-        home = content!!.getParent() as ViewGroup
+        home = content!!.getParent() as ViewGroup?
         homeIndex = home!!.indexOfChild(content)
         homeParams = content!!.getLayoutParams()
         home!!.removeView(content)

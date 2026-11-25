@@ -719,8 +719,8 @@ class WorkspaceController {
         }
         screen = target
         servers.visibility(screen === Screen.SERVERS)
-        val contentParams: RelativeLayout.LayoutParams = content!!.getLayoutParams() as RelativeLayout.LayoutParams
-        contentParams.addRule(RelativeLayout.BELOW, R.id.workspace_header)
+        val contentParams: RelativeLayout.LayoutParams? = content!!.getLayoutParams() as RelativeLayout.LayoutParams?
+        contentParams!!.addRule(RelativeLayout.BELOW, R.id.workspace_header)
         content.setLayoutParams(contentParams)
         val terminal: Boolean = screen === Screen.TERMINAL
         activity.getDrawer()!!.setVisibility(if (terminal) View.VISIBLE else View.INVISIBLE)
@@ -1108,9 +1108,9 @@ class WorkspaceController {
             statusRow.addView(agentStop, stopParams)
         }
         agentStop!!.setVisibility(if (chat) View.VISIBLE else View.GONE)
-        val statusParams: FrameLayout.LayoutParams = codexStatus!!.getLayoutParams() as FrameLayout.LayoutParams
+        val statusParams: FrameLayout.LayoutParams? = codexStatus!!.getLayoutParams() as FrameLayout.LayoutParams?
         val statusMargin: Int = dp((if (chat) 162 else 112).toFloat())
-        if (statusParams.getMarginEnd() != statusMargin) {
+        if (statusParams!!.getMarginEnd() != statusMargin) {
             statusParams.setMarginEnd(statusMargin)
             codexStatus.setLayoutParams(statusParams)
         }
@@ -5084,13 +5084,13 @@ class WorkspaceController {
 
     fun toggleKeyboard() {
         prepareKeyboardWindow()
-        val keyboard: InputMethodManager = activity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        val keyboard: InputMethodManager? = activity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager?
         val target: View? = if (interactiveInput) activity.getTerminalView() else terminalInput
         if (target!!.hasFocus() && KeyboardUtils.isSoftKeyboardVisible(activity)) {
-            keyboard.hideSoftInputFromWindow(target.getWindowToken(), 0)
+            keyboard!!.hideSoftInputFromWindow(target.getWindowToken(), 0)
         } else {
             target.requestFocus()
-            target.post(Runnable { keyboard.showSoftInput(target, 0) })
+            target.post(Runnable { keyboard!!.showSoftInput(target, 0) })
         }
     }
 
@@ -5099,8 +5099,8 @@ class WorkspaceController {
         interactiveInput = enabled
         activity.getSharedPreferences("workspace-input", Context.MODE_PRIVATE).edit().putBoolean("interactive-input", enabled).apply()
         activity.getTerminalView()!!.setSoftKeyboardInputEnabled(enabled)
-        val keyboard: InputMethodManager = activity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-        keyboard.restartInput(activity.getTerminalView())
+        val keyboard: InputMethodManager? = activity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager?
+        keyboard!!.restartInput(activity.getTerminalView())
         if (agentChatUi != null && agentChatUi!!.structured()) {
             agentChatUi!!.interactive(enabled)
             if (!enabled) {

@@ -1067,7 +1067,7 @@ class WorkspaceDesktop {
         val dialog: AlertDialog = WorkspaceDialogs.builder(activity).setTitle(tr("Журнал установки X11", "X11 installation log")).setView(AgentStatusUi.scroll(body)).setNegativeButton(tr("Назад", "Back"), null).setNeutralButton(tr("Копировать", "Copy"), null).create()
         dialog.show()
         dialog.getButton(DialogInterface.BUTTON_NEUTRAL).setOnClickListener(View.OnClickListener { v ->
-            val clipboard: ClipboardManager? = activity.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+            val clipboard: ClipboardManager? = activity.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager?
             if (clipboard != null) {
                 clipboard.setPrimaryClip(ClipData.newPlainText("X11", text))
                 activity.showToast(tr("Скопировано", "Copied"), false)

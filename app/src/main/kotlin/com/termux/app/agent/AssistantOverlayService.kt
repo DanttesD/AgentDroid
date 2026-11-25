@@ -694,7 +694,7 @@ class AssistantOverlayService : Service() {
             animator!!.setRepeatCount(ValueAnimator.INFINITE)
             animator!!.setInterpolator(LinearInterpolator())
             animator!!.addUpdateListener(ValueAnimator.AnimatorUpdateListener { a ->
-                angle = a.getAnimatedValue() as Float
+                angle = (a.getAnimatedValue() as Float?)!!
                 invalidate()
             })
             animator!!.start()

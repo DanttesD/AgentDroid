@@ -517,7 +517,7 @@ open class ChatActivity : Activity(), ApprovalCenter.Inline {
             b.append(if ("user".equals(v.getTag())) "> " else "").append(t)
             i++
         }
-        val cm: ClipboardManager? = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        val cm: ClipboardManager? = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager?
         if (cm != null) {
             cm.setPrimaryClip(ClipData.newPlainText("agentdroid", b.toString()))
         }

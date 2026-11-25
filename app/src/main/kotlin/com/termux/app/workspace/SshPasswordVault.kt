@@ -21,7 +21,7 @@ object SshPasswordVault {
 
     @Throws(GeneralSecurityException::class)
     @JvmStatic
-    private fun key(create: Boolean): SecretKey {
+    private fun key(create: Boolean): SecretKey? {
         val store: KeyStore = KeyStore.getInstance("AndroidKeyStore")
         try {
             store.load(null)
@@ -29,7 +29,7 @@ object SshPasswordVault {
             throw GeneralSecurityException(e)
         }
         if (store.containsAlias(ALIAS)) {
-            return store.getKey(ALIAS, null) as SecretKey
+            return store.getKey(ALIAS, null) as SecretKey?
         }
         if (!create) {
             throw GeneralSecurityException("Password key unavailable")
@@ -58,7 +58,7 @@ object SshPasswordVault {
 
     @Throws(GeneralSecurityException::class)
     @JvmStatic
-    fun encrypt(key: SecretKey, binding: ByteArray, password: CharArray): String {
+    fun encrypt(key: SecretKey?, binding: ByteArray, password: CharArray): String {
         val encoded: ByteBuffer = StandardCharsets.UTF_8.encode(CharBuffer.wrap(password))
         val plain = ByteArray(encoded.remaining())
         encoded.get(plain)
@@ -77,7 +77,7 @@ object SshPasswordVault {
 
     @Throws(GeneralSecurityException::class)
     @JvmStatic
-    fun decrypt(key: SecretKey, binding: ByteArray, value: String): CharArray {
+    fun decrypt(key: SecretKey?, binding: ByteArray, value: String): CharArray {
         val parts: Array<String> = (value as java.lang.String).split(":", -1)
         if (parts.size != 3 || !parts[0].equals("1")) {
             throw GeneralSecurityException("Invalid password record")

@@ -116,7 +116,7 @@ object AgentChatScale {
 
     @JvmStatic
     fun apply(v: View?, percent: Int) {
-        var snapshot: Snapshot? = v!!.getTag(R.id.agent_chat_scale_snapshot) as Snapshot
+        var snapshot: Snapshot? = v!!.getTag(R.id.agent_chat_scale_snapshot) as Snapshot?
         if (snapshot == null) {
             snapshot = Snapshot(v)
             v.setTag(R.id.agent_chat_scale_snapshot, snapshot)

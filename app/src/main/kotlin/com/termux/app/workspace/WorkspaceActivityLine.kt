@@ -59,10 +59,10 @@ class WorkspaceActivityLine : View {
             clearRoute()
             return false
         }
-        val host: ViewGroup = getParent() as ViewGroup
+        val host: ViewGroup? = getParent() as ViewGroup?
         getLocationInWindow(lineLocation)
         stop!!.getLocationInWindow(stopLocation)
-        host.getLocationInWindow(hostLocation)
+        host!!.getLocationInWindow(hostLocation)
         val radius: Float = 19.5f * getResources().getDisplayMetrics().density
         val left: Int = lineLocation[0] - hostLocation[0]
         val top: Int = Math.min(lineLocation[1], Math.round(stopLocation[1] + stop!!.getHeight() / 2f - radius)) - hostLocation[1]

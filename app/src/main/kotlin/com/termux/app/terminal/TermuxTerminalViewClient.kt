@@ -215,8 +215,8 @@ open class TermuxTerminalViewClient : TermuxTerminalViewClientBase {
         val dialogTerminal: Boolean = terminalView!!.getRootView() !== mActivity.getWindow().getDecorView().getRootView()
         if (dialogTerminal && mActivity.getTerminalView()!!.isSoftKeyboardInputEnabled() && !e!!.isFromSource(InputDevice.SOURCE_MOUSE)) {
             terminalView!!.requestFocus()
-            val keyboard: InputMethodManager = mActivity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-            terminalView.post(Runnable { keyboard.showSoftInput(terminalView, InputMethodManager.SHOW_IMPLICIT) })
+            val keyboard: InputMethodManager? = mActivity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager?
+            terminalView.post(Runnable { keyboard!!.showSoftInput(terminalView, InputMethodManager.SHOW_IMPLICIT) })
             return true
         }
 
@@ -428,8 +428,8 @@ open class TermuxTerminalViewClient : TermuxTerminalViewClientBase {
                 // Volume control.
                 'v'.code -> {
                     resultingCodePoint = -1
-                    val audio: AudioManager = mActivity.getSystemService(Context.AUDIO_SERVICE) as AudioManager
-                    audio.adjustSuggestedStreamVolume(AudioManager.ADJUST_SAME, AudioManager.USE_DEFAULT_STREAM_TYPE, AudioManager.FLAG_SHOW_UI)
+                    val audio: AudioManager? = mActivity.getSystemService(Context.AUDIO_SERVICE) as AudioManager?
+                    audio!!.adjustSuggestedStreamVolume(AudioManager.ADJUST_SAME, AudioManager.USE_DEFAULT_STREAM_TYPE, AudioManager.FLAG_SHOW_UI)
                 }
 
                 // Writing mode:

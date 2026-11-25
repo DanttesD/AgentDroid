@@ -190,9 +190,9 @@ class CodexActionsView : LinearLayout {
         if (!heading.getText().toString().equals(caption)) {
             heading.setText(caption)
         }
-        val layout: LinearLayout.LayoutParams = getLayoutParams() as LinearLayout.LayoutParams
+        val layout: LinearLayout.LayoutParams? = getLayoutParams() as LinearLayout.LayoutParams?
         val width: Int = if (!skillName.isEmpty() && !expanded) ViewGroup.LayoutParams.WRAP_CONTENT else ViewGroup.LayoutParams.MATCH_PARENT
-        if (layout.width != width) {
+        if (layout!!.width != width) {
             layout.width = width
             setLayoutParams(layout)
         }

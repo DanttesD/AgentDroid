@@ -362,7 +362,7 @@ open class McpActivity : Activity() {
     }
 
     private fun copy(s: String) {
-        val cm: ClipboardManager? = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        val cm: ClipboardManager? = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager?
         if (cm != null) {
             cm.setPrimaryClip(ClipData.newPlainText("agentdroid", s))
         }

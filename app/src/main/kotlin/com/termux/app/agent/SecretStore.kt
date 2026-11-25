@@ -21,11 +21,11 @@ class SecretStore {
     }
 
     @Throws(Exception::class)
-    private fun key(): SecretKey {
+    private fun key(): SecretKey? {
         val ks: KeyStore = KeyStore.getInstance("AndroidKeyStore")
         ks.load(null)
         if (ks.containsAlias(ALIAS)) {
-            return ks.getKey(ALIAS, null) as SecretKey
+            return ks.getKey(ALIAS, null) as SecretKey?
         }
         val g: KeyGenerator = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, "AndroidKeyStore")
         g.init(KeyGenParameterSpec.Builder(ALIAS, KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT).setBlockModes(KeyProperties.BLOCK_MODE_GCM).setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE).setKeySize(256).build())

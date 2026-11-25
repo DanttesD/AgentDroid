@@ -22,7 +22,7 @@ object GeminiApiKeyVault {
 
     @Throws(GeneralSecurityException::class)
     @JvmStatic
-    private fun key(create: Boolean): SecretKey {
+    private fun key(create: Boolean): SecretKey? {
         val store: KeyStore = KeyStore.getInstance("AndroidKeyStore")
         try {
             store.load(null)
@@ -30,7 +30,7 @@ object GeminiApiKeyVault {
             throw GeneralSecurityException(e)
         }
         if (store.containsAlias(ALIAS)) {
-            return store.getKey(ALIAS, null) as SecretKey
+            return store.getKey(ALIAS, null) as SecretKey?
         }
         if (!create) {
             throw GeneralSecurityException("API key unavailable")
@@ -71,7 +71,7 @@ object GeminiApiKeyVault {
 
     @Throws(GeneralSecurityException::class)
     @JvmStatic
-    fun encrypt(key: SecretKey, p: WorkspaceStore.Session, value: CharArray): String {
+    fun encrypt(key: SecretKey?, p: WorkspaceStore.Session, value: CharArray): String {
         if (!valid(value)) {
             throw GeneralSecurityException("Invalid API key")
         }
@@ -80,7 +80,7 @@ object GeminiApiKeyVault {
 
     @Throws(GeneralSecurityException::class)
     @JvmStatic
-    fun decrypt(key: SecretKey, p: WorkspaceStore.Session?): CharArray {
+    fun decrypt(key: SecretKey?, p: WorkspaceStore.Session?): CharArray {
         return SshPasswordVault.decrypt(key, binding(p), p!!.geminiEncryptedKey)
     }
 

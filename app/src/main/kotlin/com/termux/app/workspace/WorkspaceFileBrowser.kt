@@ -148,8 +148,8 @@ class WorkspaceFileBrowser {
             message!!.setText(t("Можно выбрать до 50 объектов", "Select up to 50 entries"))
             return
         }
-        val scroll: ScrollView = rows!!.getParent() as ScrollView
-        val y: Int = scroll.getScrollY()
+        val scroll: ScrollView? = rows!!.getParent() as ScrollView?
+        val y: Int = scroll!!.getScrollY()
         render()
         scroll.post(Runnable { scroll.scrollTo(0, y) })
     }
@@ -174,8 +174,8 @@ class WorkspaceFileBrowser {
             }
             transferSelection.put(e.path, e)
         }
-        val scroll: ScrollView = rows!!.getParent() as ScrollView
-        val y: Int = scroll.getScrollY()
+        val scroll: ScrollView? = rows!!.getParent() as ScrollView?
+        val y: Int = scroll!!.getScrollY()
         render()
         scroll.post(Runnable { scroll.scrollTo(0, y) })
         if (limited) {
@@ -215,8 +215,8 @@ class WorkspaceFileBrowser {
                 message!!.setText(t("Можно выбрать до ", "Select up to ") + selectionLimit + t(" файлов", " files"))
                 return
             }
-            val viewport: ScrollView = rows!!.getParent() as ScrollView
-            val y: Int = viewport.getScrollY()
+            val viewport: ScrollView? = rows!!.getParent() as ScrollView?
+            val y: Int = viewport!!.getScrollY()
             render()
             viewport.post(Runnable { viewport.scrollTo(0, y) })
             updateSelection()
@@ -573,8 +573,8 @@ class WorkspaceFileBrowser {
         if (filters != null) {
             var i = 0
             while (i < filters!!.getChildCount()) {
-                val t: TextView = filters!!.getChildAt(i) as TextView
-                styleFilter(activity, t, t.getText().toString().equals(filter))
+                val t: TextView? = filters!!.getChildAt(i) as TextView?
+                styleFilter(activity, t, t!!.getText().toString().equals(filter))
                 i++
             }
         }
@@ -1054,8 +1054,8 @@ class WorkspaceFileBrowser {
 
     companion object {
         @JvmStatic
-        fun styleFilter(context: Context, item: TextView, selected: Boolean) {
-            item.setSelected(selected)
+        fun styleFilter(context: Context, item: TextView?, selected: Boolean) {
+            item!!.setSelected(selected)
             item.setBackground(WorkspaceDialogs.background(context, selected))
             item.setTextColor(if (selected) Pal.ACCENT else Pal.MUTED)
             item.setTypeface(null, if (selected) Typeface.BOLD else Typeface.NORMAL)

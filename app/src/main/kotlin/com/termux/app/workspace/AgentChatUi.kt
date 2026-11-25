@@ -144,7 +144,7 @@ class AgentChatUi {
 
     private fun restoreChatKeys() {
         if (mountedKeys != null) {
-            val parent: ViewGroup? = mountedKeys!!.getParent() as ViewGroup
+            val parent: ViewGroup? = mountedKeys!!.getParent() as ViewGroup?
             if (parent != null) {
                 parent.removeView(mountedKeys)
             }
@@ -165,7 +165,7 @@ class AgentChatUi {
         }
         if (showing() && extraVisible && keys != null && mountedKeys == null) {
             mountedKeys = keys
-            keysHome = keys.getParent() as ViewGroup
+            keysHome = keys.getParent() as ViewGroup?
             keysHomeParams = keys.getLayoutParams()
             keysHomeIndex = if (keysHome == null) 0 else keysHome!!.indexOfChild(keys)
             keysHomeVisibility = keys.getVisibility()
@@ -557,13 +557,13 @@ class AgentChatUi {
         shellMode(enabled)
         activity.getTerminalView()!!.setSoftKeyboardInputEnabled(enabled)
         val target: View? = if (terminal != null) activity.getTerminalView() else if (enabled) view.shellInput else null
-        val keyboard: InputMethodManager = activity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        val keyboard: InputMethodManager? = activity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager?
         if (target != null && enabled) {
             target.requestFocus()
-            keyboard.restartInput(target)
+            keyboard!!.restartInput(target)
             keyboard.showSoftInput(target, InputMethodManager.SHOW_IMPLICIT)
         } else {
-            keyboard.hideSoftInputFromWindow(view.getWindowToken(), 0)
+            keyboard!!.hideSoftInputFromWindow(view.getWindowToken(), 0)
         }
     }
 
@@ -1368,7 +1368,7 @@ class AgentChatUi {
         val keyboardBefore: Boolean = activity.getTerminalView()!!.isSoftKeyboardInputEnabled()
         activity.getTerminalView()!!.setSoftKeyboardInputEnabled(true)
         val tv: View? = activity.getTerminalView()
-        terminalParent = tv!!.getParent() as ViewGroup
+        terminalParent = tv!!.getParent() as ViewGroup?
         terminalParams = tv.getLayoutParams()
         terminalParent!!.removeView(tv)
         val box = LinearLayout(activity)
@@ -1382,7 +1382,7 @@ class AgentChatUi {
         if (createdKeys) {
             activity.setExtraKeysView(keys)
         }
-        val keysParent: ViewGroup? = keys!!.getParent() as ViewGroup
+        val keysParent: ViewGroup? = keys!!.getParent() as ViewGroup?
         val keysParams: ViewGroup.LayoutParams? = if (keys == null) null else keys.getLayoutParams()
         val keysIndex: Int = if (keysParent == null) 0 else keysParent.indexOfChild(keys)
         val keysVisibility: Int = if (keys == null) View.GONE else keys.getVisibility()
@@ -1400,13 +1400,13 @@ class AgentChatUi {
         terminal = WorkspaceDialogs.builder(activity).setTitle(name() + " · " + tr("Терминал", "Terminal")).setView(box).setNeutralButton(tr("Свернуть", "Minimize"), null).setPositiveButton("Enter", null).create()
         terminal!!.setCanceledOnTouchOutside(false)
         terminal!!.setOnDismissListener(DialogInterface.OnDismissListener { d ->
-            val parent: ViewGroup? = tv.getParent() as ViewGroup
+            val parent: ViewGroup? = tv.getParent() as ViewGroup?
             if (parent != null) {
                 parent.removeView(tv)
             }
             terminalParent!!.addView(tv, 0, terminalParams)
             if (keys != null) {
-                val kp: ViewGroup? = keys.getParent() as ViewGroup
+                val kp: ViewGroup? = keys.getParent() as ViewGroup?
                 if (kp != null) {
                     kp.removeView(keys)
                 }

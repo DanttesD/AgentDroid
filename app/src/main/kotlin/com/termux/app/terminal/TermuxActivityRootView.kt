@@ -92,8 +92,8 @@ open class TermuxActivityRootView : LinearLayout, ViewTreeObserver.OnGlobalLayou
             if (ROOT_VIEW_LOGGING_ENABLED) {
                 Logger.logVerbose(LOG_TAG, "onMeasure: Setting bottom margin to " + marginBottom)
             }
-            val params: ViewGroup.MarginLayoutParams = getLayoutParams() as ViewGroup.MarginLayoutParams
-            params.setMargins(0, 0, 0, marginBottom!!)
+            val params: ViewGroup.MarginLayoutParams? = getLayoutParams() as ViewGroup.MarginLayoutParams?
+            params!!.setMargins(0, 0, 0, marginBottom!!)
             setLayoutParams(params)
             marginBottom = null
             requestLayout()
@@ -116,7 +116,7 @@ open class TermuxActivityRootView : LinearLayout, ViewTreeObserver.OnGlobalLayou
             Logger.logVerbose(LOG_TAG, ":\nonGlobalLayout:")
         }
 
-        val params: FrameLayout.LayoutParams = getLayoutParams() as FrameLayout.LayoutParams
+        val params: FrameLayout.LayoutParams? = getLayoutParams() as FrameLayout.LayoutParams?
 
         // Get the position Rects of the bottom space view and the main window holding it
         val windowAndViewRects: Array<Rect>? = ViewUtils.getWindowAndViewRects(bottomSpaceView, mStatusBarHeight)
@@ -130,12 +130,12 @@ open class TermuxActivityRootView : LinearLayout, ViewTreeObserver.OnGlobalLayou
         // If the bottomSpaceViewRect is inside the windowAvailableRect, then it must be completely visible
         //boolean isVisible = windowAvailableRect.contains(bottomSpaceViewRect); // rect.right comparison often fails in landscape
         val isVisible: Boolean = ViewUtils.isRectAbove(windowAvailableRect, bottomSpaceViewRect)
-        val isVisibleBecauseMargin: Boolean = windowAvailableRect.bottom == bottomSpaceViewRect.bottom && params.bottomMargin > 0
+        val isVisibleBecauseMargin: Boolean = windowAvailableRect.bottom == bottomSpaceViewRect.bottom && params!!.bottomMargin > 0
         val isVisibleBecauseExtraMargin: Boolean = bottomSpaceViewRect.bottom - windowAvailableRect.bottom < 0
 
         if (root_view_logging_enabled) {
             Logger.logVerbose(LOG_TAG, "windowAvailableRect " + ViewUtils.toRectString(windowAvailableRect) + ", bottomSpaceViewRect " + ViewUtils.toRectString(bottomSpaceViewRect))
-            Logger.logVerbose(LOG_TAG, "windowAvailableRect.bottom " + windowAvailableRect.bottom + ", bottomSpaceViewRect.bottom " + bottomSpaceViewRect.bottom + ", diff " + (bottomSpaceViewRect.bottom - windowAvailableRect.bottom) + ", bottom " + params.bottomMargin + ", isVisible " + windowAvailableRect.contains(bottomSpaceViewRect) + ", isRectAbove " + ViewUtils.isRectAbove(windowAvailableRect, bottomSpaceViewRect) + ", isVisibleBecauseMargin " + isVisibleBecauseMargin + ", isVisibleBecauseExtraMargin " + isVisibleBecauseExtraMargin)
+            Logger.logVerbose(LOG_TAG, "windowAvailableRect.bottom " + windowAvailableRect.bottom + ", bottomSpaceViewRect.bottom " + bottomSpaceViewRect.bottom + ", diff " + (bottomSpaceViewRect.bottom - windowAvailableRect.bottom) + ", bottom " + params!!.bottomMargin + ", isVisible " + windowAvailableRect.contains(bottomSpaceViewRect) + ", isRectAbove " + ViewUtils.isRectAbove(windowAvailableRect, bottomSpaceViewRect) + ", isVisibleBecauseMargin " + isVisibleBecauseMargin + ", isVisibleBecauseExtraMargin " + isVisibleBecauseExtraMargin)
         }
 
         // If the bottomSpaceViewRect is visible, then remove the margin if needed
@@ -174,7 +174,7 @@ open class TermuxActivityRootView : LinearLayout, ViewTreeObserver.OnGlobalLayou
                 return
             }
 
-            var setMargin: Boolean = params.bottomMargin != 0
+            var setMargin: Boolean = params!!.bottomMargin != 0
 
             // If visible because of extra margin, i.e the bottom of bottomSpaceViewRect is above that of windowAvailableRect
             // onGlobalLayout: windowAvailableRect 1408, bottomSpaceViewRect 1232, diff -176, bottom 0, isVisible true, isVisibleBecauseMargin false, isVisibleBecauseExtraMargin false
@@ -219,10 +219,10 @@ open class TermuxActivityRootView : LinearLayout, ViewTreeObserver.OnGlobalLayou
             var pxHidden: Int = bottomSpaceViewRect.bottom - windowAvailableRect.bottom
 
             if (root_view_logging_enabled) {
-                Logger.logVerbose(LOG_TAG, "pxHidden " + pxHidden + ", bottom " + params.bottomMargin)
+                Logger.logVerbose(LOG_TAG, "pxHidden " + pxHidden + ", bottom " + params!!.bottomMargin)
             }
 
-            var setMargin: Boolean = params.bottomMargin != pxHidden
+            var setMargin: Boolean = params!!.bottomMargin != pxHidden
 
             // If invisible despite margin, i.e a margin was added, but the bottom of bottomSpaceViewRect
             // is still below that of windowAvailableRect, this will trigger OnGlobalLayoutListener
