@@ -32,8 +32,8 @@ public class TermuxFileReceiverTest {
     private Receiver receiver;
     static class Receiver extends TermuxFileReceiverActivity {
         File directory; String error;
-        @Override File receiveDirectory(){return directory;}
-        @Override void showErrorDialogAndQuit(String message){error=message;}
+        @Override public File receiveDirectory(){return directory;}
+        @Override public void showErrorDialogAndQuit(String message){error=message;}
     }
     @Before public void setup()throws Exception{receiver=new Receiver();receiver.directory=tmp.newFolder("downloads");}
     private File save(String name){return receiver.saveStreamWithName(new ByteArrayInputStream(new byte[]{7,8}),name);}
